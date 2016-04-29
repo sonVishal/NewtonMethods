@@ -21,8 +21,8 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
     # Check dimensional parameter n
     if n <= 0
         if printFlag >= 1
-            println("Error: bad input to dimensional parameter n supplied");
-            println("Choose n positive, your input is: n = $n");
+            println("Error: bad input to dimensional parameter n supplied","\n",
+                "Choose n positive, your input is: n = $n");
         end
         retCode = 20;
     end
@@ -35,7 +35,8 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
     setOption!(opt,"NONLIN",nonLin);
 
     # Checking and conditional adaptation of user given RTOL
-    rTol = getOption(opt,"RTOL",0)
+    rTol = getOption(opt,"RTOL",0);
+    # if RTOL is not set, set it to 1e-6
     if rTol == 0.0
         rTol = 1e-6;
     elseif rTol < 0
@@ -48,7 +49,8 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
         if rTol < tolMin
             rTol = tolMin;
             if printFlag >= 2
-                println("Warning: user prescribed RTOL increased to reasonable smallest value RTOL = $rtol");
+                println("Warning: user prescribed RTOL increased to
+                    a reasonable smallest value RTOL = $rtol");
             end
         end
 
@@ -56,7 +58,8 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
         if rTol > tolMax
             rTol = tolMax;
             if printFlag >= 2
-                println("Warning: user prescribed RTOL decreased to reasonable largest value RTOL = $rtol");
+                println("Warning: user prescribed RTOL decreased to
+                    a reasonable largest value RTOL = $rtol");
             end
         end
     end

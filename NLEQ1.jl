@@ -19,7 +19,10 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ)
     # Exit if any parameter error was detected
     if retCode != 0
         stats["Error_Code"] = retCode;
-        return retCode
+        return (stats, retCode)
     end
-    return retCode
+
+
+
+    return (stats, retCode)
 end

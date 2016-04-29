@@ -13,6 +13,6 @@ end
 x = ones(4);
 xScal = ones(4);
 
-retCode = nleq1(f,x,xScal,opt);
+(stats,retCode) = nleq1(f,x,xScal,opt);
 
 println("$retCode");

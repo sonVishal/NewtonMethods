@@ -1,0 +1,20 @@
+# Compressed files
+*.tar
+
+# MATLAB files
+*.m
+
+# FORTRAN files
+*.f
+
+# C files
+*.c
+
+# Output files from C and FORTRAN
+*.o
+
+# Solution files 
+*.nrm
+
+# Original codes
+OriginalCodes/

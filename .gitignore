@@ -13,8 +13,9 @@
 # Output files from C and FORTRAN
 *.o
 
-# Solution files 
+# Solution files
 *.nrm
 
 # Original codes
 OriginalCodes/
+.ipynb_checkpoints

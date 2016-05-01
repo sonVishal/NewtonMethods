@@ -1,7 +1,7 @@
 include("NLEQ1.jl")
 
-opt = OptionsNLEQ("RTOL" => 1e-6,"PR_ERR" => 2,"QRANK1" => 1);
-wk  = OptionsNLEQ("A" => 2.0);
+opt = OptionsNLEQ();
+wk  = OptionsNLEQ();
 
 function f(x)
     return x;

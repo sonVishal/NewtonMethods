@@ -81,12 +81,25 @@ end
 function getOption(opt::AbstractOptionsNLEQ,name::ASCIIString,
 default::Any=nothing)
 
-get saved value of option with given `name` or `default`
-if option is unknown.
+get saved value of option with given `name` or set option to
+`default` if option is unknown.
 """
 function getOption(opt::AbstractOptionsNLEQ,name::ASCIIString,
     default::Any=nothing)
     return haskey(opt.options,name)?opt.options[name]:default
+end
+
+"""
+function to get value and set default value in case no value was present
+"""
+function getOrSet(opt::AbstractOptionsNLEQ,name::ASCIIString,
+    default::Any=nothing)
+    if haskey(opt.options,name)
+        return opt.options[name]
+    else
+        setOption!(opt,name,default)
+        return default
+    end
 end
 
 """

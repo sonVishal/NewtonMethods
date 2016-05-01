@@ -16,8 +16,12 @@
 # Solution files
 *.nrm
 
-# Original codes
+# Folders
 OriginalCodes/
+ReferenceBooks/
 
 # IPython notebook files
 .ipynb_checkpoints
+
+# PDFs
+*.pdf

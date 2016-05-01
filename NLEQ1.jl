@@ -8,7 +8,7 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
     # TODO: persistent variables
 
     # First call or successive call
-    qsucc = getOrSet(opt,"QSUCC",0);
+    qsucc = getOption!(opt,"QSUCC",0);
 
     # Initialize output statistics
     stats = Dict{ASCIIString,Any}();
@@ -17,7 +17,7 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
     retCode = 0;
 
     # To print or not?
-    printFlag = getOrSet(opt,"PR_ERR",0);
+    printFlag = getOption!(opt,"PR_ERR",0);
 
     # Check input parameters and options
     n = length(x);
@@ -36,30 +36,30 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mstor = getOrSet(opt,"MSTOR",0);
+    mstor = getOption!(opt,"MSTOR",0);
     if mstor == 0
         m1 = n;
         m2 = n;
     elseif mstor == 1
-        ml = getOrSet(opt,"ML",0);
-        mu = getOrSet(opt,"MU",0);
+        ml = getOption!(opt,"ML",0);
+        mu = getOption!(opt,"MU",0);
         m1 = 2*ml + mu + 1;
         m2 = ml + mu + 1;
     end
 
     # User given Jacobian or not
-    jacgen = getOrSet(opt,"JACGEN",0);
+    jacgen = getOption!(opt,"JACGEN",0);
     if jacgen == 0
         jacgen = 2;
     end
     opt.options["JACGEN"] = jacgen;
 
-    qrank1 = getOrSet(opt,"QRANK1",0);
-    qordi  = getOrSet(opt,"QORDI",0);
-    qsimpl = getOrSet(opt,"QSIMPL",0);
+    qrank1 = getOption!(opt,"QRANK1",0);
+    qordi  = getOption!(opt,"QORDI",0);
+    qsimpl = getOption!(opt,"QSIMPL",0);
 
     if qrank1 == 1
-        nbroy = getOrSet(wk,"NBROY",0);
+        nbroy = getOption!(wk,"NBROY",0);
         if nbroy == 0
             nbroy = max(m2,10);
         end
@@ -96,7 +96,7 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
     # TODO: Print log of things done till now
 
     # Line 742 starts here
-    nonlin = getOrSet(opt,"NONLIN",3);
+    nonlin = getOption!(opt,"NONLIN",3);
     initOption!(opt,"BOUNDEDDAMP",0);
 
     if opt.options["BOUNDEDDAMP"] == 0
@@ -118,7 +118,7 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
     # TODO: print somethings
 
     # Maximum permitted number of iteration steps
-    nitmax = getOrSet(wk,"NITMAX",50);
+    nitmax = getOption!(wk,"NITMAX",50);
     if nitmax <= 0
         nitmax = 50;
     end
@@ -144,7 +144,7 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
             wk.options["FCMIN"] = 1.0e-8;
         end
     end
-    fcmin = getOrSet(wk,"FCMIN",0.0);
+    fcmin = getOption!(wk,"FCMIN",0.0);
 
     # Rank1 decision parameter SIGMA
     initOption!(wk,"SIGMA",0.0);
@@ -168,16 +168,16 @@ function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
         fc = 1.0;
     else
         # for highly or extremely nonlinear problems
-        fc = getOrSet(wk,"FCSTART");
+        fc = getOption!(wk,"FCSTART");
     end
 
     # Simplified Newton iteration implies ordinary Newton iteration mode
-    if getOrSet(opt,"QSIMPL",0) == 1
+    if getOption!(opt,"QSIMPL",0) == 1
         fc = 1.0;
     end
 
     # If ordinary Newton iteration, damping factor is always 1
-    if getOrSet(opt,"QORDI",0) == 1
+    if getOption!(opt,"QORDI",0) == 1
         fc = 1.0;
     end
 

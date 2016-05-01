@@ -90,9 +90,13 @@ function getOption(opt::AbstractOptionsNLEQ,name::ASCIIString,
 end
 
 """
+function getOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,
+    default::Any=nothing)
+
 function to get value and set default value in case no value was present
+This avoids the recursive calls to setOption and getOption
 """
-function getOrSet(opt::AbstractOptionsNLEQ,name::ASCIIString,
+function getOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,
     default::Any=nothing)
     if haskey(opt.options,name)
         return opt.options[name]

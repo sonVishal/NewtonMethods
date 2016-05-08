@@ -97,5 +97,31 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
         end
     end
 
+    # Define lower and upper bounds for options
+    L = [0; 0; 0; 0];
+
+    # Check if the Jacobian is Dense/Sparse or Banded matrix
+    mstor = getOption!(opt,"OPT_MSTOR",0)
+    if mstor == 0   # Dense or Sparse
+        m1 = 0
+        m2 = 0
+    elseif mstor == 1   # Banded
+        m1 = n - 1
+        m2 = n - 1
+    else
+        m1 = 9999999
+        m2 = 9999999
+    end
+
+    # TODO: Consider having Jacobian option similar to Dr. Ludwig
+
+    qSucc   = getOption!(opt,"OPT_QSUCC",0)
+    mode    = getOption!(opt,"OPT_MODE",0)
+    jacGen  = getOption!(opt,"OPT_JACGEN",0)
+
+    # Check bounds of options
+    if getOption!(opt,"OPT_QSUCC",0) < 0 || getOption!(opt,"OPT_QSUCC",0) > 1
+
+
     return retCode
 end

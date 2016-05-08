@@ -35,7 +35,7 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
     setOption!(opt,"NONLIN",nonLin);
 
     # Checking and conditional adaptation of user given RTOL
-    rTol = getOption(opt,"RTOL",0);
+    rTol = getOption(opt,"RTOL",0.0);
     # if RTOL is not set, set it to 1e-6
     if rTol == 0.0
         rTol = 1e-6;
@@ -72,6 +72,8 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
     end
 
     for i = 1:n
+        # Scaling Values cannot be negative
+        # Positive scaling values give scale invariance
         if xScal[i] < 0.0
             if printFlag >= 1
                 println("Error: negative value in xScal[$i] supplied");
@@ -82,14 +84,14 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
         if xScal[i] == 0.0
             xScal[i] = defScal;
         end
-
+        # Avoid overflow due to division by xScal[i]
         if xScal[i] > 0.0 && xScal[i] < small
             if printFlag >= 2
                 println("Warning: xScal[$i] = $xScal[i] too small, increased to $small");
             end
             xScal[i] = small;
         end
-
+        # Avoid underflow due to division by xScal[i]
         if xScal[i] > great
             if printFlag >= 2
                 println("Warning: xScal[$i] = $xScal[i] too big, increased to $great");

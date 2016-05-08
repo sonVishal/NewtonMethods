@@ -3,7 +3,7 @@ include("CheckOptionsNLEQ1.jl");
 # Bookkeeping
 # TODO: Make everything type independent
 # Currently everything is assumed to be Float64
-function nleq1(f,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
+function nleq1(fcn,x,xscal,opt::OptionsNLEQ,wk::OptionsNLEQ)
 
     # TODO: persistent variables
 

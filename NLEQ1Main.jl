@@ -49,6 +49,30 @@ if qBDamp == 1
 end
 # ------------------------------------------------------------------------------
 # 1.5.1 Numerical differentiation related initializations
-if jacGen == 
+if jacFcn == numDiffJac
+    aJdel = getOption(opt,OPT_AJDEL,0)
+    if aJdel < small
+        aJdel = sqrt(epMach*10.0)
+    end
+    aJmin = getOption(opt,OPT_AJMIN,0)
+elseif jacFcn == numDiffJacFB
+    etaDif = getOption(opt,OPT_ETADIF,0)
+    if etaDif <= small
+        etaDif = 1.0e-6
+    end
+    etaIni = getOption(opt,OPT_ETAINI,0)
+    if etaIni <= small
+        etaIni = 1.0e-6
+    end
+    epDiff = sqrt(epMach*10.0)
+    etaMax = sqrt(epDiff)
+    etaMin = epDiff*etaMax
+end
+# ------------------------------------------------------------------------------
+# 1.5.2 Miscellaneous preparations of the first iteration step
+
+
+
+
 
 end

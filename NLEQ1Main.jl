@@ -70,9 +70,36 @@ elseif jacFcn == numDiffJacFB
 end
 # ------------------------------------------------------------------------------
 # 1.5.2 Miscellaneous preparations of the first iteration step
+if ~qSucc
+    nIter   = 0
+    nCorr   = 0
+    nRejN   = 0     #NREJR1
+    nFcn    = 0
+    nJac    = 0
+    nFcnJ   = 0
+    qGenJ   = true
+    qIniSc  = true
+    fcKeep  = fc
+    fcA     = fc
+    fcPri   = fc
+    fcK2    = fc
+    fcMon   = fc
+    conv    = 0.0
 
+    if jacFcn == numDiffJacFB
+        eta[:] = etaIni
+    end
 
+    xa[:] = x[:]
 
-
+    iConv   = 0
+    alphaE  = 0.0
+    sumAx1  = 0.0
+    sumAx0  = 0.0
+    cLin0   = 0.0
+    qmStop  = false
+end
+# ------------------------------------------------------------------------------
+# 1.6 Miscellaneous preparations of the first iteration step
 
 end

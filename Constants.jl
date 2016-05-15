@@ -29,6 +29,7 @@ const OPT_NBROY                 = "maxBroydenSteps"
 const OPT_NOROWSCAL             = "rowScaling"
 const OPT_FCSTART               = "initialDampingFactor"
 const OPT_FCMIN                 = "minimumDampingFactor"
+const OPT_ICONV                 = "currentConvMonitor"
 
 function getMachineConstants(i)
 # 1 = realmin

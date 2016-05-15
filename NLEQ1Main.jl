@@ -87,7 +87,7 @@ if ~qSucc
     conv    = 0.0
 
     if jacFcn == numDiffJacFB
-        eta[:] = etaIni
+        eta = etaIni*ones(n)
     end
 
     xa[:] = x[:]
@@ -98,8 +98,28 @@ if ~qSucc
     sumAx0  = 0.0
     cLin0   = 0.0
     qmStop  = false
-end
 # ------------------------------------------------------------------------------
-# 1.6 Miscellaneous preparations of the first iteration step
+# 1.6 Print monitor header
+# ------------------------------------------------------------------------------
+# 1.7 Startup step
+# ------------------------------------------------------------------------------
+# 1.7.1 Computation of residual vector
+    res = zeros(x);
+    fcn(x,res)
+    nFcn += 1
+    if length(res) ~= n
+        throw(DimensionMismatch("Dimension of the function output does not match the input dimension. Please check the function $fcn again."))
+    end
+else
+    qIniSc = false
+end
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# Main iteration loop
+
+# Repeat
+while qIter
+end
 
 end

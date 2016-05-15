@@ -90,28 +90,28 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Workspace: WK
-    wk_A = 0.0
+    # wk_A = zeros(m1,n)
+    #
+    # if qrank1 == 1
+    #     wk_DXSAVE = zeros(n,nbroy)
+    # else
+    #     wk_DXSAVE = 0.0
+    # end
+    #
+    # wk_DX       = zeros(n)
+    # wk_DXQ      = zeros(n)
+    # wk_XA       = zeros(n)
+    # wk_XWA      = zeros(n)
+    # wk_F        = zeros(n)
+    # wk_FA       = zeros(n)
+    # wk_ETA      = zeros(n)
+    # wk_XW       = zeros(n)
+    # wk_FW       = zeros(n)
+    # wk_DXQA     = zeros(n)
+    # wk_SUMXA0   = 0.0
+    # wk_SUMXA1   = 0.0
 
-    if qrank1 == 1
-        wk_DXSAVE = zeros(n,nbroy)
-    else
-        wk_DXSAVE = 0.0
-    end
-
-    wk_DX       = zeros(n)
-    wk_DXQ      = zeros(n)
-    wk_XA       = zeros(n)
-    wk_XWA      = zeros(n)
-    wk_F        = zeros(n)
-    wk_FA       = zeros(n)
-    wk_ETA      = zeros(n)
-    wk_XW       = zeros(n)
-    wk_FW       = zeros(n)
-    wk_DXQA     = zeros(n)
-    wk_SUMXA0   = 0.0
-    wk_SUMXA1   = 0.0
-
-    initOption!(opt,"NOROWSCAL" => 0)
+    initOption!(opt,OPT_QNSCAL => 0)
 
     # TODO: Print log of things done till now
 

@@ -1,17 +1,29 @@
-include("CheckOptionsNLEQ1.jl")
-
-# Bookkeeping
 # TODO: Make everything type independent
 # Currently everything is assumed to be Float64
-function nleq1(fcn,x,xScal,opt::OptionsNLEQ)
+# TODO: Better comments.
+
+# function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
+#     Input parameters:
+#         fcn:        Function of the type fcn(x,f,retCode) -> nothing
+#         x:          Initial guess
+#         xScal:      Scaling vector
+#         opt:        Options for the solver
+#     Output parameters:
+#         x:          Solution if found
+#         xScal:      Lat internal scaling vector if successful solve
+#         stats:      Statistics of the solution
+#         retCode:    Return code signifying success or failure
+# This function does the bookkeeping. The actual computation are done in n1int
+
+include("CheckOptionsNLEQ1.jl")
+function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # TODO: persistent variables
-
-    # Create workspace variables
-    wk = OptionsNLEQ();
+    # Might be a good idea to store them inside opt
+    # so that they can be used again and again.
 
     # First call or successive call
-    qsucc = getOption!(opt,"QSUCC",0)
+    qsucc = getOption!(opt,OPT_QSUCC,0)
 
     # Initialize output statistics
     stats = Dict{ASCIIString,Any}()
@@ -19,8 +31,8 @@ function nleq1(fcn,x,xScal,opt::OptionsNLEQ)
     # Initialize error code 0
     retCode = 0
 
-    # To print or not?
-    printFlag = getOption!(opt,"PR_ERR",0)
+    # To print warning messages
+    printFlag = getOption!(opt,OPT_PRINTWARNING,0)
 
     # Check input parameters and options
     n = length(x)
@@ -39,7 +51,7 @@ function nleq1(fcn,x,xScal,opt::OptionsNLEQ)
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mstor = getOption!(opt,"MSTOR",0)
+    mstor = getOption!(opt,OPT_MSTOR,0)
     if mstor == 0
         m1 = n
         m2 = n
@@ -51,118 +63,117 @@ function nleq1(fcn,x,xScal,opt::OptionsNLEQ)
     end
 
     # User given Jacobian or not
-    jacgen = getOption!(opt,"JACGEN",0)
+    jacgen = getOption!(opt,OPT_JACGEN,0)
     if jacgen == 0
         jacgen = 2
     end
-    opt.options["JACGEN"] = jacgen
+    opt.options[OPT_JACGEN] = jacgen
 
-    qrank1 = getOption!(opt,"QRANK1",0)
-    qordi  = getOption!(opt,"QORDI",0)
-    qsimpl = getOption!(opt,"QSIMPL",0)
+    qrank1 = getOption!(opt,OPT_QRANK1,0)
+    qordi  = getOption!(opt,OPT_QORDI,0)
+    qsimpl = getOption!(opt,OPT_QSIMPL,0)
 
     if qrank1 == 1
-        nbroy = getOption!(wk,"NBROY",0)
+        nbroy = getOption!(opt,OPT_NBROY,0)
         if nbroy == 0
             nbroy = max(m2,10)
         end
-        wk.options["NBROY"] = nbroy
+        opt.options["NBROY"] = nbroy
     else
         nbroy = 0
     end
 
     # Workspace: WK
-
-    initOption!(wk,"A",0.0)
+    wk_A = 0.0
 
     if qrank1 == 1
-        wk.options["DXSAVE"] = zeros(n,nbroy)
+        wk_DXSAVE = zeros(n,nbroy)
     else
-        wk.options["DXSAVE"] = 0.0
+        wk_DXSAVE = 0.0
     end
 
-    initOptions!(wk,"DX" => zeros(n),"DXQ" => zeros(n),"XA" => zeros(n))
-    initOptions!(wk,"XWA" => zeros(n),"F" => zeros(n),"FA" => zeros(n))
-    initOptions!(wk,"ETA" => zeros(n),"XW" => zeros(n),"FW" => zeros(n))
-    initOption!(wk,"DXQA",zeros(n))
-
-    initOptions!(wk,"SUMXA0" => 0.0, "SUMXA1" => 0.0, "FCMON" => 0.0)
-    initOptions!(wk,"FCMIN" => 0.0, "SIGMA" => 0.0, "SIGMA2" => 0.0)
-    initOptions!(wk,"FCA" => 0.0, "FCKEEP" => 0.0, "FCPRI" => 0.0)
-    initOptions!(wk,"DMYCOR" => 0.0, "CONV" => 0.0, "SUMX" => 0.0)
-    initOptions!(wk,"DLEVF" => 0.0, "NITER" => 0, "NCORR" => 0)
-    initOptions!(wk,"NFCN" => 0, "NJAC" => 0, "NFCNJ" => 0)
-    initOptions!(wk,"NREJR1" => 0, "NEW" => 0, "ICONV" => 0)
+    wk_DX       = zeros(n)
+    wk_DXQ      = zeros(n)
+    wk_XA       = zeros(n)
+    wk_XWA      = zeros(n)
+    wk_F        = zeros(n)
+    wk_FA       = zeros(n)
+    wk_ETA      = zeros(n)
+    wk_XW       = zeros(n)
+    wk_FW       = zeros(n)
+    wk_DXQA     = zeros(n)
+    wk_SUMXA0   = 0.0
+    wk_SUMXA1   = 0.0
 
     initOption!(opt,"NOROWSCAL" => 0)
 
     # TODO: Print log of things done till now
 
     # Line 742 starts here
-    nonlin = getOption!(opt,"OPT_NONLIN",3)
-    initOption!(opt,"BOUNDEDDAMP",0)
+    nonlin = getOption!(opt,OPT_NONLIN,3)
+    initOption!(opt,OPT_IBDAMP,0)
 
-    if opt.options["BOUNDEDDAMP"] == 0
+    if opt.options[OPT_IBDAMP] == 0
         qbdamp = Int(nonlin == 4)
-    elseif opt.options["BOUNDEDDAMP"] == 1
+    elseif opt.options[OPT_IBDAMP] == 1
         qbdamp = 1
-    elseif opt.options["BOUNDEDDAMP"] == 2
+    elseif opt.options[OPT_IBDAMP] == 2
         qbdamp = 0
     end
 
-    initOption!(wk,"FCBND",0.0)
+    initOption!(opt,OPT_FCBAND,0.0)
 
     if qbdamp == 1
-        if wk.options["FCBND"] < 1.0
-            wk.options["FCBND"] = 10.0
+        if opt.options[OPT_FCBAND] < 1.0
+            opt.options[OPT_FCBAND] = 10.0
         end
     end
 
     # TODO: print somethings
 
     # Maximum permitted number of iteration steps
-    nitmax = getOption!(wk,"NITMAX",50)
+    nitmax = getOption!(opt,OPT_NITMAX,50)
     if nitmax <= 0
         nitmax = 50
     end
-    wk.options["NITMAX"] = nitmax
+    opt.options[OPT_NITMAX] = nitmax
 
     # TODO: Print somethings
 
     # Initial damping factor for highly nonlinear problems
-    initOption!(wk,"FCSTART",0.0)
-    qfcstr = wk.options["FCSTART"] > 0.0
+    initOption!(opt,OPT_FCSTART,0.0)
+    qfcstr = opt.options[OPT_FCSTART] > 0.0
     if !qfcstr
-        wk.options["FCSTART"] = 1.0e-2
+        opt.options[OPT_FCSTART] = 1.0e-2
         if nonlin == 4
-            wk.options["FCSTART"] = 1.0e-4
+            opt.options[OPT_FCSTART] = 1.0e-4
         end
     end
 
     # Minimal permitted damping factor
-    initOption!(wk,"FCMIN",0.0)
-    if wk.options["FCMIN"] <= 0.0
-        wk.options["FCMIN"] = 1.0e-4
+    initOption!(opt,OPT_FCMIN,0.0)
+    if opt.options[OPT_FCMIN] <= 0.0
+        opt.options[OPT_FCMIN] = 1.0e-4
         if nonlin == 4
-            wk.options["FCMIN"] = 1.0e-8
+            opt.options[OPT_FCMIN] = 1.0e-8
         end
     end
-    fcmin = getOption!(wk,"FCMIN",0.0)
+    fcmin = getOption!(opt,OPT_FCMIN,0.0)
 
     # Rank1 decision parameter SIGMA
-    initOption!(wk,"SIGMA",0.0)
-    if wk.options["SIGMA"] < 1.0
-        wk.options["SIGMA"] = 3.0
+    initOption!(opt,OPT_SIGMA,0.0)
+    if opt.options[OPT_SIGMA] < 1.0
+        opt.options[OPT_SIGMA] = 3.0
     end
     if qrank1 == 0
-        wk.options["SIGMA"] = 10.0/fcmin
+        opt.options[OPT_SIGMA] = 10.0/fcmin
     end
 
     # Decision parameter about increasing too small predictor
     # to greater corrector value
-    initOption!(wk,"SIGMA2",0.0)
-    if wk.options["SIGMA2"] < 1.0
-        wk.options["SIGMA2"] = 10.0/fcmin
+    initOption!(opt,OPT_SIGMA2,0.0)
+    if opt.options[OPT_SIGMA2] < 1.0
+        opt.options[OPT_SIGMA2] = 10.0/fcmin
     end
 
     # Starting value of damping factor (fcmin <= fc <= 1.0)
@@ -171,20 +182,20 @@ function nleq1(fcn,x,xScal,opt::OptionsNLEQ)
         fc = 1.0
     else
         # for highly or extremely nonlinear problems
-        fc = getOption!(wk,"FCSTART")
+        fc = getOption!(opt,OPT_FCSTART)
     end
 
     # Simplified Newton iteration implies ordinary Newton iteration mode
-    if getOption!(opt,"QSIMPL",0) == 1
+    if getOption!(opt,OPT_QSIMPL,0) == 1
         fc = 1.0
     end
 
     # If ordinary Newton iteration, damping factor is always 1
-    if getOption!(opt,"QORDI",0) == 1
+    if getOption!(opt,OPT_QORDI,0) == 1
         fc = 1.0
     end
 
-    wk.options["FCSTART"] = fc
+    opt.options[OPT_FCSTART] = fc
 
     # Print something
 

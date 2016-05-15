@@ -4,14 +4,14 @@ include("MachineConsts.jl")
 # Summary :
 # checkOptions : Checking of input parameters and options for NLEQ1.
 
-function checkOptions(n,x,xScal,opt::OptionsNLEQ)
+function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # TODO: Get the type of elements in x
 
     # TODO: Logging and printing of Logs!!
 
     # Check whether warnings need to be printed
-    warnFlag = getOption(opt,"OPT_PRINT_WARNINGS",0)
+    warnFlag = getOption(opt,OPT_PRINTWARNING,0)
 
     # Get the machine related constants
     epMach  = getMachineConstants(3)
@@ -30,15 +30,15 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
     end
 
     # Problem type specification by user
-    nonLin = getOption(opt,"OPT_NONLIN",0)
+    nonLin = getOption(opt,OPT_NONLIN,0)
     if nonLin == 0
         nonLin = 3
-        setOption!(opt,"OPT_NONLIN",nonLin)
+        setOption!(opt,OPT_NONLIN,nonLin)
     end
 
     # Checking and conditional adaptation of user given RTOL
     # if RTOL is not set, set it to 1e-6
-    rTol = getOption!(opt,"OPT_RTOL",1e-6)
+    rTol = getOption!(opt,OPT_RTOL,1e-6)
     if rTol <= 0.0
         retCode = 21
         println("ERROR: Nonpositive OPT_RTOL supplied")
@@ -59,7 +59,7 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
                 warn("User prescribed OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
             end
         end
-        setOption!(opt,"OPT_RTOL",rTol)
+        setOption!(opt,OPT_RTOL,rTol)
     end
 
     # Test user given accuracy and scaling on proper values
@@ -101,7 +101,7 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
     L = [0; 0; 0; 0];
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mstor = getOption!(opt,"OPT_MSTOR",0)
+    mstor = getOption!(opt,OPT_MSTOR,0)
     if mstor == 0   # Dense or Sparse
         m1 = 0
         m2 = 0
@@ -115,13 +115,13 @@ function checkOptions(n,x,xScal,opt::OptionsNLEQ)
 
     # TODO: Consider having Jacobian option similar to Dr. Ludwig
 
-    qSucc   = getOption!(opt,"OPT_QSUCC",0)
-    mode    = getOption!(opt,"OPT_MODE",0)
-    jacGen  = getOption!(opt,"OPT_JACGEN",0)
+    qSucc   = getOption!(opt,OPT_QSUCC,0)
+    mode    = getOption!(opt,OPT_MODE,0)
+    jacGen  = getOption!(opt,OPT_JACGEN,0)
 
     # Check bounds of options
-    if getOption!(opt,"OPT_QSUCC",0) < 0 || getOption!(opt,"OPT_QSUCC",0) > 1
-
+    if getOption!(opt,OPT_QSUCC,0) < 0 || getOption!(opt,OPT_QSUCC,0) > 1
+    end
 
     return retCode
 end

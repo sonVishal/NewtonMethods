@@ -1,6 +1,6 @@
 include("NLEQ1.jl")
 
-opt = OptionsNLEQ("OPT_PRINT_WARNINGS" => 1, "OPT_RTOL" => 1);
+opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_RTOL => 1);
 
 function f(x)
     return x;

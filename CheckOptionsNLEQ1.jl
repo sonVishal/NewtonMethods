@@ -112,12 +112,13 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     qSucc   = getOption!(opt,OPT_QSUCC,0)
     mode    = getOption!(opt,OPT_MODE,0)
-    jacGen  = getOption!(opt,OPT_JACGEN,0)
+    jacGen  = getOption!(opt,OPT_JACOBIFCN,0)
     ml      = getOption!(opt,OPT_ML,0)
     mu      = getOption!(opt,OPT_MU,0)
     iScal   = getOption!(opt,OPT_ISCAL,0)
 
     # Check bounds of options
+    # TODO: find a nicer way to do this
     if qSucc < optL[1] || qSucc > optU[1]
         retCode = 30
         error("Invalid option specified: OPT_QSUCC = $qSucc
@@ -130,8 +131,12 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
     if jacGen < optL[3] || jacGen > optU[3]
         retCode = 30
-        error("Invalid option specified: OPT_JACGEN = $jacGen
+        error("Invalid option specified: OPT_JACOBIFCN = $jacGen
         range of permitted value is $(optL[3]) to $(optU[3])")
+    elseif typeof(jacGen) == Number && typeof(jacGen) != Function
+        retCode = 30
+        error("Invalid option specified: OPT_JACOBIFCN = $jacGen
+        should be a function")
     end
     if mstor < optL[4] || qSucc > optU[4]
         retCode = 30

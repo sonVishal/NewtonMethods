@@ -64,11 +64,13 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # User given Jacobian or not
-    jacgen = getOption!(opt,OPT_JACGEN,0)
+    # TODO: Make jacgen the function which is needed to be called
+    # if user does not specify the function
+    jacgen = getOption!(opt,OPT_JACOBIFCN,0)
     if jacgen == 0
         jacgen = 2
     end
-    opt.options[OPT_JACGEN] = jacgen
+    opt.options[OPT_JACOBIFCN] = jacgen
 
     qrank1 = getOption!(opt,OPT_QRANK1,0)
     qordi  = getOption!(opt,OPT_QORDI,0)
@@ -78,8 +80,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         nbroy = getOption!(opt,OPT_NBROY,0)
         if nbroy == 0
             nbroy = max(m2,10)
+            opt.options["NBROY"] = nbroy
         end
-        opt.options["NBROY"] = nbroy
     else
         nbroy = 0
     end

@@ -158,8 +158,5 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         error("Invalid option specified: OPT_PRINTWARNING = $warnFlag
         range of permitted value is $(optL[8]) to $(optU[8])")
     end
-
-    # TODO: Set all other default values
-
     return retCode
 end

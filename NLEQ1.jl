@@ -116,11 +116,11 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # TODO: Print log of things done till now
 
     # Line 742 starts here
-    nonlin = getOption!(opt,OPT_NONLIN,3)
+    nonLin = getOption!(opt,OPT_NONLIN,3)
     initOption!(opt,OPT_IBDAMP,0)
 
     if opt.options[OPT_IBDAMP] == 0
-        qbdamp = Int(nonlin == 4)
+        qbdamp = Int(nonLin == 4)
     elseif opt.options[OPT_IBDAMP] == 1
         qbdamp = 1
     elseif opt.options[OPT_IBDAMP] == 2
@@ -138,11 +138,11 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # TODO: print somethings
 
     # Maximum permitted number of iteration steps
-    nitmax = getOption!(opt,OPT_NITMAX,50)
-    if nitmax <= 0
-        nitmax = 50
+    nItmax = getOption!(opt,OPT_NITMAX,50)
+    if nItmax <= 0
+        nItmax = 50
     end
-    opt.options[OPT_NITMAX] = nitmax
+    opt.options[OPT_NITMAX] = nItmax
 
     # TODO: Print somethings
 
@@ -151,7 +151,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     qfcstr = opt.options[OPT_FCSTART] > 0.0
     if !qfcstr
         opt.options[OPT_FCSTART] = 1.0e-2
-        if nonlin == 4
+        if nonLin == 4
             opt.options[OPT_FCSTART] = 1.0e-4
         end
     end
@@ -160,7 +160,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     initOption!(opt,OPT_FCMIN,0.0)
     if opt.options[OPT_FCMIN] <= 0.0
         opt.options[OPT_FCMIN] = 1.0e-4
-        if nonlin == 4
+        if nonLin == 4
             opt.options[OPT_FCMIN] = 1.0e-8
         end
     end
@@ -183,7 +183,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Starting value of damping factor (fcmin <= fc <= 1.0)
-    if nonlin <= 2 && !qfcstr
+    if nonLin <= 2 && !qfcstr
         # for linear or mildly nonlinear problems
         fc = 1.0
     else

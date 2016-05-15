@@ -17,6 +17,7 @@
 # This function does the bookkeeping. The actual computation are done in n1int
 
 include("CheckOptionsNLEQ1.jl")
+include("Jacobian.jl")
 function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # TODO: persistent variables
@@ -67,10 +68,13 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # TODO: Make jacgen the function which is needed to be called
     # if user does not specify the function
     jacgen = getOption!(opt,OPT_JACOBIFCN,0)
-    if jacgen == 0
-        jacgen = 2
+    if jacgen == 0 || jacgen == 2
+        jacgen = numDiffJac
+        opt.options[OPT_JACOBIFCN] = jacgen
+    elseif jacgen == 3
+        jacgen = numDiffJacFB
+        opt.options[OPT_JACOBIFCN] = jacgen
     end
-    opt.options[OPT_JACOBIFCN] = jacgen
 
     qrank1 = getOption!(opt,OPT_QRANK1,0)
     qordi  = getOption!(opt,OPT_QORDI,0)

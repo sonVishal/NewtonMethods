@@ -129,14 +129,12 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         error("Invalid option specified: OPT_MODE = $mode
         range of permitted value is $(optL[2]) to $(optU[2])")
     end
-    if jacGen < optL[3] || jacGen > optU[3]
-        retCode = 30
-        error("Invalid option specified: OPT_JACOBIFCN = $jacGen
-        range of permitted value is $(optL[3]) to $(optU[3])")
-    elseif typeof(jacGen) == Number && typeof(jacGen) != Function
-        retCode = 30
-        error("Invalid option specified: OPT_JACOBIFCN = $jacGen
-        should be a function")
+    if typeof(jacGen) == Number
+        if jacGen < optL[3] || jacGen > optU[3]
+            retCode = 30
+            error("Invalid option specified: OPT_JACOBIFCN = $jacGen
+            range of permitted value is $(optL[3]) to $(optU[3])")
+        end
     end
     if mstor < optL[4] || qSucc > optU[4]
         retCode = 30

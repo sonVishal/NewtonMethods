@@ -1,7 +1,5 @@
 include("NLEQ1.jl")
 
-opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_RTOL => 1);
-
 function f(x)
     return x;
 end
@@ -9,6 +7,8 @@ end
 function Jac(x)
     return x;
 end
+
+opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_RTOL => 1,OPT_JACOBIFCN => Jac);
 
 x = ones(4);
 xScal = ones(4);

@@ -53,11 +53,11 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mstor = getOption!(opt,OPT_MSTOR,0)
-    if mstor == 0
+    mStor = getOption!(opt,OPT_MSTOR,0)
+    if mStor == 0
         m1 = n
         m2 = n
-    elseif mstor == 1
+    elseif mStor == 1
         ml = getOption!(opt,"ML",0)
         mu = getOption!(opt,"MU",0)
         m1 = 2*ml + mu + 1
@@ -80,36 +80,43 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     qsimpl = getOption!(opt,OPT_QSIMPL,0)
 
     if qrank1 == 1
-        nbroy = getOption!(opt,OPT_NBROY,0)
-        if nbroy == 0
-            nbroy = max(m2,10)
-            opt.options[OPT_NBROY] = nbroy
+        nBroy = getOption!(opt,OPT_NBROY,0)
+        if nBroy == 0
+            nBroy = max(m2,10)
+            opt.options[OPT_NBROY] = nBroy
         end
     else
-        nbroy = 0
+        nBroy = 0
     end
 
     # Workspace: WK
-    # wk_A = zeros(m1,n)
+    wk_A = zeros(m1,n)
     #
     # if qrank1 == 1
-    #     wk_DXSAVE = zeros(n,nbroy)
+    #     wk_DXSAVE = zeros(n,nBroy)
     # else
     #     wk_DXSAVE = 0.0
     # end
     #
-    # wk_DX       = zeros(n)
-    # wk_DXQ      = zeros(n)
-    # wk_XA       = zeros(n)
-    # wk_XWA      = zeros(n)
-    # wk_F        = zeros(n)
-    # wk_FA       = zeros(n)
-    # wk_ETA      = zeros(n)
-    # wk_XW       = zeros(n)
-    # wk_FW       = zeros(n)
-    # wk_DXQA     = zeros(n)
-    # wk_SUMXA0   = 0.0
-    # wk_SUMXA1   = 0.0
+    wk_DX       = zeros(n)
+    wk_DXQ      = zeros(n)
+    wk_XA       = zeros(n)
+    wk_XWA      = zeros(n)
+    wk_F        = zeros(n)
+    wk_FA       = zeros(n)
+    wk_ETA      = zeros(n)
+    wk_XW       = zeros(n)
+    wk_FW       = zeros(n)
+    wk_DXQA     = zeros(n)
+    wk_T1       = 0.0
+    wk_T2       = 0.0
+    wk_T3       = 0.0
+
+    wk_fcKeep   = 0.0
+    wk_fcA      = 0.0
+    wk_fcPri    = 0.0
+    wk_dMyCor   = 0.0
+    wk_sumXs    = 0.0
 
     initOption!(opt,OPT_QNSCAL => 0)
 
@@ -120,16 +127,16 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     initOption!(opt,OPT_IBDAMP,0)
 
     if opt.options[OPT_IBDAMP] == 0
-        qbdamp = Int(nonLin == 4)
+        qBDamp = Int(nonLin == 4)
     elseif opt.options[OPT_IBDAMP] == 1
-        qbdamp = 1
+        qBDamp = 1
     elseif opt.options[OPT_IBDAMP] == 2
-        qbdamp = 0
+        qBDamp = 0
     end
 
     initOption!(opt,OPT_FCBAND,0.0)
 
-    if qbdamp == 1
+    if qBDamp == 1
         if opt.options[OPT_FCBAND] < 1.0
             opt.options[OPT_FCBAND] = 10.0
         end
@@ -141,15 +148,15 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     nItmax = getOption!(opt,OPT_NITMAX,50)
     if nItmax <= 0
         nItmax = 50
+        opt.options[OPT_NITMAX] = nItmax
     end
-    opt.options[OPT_NITMAX] = nItmax
 
     # TODO: Print somethings
 
     # Initial damping factor for highly nonlinear problems
     initOption!(opt,OPT_FCSTART,0.0)
-    qfcstr = opt.options[OPT_FCSTART] > 0.0
-    if !qfcstr
+    qFcStart = opt.options[OPT_FCSTART] > 0.0
+    if !qFcStart
         opt.options[OPT_FCSTART] = 1.0e-2
         if nonLin == 4
             opt.options[OPT_FCSTART] = 1.0e-4
@@ -183,7 +190,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Starting value of damping factor (fcmin <= fc <= 1.0)
-    if nonLin <= 2 && !qfcstr
+    if nonLin <= 2 && !qFcStart
         # for linear or mildly nonlinear problems
         fc = 1.0
     else
@@ -211,11 +218,12 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # If retCode is unmodified on exit, successive steps are required
     # to complete the Newton iterations
-    if nbroy == 0
-        nbroy = 1
+    if nBroy == 0
+        nBroy = 1
     end
 
     # Call to n1int
+    # n1int(n,fcn,jacFcn,x,xScal,)
 
     # Print statistics
 

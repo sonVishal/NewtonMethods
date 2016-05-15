@@ -1,11 +1,14 @@
 include("NLEQ1.jl")
 
 function f(x)
-    return x;
+    x = x-1;
+    return nothing;
 end
 
-function Jac(x)
-    return x;
+function Jac(x,y)
+    y[1] = x[1]+2
+    y[2] = x[2]+3;
+    return nothing;
 end
 
 opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_RTOL => 1);

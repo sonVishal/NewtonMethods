@@ -101,11 +101,11 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     optU = [1; 1; 3; 1; 9999999; 9999999; 1; 1];
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mstor = getOption!(opt,OPT_MSTOR,0)
-    if mstor == 0   # Dense or Sparse
+    mStor = getOption!(opt,OPT_MSTOR,0)
+    if mStor == 0   # Dense or Sparse
         optU[6] = 0
         optU[7] = 0
-    elseif mstor == 1   # Banded
+    elseif mStor == 1   # Banded
         optU[6] = n - 1
         optU[7] = n - 1
     end
@@ -136,9 +136,9 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
             range of permitted value is $(optL[3]) to $(optU[3])")
         end
     end
-    if mstor < optL[4] || qSucc > optU[4]
+    if mStor < optL[4] || qSucc > optU[4]
         retCode = 30
-        error("Invalid option specified: OPT_MSTOR = $mstor
+        error("Invalid option specified: OPT_MSTOR = $mStor
         range of permitted value is $(optL[4]) to $(optU[4])")
     end
     if ml < optL[5] || ml > optU[5]

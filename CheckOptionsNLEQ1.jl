@@ -1,5 +1,5 @@
 include("Options.jl")
-include("MachineConsts.jl")
+include("Constants.jl")
 
 # Summary :
 # checkOptions : Checking of input parameters and options for NLEQ1.
@@ -7,8 +7,6 @@ include("MachineConsts.jl")
 function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # TODO: Get the type of elements in x
-
-    # TODO: Logging and printing of Logs!!
 
     # Check whether warnings need to be printed
     warnFlag = getOption(opt,OPT_PRINTWARNING,0)
@@ -41,28 +39,29 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     rTol = getOption!(opt,OPT_RTOL,1e-6)
     if rTol <= 0.0
         retCode = 21
-        println("ERROR: Nonpositive OPT_RTOL supplied")
+        println("ERROR: Nonpositive $OPT_RTOL supplied")
         return retCode
     else
         tolMin = epMach*10.0*n
         if rTol < tolMin
             rTol = tolMin
+            setOption!(opt,OPT_RTOL,rTol)
             if warnFlag == 1
-                warn("User prescribed OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
+                warn("User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
             end
         end
 
         tolMax = 1.0e-1
         if rTol > tolMax
             rTol = tolMax
+            setOption!(opt,OPT_RTOL,rTol)
             if warnFlag == 1
-                warn("User prescribed OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
+                warn("User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
             end
         end
-        setOption!(opt,OPT_RTOL,rTol)
     end
 
-    # Test user given accuracy and scaling on proper values
+    # Test user prescribed accuracy and scaling on proper values
     if nonLin >= 3
         defScal = rTol
     else
@@ -98,30 +97,69 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Define lower and upper bounds for options
-    L = [0; 0; 0; 0];
+    optL = zeros(8);
+    optU = [1; 1; 3; 1; 9999999; 9999999; 1; 1];
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
     mstor = getOption!(opt,OPT_MSTOR,0)
     if mstor == 0   # Dense or Sparse
-        m1 = 0
-        m2 = 0
+        optU[6] = 0
+        optU[7] = 0
     elseif mstor == 1   # Banded
-        m1 = n - 1
-        m2 = n - 1
-    else
-        m1 = 9999999
-        m2 = 9999999
+        optU[6] = n - 1
+        optU[7] = n - 1
     end
-
-    # TODO: Consider having Jacobian option similar to Dr. Ludwig
 
     qSucc   = getOption!(opt,OPT_QSUCC,0)
     mode    = getOption!(opt,OPT_MODE,0)
     jacGen  = getOption!(opt,OPT_JACGEN,0)
+    ml      = getOption!(opt,OPT_ML,0)
+    mu      = getOption!(opt,OPT_MU,0)
+    iScal   = getOption!(opt,OPT_ISCAL,0)
 
     # Check bounds of options
-    if getOption!(opt,OPT_QSUCC,0) < 0 || getOption!(opt,OPT_QSUCC,0) > 1
+    if qSucc < optL[1] || qSucc > optU[1]
+        retCode = 30
+        error("Invalid option specified: OPT_QSUCC = $qSucc
+        range of permitted value is $(optL[1]) to $(optU[1])")
     end
+    if mode < optL[2] || mode > optU[2]
+        retCode = 30
+        error("Invalid option specified: OPT_MODE = $mode
+        range of permitted value is $(optL[2]) to $(optU[2])")
+    end
+    if jacGen < optL[3] || jacGen > optU[3]
+        retCode = 30
+        error("Invalid option specified: OPT_JACGEN = $jacGen
+        range of permitted value is $(optL[3]) to $(optU[3])")
+    end
+    if mstor < optL[4] || qSucc > optU[4]
+        retCode = 30
+        error("Invalid option specified: OPT_MSTOR = $mstor
+        range of permitted value is $(optL[4]) to $(optU[4])")
+    end
+    if ml < optL[5] || ml > optU[5]
+        retCode = 30
+        error("Invalid option specified: OPT_ML = $ml
+        range of permitted value is $(optL[5]) to $(optU[5])")
+    end
+    if mu < optL[6] || mu > optU[6]
+        retCode = 30
+        error("Invalid option specified: OPT_MU = $mu
+        range of permitted value is $(optL[6]) to $(optU[6])")
+    end
+    if iScal < optL[7] || iScal > optU[7]
+        retCode = 30
+        error("Invalid option specified: OPT_ISCAL = $iScal
+        range of permitted value is $(optL[7]) to $(optU[7])")
+    end
+    if warnFlag < optL[8] || qSucc > optU[8]
+        retCode = 30
+        error("Invalid option specified: OPT_PRINTWARNING = $warnFlag
+        range of permitted value is $(optL[8]) to $(optU[8])")
+    end
+
+    # TODO: Set all other default values
 
     return retCode
 end

@@ -1,6 +1,7 @@
 # TODO: Make everything type independent
 # Currently everything is assumed to be Float64
 # TODO: Better comments.
+# TODO: Logging and printing of Logs!!
 
 # function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 #     Input parameters:
@@ -22,17 +23,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # Might be a good idea to store them inside opt
     # so that they can be used again and again.
 
-    # First call or successive call
-    qsucc = getOption!(opt,OPT_QSUCC,0)
-
     # Initialize output statistics
     stats = Dict{ASCIIString,Any}()
 
     # Initialize error code 0
     retCode = 0
 
-    # To print warning messages
+    # Print warning messages?
     printFlag = getOption!(opt,OPT_PRINTWARNING,0)
+
+    # First call or successive call
+    qsucc = getOption!(opt,OPT_QSUCC,0)
 
     # Check input parameters and options
     n = length(x)

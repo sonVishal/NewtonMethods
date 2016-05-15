@@ -1,7 +1,5 @@
 # NLEQ-Options for Nonlinear Equations solvers
 
-include("Constants.jl")
-
 import Base: show
 
 # macro for importing OptionsNLEQ and option handling.

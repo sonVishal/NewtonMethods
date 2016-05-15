@@ -64,17 +64,16 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         m2 = ml + mu + 1
     end
 
-    # User given Jacobian or not
-    # TODO: Make jacgen the function which is needed to be called
-    # if user does not specify the function
-    jacgen = getOption!(opt,OPT_JACOBIFCN,0)
-    if jacgen == 0 || jacgen == 2
-        jacgen = numDiffJac
-        opt.options[OPT_JACOBIFCN] = jacgen
-    elseif jacgen == 3
-        jacgen = numDiffJacFB
-        opt.options[OPT_JACOBIFCN] = jacgen
+    # Assign the Jacobian depending on user input
+    # Multiple dispatch calls the required function based on
+    # the storage requirement of the user
+    jacFcn = getOption!(opt,OPT_JACOBIFCN,0)
+    if jacFcn == 0 || jacFcn == 2
+        jacFcn = numDiffJac
+    elseif jacFcn == 3
+        jacFcn = numDiffJacFB
     end
+    opt.options[OPT_JACOBIFCN] = jacFcn;
 
     qrank1 = getOption!(opt,OPT_QRANK1,0)
     qordi  = getOption!(opt,OPT_QORDI,0)
@@ -84,7 +83,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         nbroy = getOption!(opt,OPT_NBROY,0)
         if nbroy == 0
             nbroy = max(m2,10)
-            opt.options["NBROY"] = nbroy
+            opt.options[OPT_NBROY] = nbroy
         end
     else
         nbroy = 0

@@ -44,6 +44,7 @@ jacobiRefreshFlag   = false     #QJCRFR
 stateLinSolver      = false     #QLINIT
 internalRetCode     = 0         #IFAIL
 fcBand              = 0.0
+qIter               = true
 if qBDamp == 1
     fcBand = inFcBand           #input value
 end
@@ -108,7 +109,8 @@ if ~qSucc
     fcn(x,res)
     nFcn += 1
     if length(res) ~= n
-        throw(DimensionMismatch("Dimension of the function output does not match the input dimension. Please check the function $fcn again."))
+        throw(DimensionMismatch("Dimension of the function output does not
+match the input dimension. Please check the function $fcn again."))
     end
 else
     qIniSc = false
@@ -120,6 +122,13 @@ end
 
 # Repeat
 while qIter
+# ------------------------------------------------------------------------------
+# 2 Startup of iteration step
+    if ~jacobiRefreshFlag
+# ------------------------------------------------------------------------------
+# 2.1 Scaling of variables x(n)
+    end
+
 end
 
 end

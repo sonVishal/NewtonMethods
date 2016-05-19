@@ -169,7 +169,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     if qIniMon
         write(printIO,"INFO: ","N = $n\n")
-        write(printIO,"INFO: ","Prescribed relative precision",
+        write(printIO,"INFO: ","Prescribed relative precision ",
         "$(opt.options[OPT_RTOL])\n")
         if jacMethod == 1
             message = "a user function"

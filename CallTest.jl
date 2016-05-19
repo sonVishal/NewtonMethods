@@ -10,7 +10,7 @@ function Jac(x,y)
     return nothing;
 end
 
-opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_PRINTITERATIONMON => 2, OPT_RTOL => 1)
+opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_PRINTITERATION => 2, OPT_RTOL => 1)
 wk  = OptionsNLEQ()
 
 x = ones(4);

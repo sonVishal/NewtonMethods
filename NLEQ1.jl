@@ -42,7 +42,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # Print warning messages?
     printFlag   = getOption!(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
-    printItMon  = getOption!(opt,OPT_PRINTITERATIONMON,0)
+    printIt  = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
@@ -62,7 +62,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     # First call or successive call
     qSucc   = getOption!(opt,OPT_QSUCC,0)
-    qIniMon = (printItMon >= 1 && qSucc == 0)
+    qIniMon = (printIt >= 1 && qSucc == 0)
 
     # Check input parameters and options
     n = length(x)
@@ -77,7 +77,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     # Check if this is a first call or successive call
     # to nleq1
-    if qSucc != 0
+    if qSucc == 0
         # If this is the first call then assign memory to the variables
         xIter       = []
         sumXall     = []
@@ -315,7 +315,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     opt.options[OPT_FCSTART] = fc
 
-    if printItMon >= 2 && qSucc == 0
+    if printIt >= 2 && qSucc == 0
         write(printIO,"INFO: ","Internal parameters:",
         "\n Starting value for damping factor OPT_FCSTART = ", opt.options[OPT_FCSTART],
         "\n Minimum allowed damping factor OPT_FCMIN = ",fcMin,
@@ -334,6 +334,19 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # Call to n1int
     # n1int(n,fcn,jacFcn,x,xScal,)
 
+    # TODO: This is supposed to happen inside n1int
+    push!(xIter,1)
+    push!(sumXall,1)
+    push!(sumXQall,1)
+    push!(dLevFall,1)
+    push!(tolAll,1)
+    push!(fcAll,1)
+    stats[STATS_NITER]  = 1
+    stats[STATS_NCORR]  = 1
+    stats[STATS_NREJR1] = 1
+    stats[STATS_NFCN]   = 1
+    stats[STATS_NJAC]   = 1
+
     # set stats variable
     stats[STATS_XSCAL] = xScal;
     if retCode == -1
@@ -347,24 +360,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     stats[STATS_STDLEVEL]       = dLevFall
     stats[STATS_PRECISION]      = tolAll
     stats[STATS_DAMPINGFC]      = fcAll
-    # TODO: these variables will be set inside n1int
-    # stats[niter = wk.niter
-    # stats[ncorr = wk.ncorr
-    # stats[nrejr1 = wk.nrejr1
-    # stats[njac = wk.njac
-    # stats[nfcn = wk.nfcn
-    # stats[nfcnj = wk.nfcnj # This variable is not needed in our code
 
     # Print statistics
-    if printItMon >= 2 && retCode ~= -1 && retCode ~= 10
+    if printIt >= 2 && retCode != -1 && retCode != 10
         write(printIO,"\n",
-        @sprintf("***********   Statistics  ***********\n"),
+        @sprintf("*************   Statistics   ************\n"),
         @sprintf("***  Newton-iterations     : %7i  ***\n", (stats[STATS_NITER])),
         @sprintf("***  Corrector steps       : %7i  ***\n", (stats[STATS_NCORR])),
         @sprintf("***  Rejected Rank-1 steps : %7i  ***\n", (stats[STATS_NREJR1])),
         @sprintf("***  Jacobian evaluations  : %7i  ***\n", (stats[STATS_NJAC])),
         @sprintf("***  Function evaluations  : %7i  ***\n", (stats[STATS_NFCN])),
-        @sprintf("*************************************\n"))
+        @sprintf("*****************************************\n"))
     end
 
     return (stats, retCode)

@@ -105,7 +105,7 @@ if ~qSucc
 # 1.7 Startup step
 # ------------------------------------------------------------------------------
 # 1.7.1 Computation of residual vector
-    res = zeros(x);
+    res = zeros(x)
     fcn(x,res)
     nFcn += 1
     if length(res) ~= n
@@ -127,8 +127,134 @@ while qIter
     if ~jacobiRefreshFlag
 # ------------------------------------------------------------------------------
 # 2.1 Scaling of variables x(n)
+        xW = n1scal(n,x,xa,xScal,iScal,qIniSc,opt)
+        qIniSc = 0
+        if nIter ~= 0
+# ------------------------------------------------------------------------------
+# 2.2 Aposteriori estimate of damping factor
+            dxqa = dxq
+            if ~qOrdi
+                fcNump = sum((dx./xW).^2)
+                th = fc - 1.0
+                fcDnm = sum(((dxqa+th*dx)./xW).^2)
+# ------------------------------------------------------------------------------
+# 2.2.2 Decision criterion for Jacobian update technique
+                qGenJ = true
+                if fc == fcPri
+                    qGenJ = fc < 1.0 || fcA < 1.0 || dMyCor <= fc*sigma || ~qRank1 || new + 2 > nBroy
+                    fca = fc
+                else
+                    dMyCor = fcA*fcA*0.5*sqrt(fcNump/fcDnm)
+                    if nonLin <= 3
+                        fcCor = min(1.0,dMyCor)
+                    else
+                        fcCor = min(1.0,0.5*dMyCor)
+                    end
+                    fcA = max(min(fc,fcCor),fcMin)
+
+                    #TODO: print something
+
+                end
+                fck2 = fcA
+# ------------------------------------------------------------------------------
+# 2.2.1 Computation of the numerator of damping factor predictor
+                fcNmp2 = sum((dxqa./xW).^2)
+                fcNump = fcNump*fcNmp2
+            end
+        end
+    end
+    jacobiRefreshFlag = false
+# ------------------------------------------------------------------------------
+# 2.3 Jacobian matrix
+# ------------------------------------------------------------------------------
+# 2.3.1 Jacobian generation by routine jac or difference approximation
+# if qGenJ == true
+# - or -
+# Rank-1 update of Jacobian if qGenJ == false
+    if qGenJ && (~qSimpl || nIter == 0)
+        new = 0
+        if jacGen == 1
+            jac(x,J)
+            a[:,:] = J[:,:]
+        else
+            if mStor == 0
+                if jacGen == 3
+                    #TODO: Jacobian with num diff feedback
+                end
+                if jacGen == 2
+                    #TODO: Jacobian with num diff without feedback
+                end
+            else if mStor == 1
+                if jacGen == 3
+                    #TODO: banded num diff with feedback
+                end
+                if jacGen == 2
+                    #TODO: banded num diff without feedback
+                end
+            end
+        end
+        nJac += 1
+
+        #TODO: break if jacobian computation fails
+        # Use try catch method
+
+    else if ~qSimpl
+        new += 1
     end
 
-end
+    if new == 0 && (qLU || nIter == 0)
+# ------------------------------------------------------------------------------
+# 2.3.2.1 Save scaling values
+        xWa = xW[1:n]
+        if issparse(a)
+            nza = nnz(a)
+            (row,col) = find(a~=0);
+            for k = 1:nza
+                a[row[k],col[k]] = -a[row[k],col[k]]*xW[col[k]]
+            end
+        else
+# ------------------------------------------------------------------------------
+# 2.3.2.2 Prepare Jacobian for use by band-solver
+            if mStor == 1
+                for l1 = 1:n
+                    for l2 = m2:-1:1
+                        a[l2+ml,l1] = a[l2,l1]
+                    end
+                end
+            end
+
+# ------------------------------------------------------------------------------
+# 2.4 Prepare solution of the linear system
+# ------------------------------------------------------------------------------
+# 2.4.1 Internal column scaling of matrix A
+            if mStor == 0
+                for k = 1:n
+                    a[1:n,k] = -a[1:n,k]*xW[k]
+                end
+            else if mStro == 1
+                for k = 1:n
+                    l2 = max(1+m2-k,ml+1)
+                    l3 = max(n+m2-k,m1)
+                    a[l2:l3,k] = -a[l2:l3,k]*xW[k]
+                end
+            end
+        end
+# ------------------------------------------------------------------------------
+# 2.4.2 Row scaling of matrix A
+        if qScale
+            if mStor == 0
+                (a,fW) = n1scrf(n,n,a)
+            else if mStro == 1
+                (a,fW) = n1scrb(n,m1,ml,mu,a)
+            end
+        else
+            fW = ones(n);
+        end
+    end
+# ------------------------------------------------------------------------------
+# 2.4.3 Save and scale values of F(n)
+    fA = f;
+    t1 = f.*fW;
+
 
 end

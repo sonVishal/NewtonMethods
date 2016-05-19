@@ -169,7 +169,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     if qIniMon
         write(printIO,"INFO: ","N = $n\n")
-        write(printIO,"INFO: ","Prescribed relative precision $(opt.options[OPT_RTOL])\n")
+        write(printIO,"INFO: ","Prescribed relative precision",
+        "$(opt.options[OPT_RTOL])\n")
         if jacMethod == 1
             message = "a user function"
         elseif jacMethod == 2
@@ -185,14 +186,16 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         end
         write(printIO,"INFO: ","The Jacobian will be stored in $message mode\n")
         if mStor == 1
-            write(printIO,"INFO: ","Lower bandwidth : $ml \t Upper bandwidth : $mu\n")
+            write(printIO,"INFO: ","Lower bandwidth : $ml \t",
+            "Upper bandwidth : $mu\n")
         end
         if opt.options[OPT_NOROWSCAL] == 1
             message = "inhibited"
         else
             message = "allowed"
         end
-        write(printIO,"INFO: ","Automatic row scaling of the jacobian is $message\n")
+        write(printIO,"INFO: ",
+        "Automatic row scaling of the jacobian is $message\n")
     end
 
     # Check for non linear option
@@ -231,18 +234,20 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         elseif nonLin == 4
             message = "extremely nonlinear"
         end
-        write(printIO,"INFO: ","Problem is specified as being ",message,"\n")
+        write(printIO,"INFO: ","Problem is specified as being $message\n")
         if qBDamp == 1
-            write(printIO,"INFO: ","Bounded damping strategy is active\n bounding factor is",
-            opt.options[OPT_FCBAND],"\n")
+            write(printIO,"INFO: ","Bounded damping strategy is active\n",
+            "bounding factor is $(opt.options[OPT_FCBAND])\n")
         else
             write(printIO,"INFO: ","Bounded damping strategy is off\n")
         end
         if qOrdi == 1
-            write(printIO,"INFO: ","Special mode: Ordinary Newton iteration will be done\n")
+            write(printIO,"INFO: ","Special mode: ",
+            "Ordinary Newton iteration will be done\n")
         end
         if qSimpl == 1
-            write(printIO,"INFO: ","Special mode: Simplified Newton iteration will be done\n")
+            write(printIO,"INFO: ","Special mode: ",
+            "Simplified Newton iteration will be done\n")
         end
     end
 
@@ -254,8 +259,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     end
 
     if qIniMon
-        write(printIO,"INFO: ","Maximum permitted number of iteration steps : ",
-        nItmax,"\n")
+        write(printIO,"INFO: ","Maximum permitted number of ",
+        "iteration steps : $nItmax\n")
     end
 
     # Initial damping factor for highly nonlinear problems
@@ -313,14 +318,15 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         fc = 1.0
     end
 
-    opt.options[OPT_FCSTART] = fc
+    setOption!(opt,OPT_FCSTART,fc)
 
     if printIt >= 2 && qSucc == 0
         write(printIO,"INFO: ","Internal parameters:",
-        "\n Starting value for damping factor OPT_FCSTART = ", opt.options[OPT_FCSTART],
-        "\n Minimum allowed damping factor OPT_FCMIN = ",fcMin,
-        "\n Rank-1 updates decision parameter OPT_SIGMA = ",
-        opt.options[OPT_SIGMA],"\n")
+        "\n Starting value for damping factor ",
+        "OPT_FCSTART = $(opt.options[OPT_FCSTART])",
+        "\n Minimum allowed damping factor OPT_FCMIN = $fcMin",
+        "\n Rank-1 updates decision parameter ",
+        "OPT_SIGMA = $(opt.options[OPT_SIGMA])\n")
     end
 
     retCode = -1

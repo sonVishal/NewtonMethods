@@ -20,7 +20,3 @@ xScal = ones(4);
 
 println("retCode = $retCode","\n");
 println("Options = $opt","\n");
-
-# throw(InvalidOption("OPT_RTOL",-2))
-
-println("2")

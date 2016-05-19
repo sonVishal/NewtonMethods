@@ -9,6 +9,7 @@
 #         x:          Initial guess
 #         xScal:      Scaling vector
 #         opt:        Options for the solver
+#         wk:         Structured workspace TODO: get rid of this
 #     Output parameters:
 #         x:          Solution if found
 #         xScal:      Lat internal scaling vector if successful solve
@@ -18,7 +19,9 @@
 
 include("CheckOptionsNLEQ1.jl")
 include("Jacobian.jl")
-function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
+include("Error.jl")
+function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
+    wk::OptionsNLEQ)
 
     # TODO: persistent variables
     # Might be a good idea to store them inside opt
@@ -30,26 +33,55 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # Initialize error code 0
     retCode = 0
 
+#-------------------------------------------------------------------------------
+# Printing related stuff
+#-------------------------------------------------------------------------------
     # Print warning messages?
-    printFlag = getOption!(opt,OPT_PRINTWARNING,0)
+    printFlag   = getOption!(opt,OPT_PRINTWARNING,0)
+    # Print iteration summary?
+    printItMon  = getOption!(opt,OPT_PRINTITERATIONMON,0)
+    # Print solution summary?
+    printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
+    # Where to print?
+    # Defaults to STDOUT
+    printIO     = getOption!(opt,OPT_PRINTIO,STDOUT)
+    if printIO == "FILE"
+        # If not STDOUT then print to file
+        # Default file name is log.txt and the file is opened for writing
+        printFileName   = getOption!(opt,OPT_PRINTFILENAME,"log.txt")
+        printFileMode   = getOption!(opt,OPT_PRINTFILEMODE,"w")
+        if printFileMode != "w" || printFileMode != "a"
+            throw(InvalidOption("OPT_PRINTFILEMODE",printFileMode))
+        end
+        f = open(printFileName,printFileMode)
+    end
+#-------------------------------------------------------------------------------
 
     # First call or successive call
-    qsucc = getOption!(opt,OPT_QSUCC,0)
+    qSucc   = getOption!(opt,OPT_QSUCC,0)
+    qIniMon = printItMon >= 1 && ~qSucc
 
     # Check input parameters and options
     n = length(x)
     retCode = checkOptions(n,x,xScal,opt)
 
+    # return (stats,retCode)
+
     # Exit if any parameter error was detected
     if retCode != 0
-        stats["Error_Code"] = retCode
         error("Exit with return code $retCode")
     end
 
     # Check if this is a first call or successive call
     # to nleq1
-    if qsucc != 0
-        # TODO: check what this should be doing
+    if qSucc != 0
+        # If this is the first call then assign memory to the variables
+        xIter       = []
+        sumXall     = []
+        dLevFall    = []
+        sumXQall    = []
+        tolAll      = []
+        fCall       = []
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
@@ -67,19 +99,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # Assign the Jacobian depending on user input
     # Multiple dispatch calls the required function based on
     # the storage requirement of the user
-    jacFcn = getOption!(opt,OPT_JACOBIFCN,0)
-    if jacFcn == 0 || jacFcn == 2
-        jacFcn = numDiffJac
-    elseif jacFcn == 3
-        jacFcn = numDiffJacFB
+    jacMethod = getOption!(opt,OPT_JACMETHOD,0)
+    if jacMethod == 0
+        jacMethod = 2
+        opt.options[OPT_JACMETHOD] = jacMethod;
     end
-    opt.options[OPT_JACOBIFCN] = jacFcn;
 
-    qrank1 = getOption!(opt,OPT_QRANK1,0)
-    qordi  = getOption!(opt,OPT_QORDI,0)
-    qsimpl = getOption!(opt,OPT_QSIMPL,0)
+    qRank1 = getOption!(opt, OPT_QRANK1,    0)
+    qOrdi  = getOption!(opt, OPT_QORDI,     0)
+    qSimpl = getOption!(opt, OPT_QSIMPL,    0)
 
-    if qrank1 == 1
+    if qRank1 == 1
         nBroy = getOption!(opt,OPT_NBROY,0)
         if nBroy == 0
             nBroy = max(m2,10)
@@ -90,37 +120,53 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Workspace: WK
-    wk_A = zeros(m1,n)
-    #
-    # if qrank1 == 1
-    #     wk_DXSAVE = zeros(n,nBroy)
-    # else
-    #     wk_DXSAVE = 0.0
-    # end
-    #
-    wk_DX       = zeros(n)
-    wk_DXQ      = zeros(n)
-    wk_XA       = zeros(n)
-    wk_XWA      = zeros(n)
-    wk_F        = zeros(n)
-    wk_FA       = zeros(n)
-    wk_ETA      = zeros(n)
-    wk_XW       = zeros(n)
-    wk_FW       = zeros(n)
-    wk_DXQA     = zeros(n)
-    wk_T1       = 0.0
-    wk_T2       = 0.0
-    wk_T3       = 0.0
+    initOption!(wk,WK_A,0.0)
 
-    wk_fcKeep   = 0.0
-    wk_fcA      = 0.0
-    wk_fcPri    = 0.0
-    wk_dMyCor   = 0.0
-    wk_sumXs    = 0.0
+    if qRank1 == 1
+        initOption!(wk,WK_DXSAVE,zeros(n,nBroy))
+    else
+        initOption!(wk,WK_DXSAVE,0.0)
+    end
+
+    initOption!(wk, WK_DX  , zeros(n))
+    initOption!(wk, WK_DXQ , zeros(n))
+    initOption!(wk, WK_XA  , zeros(n))
+    initOption!(wk, WK_XWA , zeros(n))
+    initOption!(wk, WK_F   , zeros(n))
+    initOption!(wk, WK_FA  , zeros(n))
+    initOption!(wk, WK_ETA , zeros(n))
+    initOption!(wk, WK_XW  , zeros(n))
+    initOption!(wk, WK_FW  , zeros(n))
+    initOption!(wk, WK_DXQA, zeros(n))
+
+    initOption!(wk, WK_SUMXA0, 0.0)
+    initOption!(wk, WK_SUMXA1, 0.0)
+    initOption!(wk, WK_FCMON,  0.0)
+    initOption!(wk, WK_FCMIN,  0.0)
+    initOption!(wk, WK_SIGMA,  0.0)
+    initOption!(wk, WK_SIGMA2, 0.0)
+    initOption!(wk, WK_FCA,    0.0)
+    initOption!(wk, WK_FCKEEP, 0.0)
+    initOption!(wk, WK_FCPRI,  0.0)
+    initOption!(wk, WK_DMYCOR, 0.0)
+    initOption!(wk, WK_CONV,   0.0)
+    initOption!(wk, WK_SUMX,   0.0)
+    initOption!(wk, WK_SUMXS,  0.0)
+    initOption!(wk, WK_DLEVF,  0.0)
+    initOption!(wk, WK_NITER,  0)
+    initOption!(wk, WK_NCORR,  0)
+    initOption!(wk, WK_NFCN,   0)
+    initOption!(wk, WK_NJAC,   0)
+    initOption!(wk, WK_NFCNJ,  0)
+    initOption!(wk, WK_NREJR1, 0)
+    initOption!(wk, WK_NEW,    0)
+    initOption!(wk, WK_ICONV,  0)
 
     initOption!(opt,OPT_QNSCAL => 0)
 
-    # TODO: Print log of things done till now
+    if qIniMon
+        println("\n N = %4i")
+    end
 
     # Line 742 starts here
     nonLin = getOption!(opt,OPT_NONLIN,3)
@@ -178,7 +224,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     if opt.options[OPT_SIGMA] < 1.0
         opt.options[OPT_SIGMA] = 3.0
     end
-    if qrank1 == 0
+    if qRank1 == 0
         opt.options[OPT_SIGMA] = 10.0/fcmin
     end
 

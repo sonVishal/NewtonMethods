@@ -96,70 +96,71 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         end
     end
 
-    # Define lower and upper bounds for options
-    optL = zeros(8);
-    optU = [1; 1; 3; 1; 9999999; 9999999; 1; 1];
-
-    # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mStor = getOption!(opt,OPT_MSTOR,0)
-    if mStor == 0   # Dense or Sparse
-        optU[6] = 0
-        optU[7] = 0
-    elseif mStor == 1   # Banded
-        optU[6] = n - 1
-        optU[7] = n - 1
-    end
-
-    qSucc   = getOption!(opt,OPT_QSUCC,0)
-    mode    = getOption!(opt,OPT_MODE,0)
-    jacGen  = getOption!(opt,OPT_JACOBIFCN,0)
-    ml      = getOption!(opt,OPT_ML,0)
-    mu      = getOption!(opt,OPT_MU,0)
-    iScal   = getOption!(opt,OPT_ISCAL,0)
-
-    # Check bounds of options
-    # TODO: find a nicer way to do this
-    if qSucc < optL[1] || qSucc > optU[1]
-        retCode = 30
-        error("Invalid option specified: OPT_QSUCC = $qSucc
-        range of permitted value is $(optL[1]) to $(optU[1])")
-    end
-    if mode < optL[2] || mode > optU[2]
-        retCode = 30
-        error("Invalid option specified: OPT_MODE = $mode
-        range of permitted value is $(optL[2]) to $(optU[2])")
-    end
-    if typeof(jacGen) == Number
-        if jacGen < optL[3] || jacGen > optU[3]
-            retCode = 30
-            error("Invalid option specified: OPT_JACOBIFCN = $jacGen
-            range of permitted value is $(optL[3]) to $(optU[3])")
-        end
-    end
-    if mStor < optL[4] || qSucc > optU[4]
-        retCode = 30
-        error("Invalid option specified: OPT_MSTOR = $mStor
-        range of permitted value is $(optL[4]) to $(optU[4])")
-    end
-    if ml < optL[5] || ml > optU[5]
-        retCode = 30
-        error("Invalid option specified: OPT_ML = $ml
-        range of permitted value is $(optL[5]) to $(optU[5])")
-    end
-    if mu < optL[6] || mu > optU[6]
-        retCode = 30
-        error("Invalid option specified: OPT_MU = $mu
-        range of permitted value is $(optL[6]) to $(optU[6])")
-    end
-    if iScal < optL[7] || iScal > optU[7]
-        retCode = 30
-        error("Invalid option specified: OPT_ISCAL = $iScal
-        range of permitted value is $(optL[7]) to $(optU[7])")
-    end
-    if warnFlag < optL[8] || qSucc > optU[8]
-        retCode = 30
-        error("Invalid option specified: OPT_PRINTWARNING = $warnFlag
-        range of permitted value is $(optL[8]) to $(optU[8])")
-    end
+    # TODO: Not in MATLAB file but not sure if the other options should be tested
+    # # Define lower and upper bounds for options
+    # optL = zeros(8);
+    # optU = [1; 1; 3; 1; 9999999; 9999999; 1; 1];
+    #
+    # # Check if the Jacobian is Dense/Sparse or Banded matrix
+    # mStor = getOption!(opt,OPT_MSTOR,0)
+    # if mStor == 0   # Dense or Sparse
+    #     optU[6] = 0
+    #     optU[7] = 0
+    # elseif mStor == 1   # Banded
+    #     optU[6] = n - 1
+    #     optU[7] = n - 1
+    # end
+    #
+    # qSucc   = getOption!(opt,OPT_QSUCC,0)
+    # mode    = getOption!(opt,OPT_MODE,0)
+    # jacGen  = getOption!(opt,OPT_JACOBIFCN,0)
+    # ml      = getOption!(opt,OPT_ML,0)
+    # mu      = getOption!(opt,OPT_MU,0)
+    # iScal   = getOption!(opt,OPT_ISCAL,0)
+    #
+    # # Check bounds of options
+    # # TODO: find a nicer way to do this
+    # if qSucc < optL[1] || qSucc > optU[1]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_QSUCC = $qSucc
+    #     range of permitted value is $(optL[1]) to $(optU[1])")
+    # end
+    # if mode < optL[2] || mode > optU[2]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_MODE = $mode
+    #     range of permitted value is $(optL[2]) to $(optU[2])")
+    # end
+    # if typeof(jacGen) == Number
+    #     if jacGen < optL[3] || jacGen > optU[3]
+    #         retCode = 30
+    #         error("Invalid option specified: OPT_JACOBIFCN = $jacGen
+    #         range of permitted value is $(optL[3]) to $(optU[3])")
+    #     end
+    # end
+    # if mStor < optL[4] || qSucc > optU[4]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_MSTOR = $mStor
+    #     range of permitted value is $(optL[4]) to $(optU[4])")
+    # end
+    # if ml < optL[5] || ml > optU[5]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_ML = $ml
+    #     range of permitted value is $(optL[5]) to $(optU[5])")
+    # end
+    # if mu < optL[6] || mu > optU[6]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_MU = $mu
+    #     range of permitted value is $(optL[6]) to $(optU[6])")
+    # end
+    # if iScal < optL[7] || iScal > optU[7]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_ISCAL = $iScal
+    #     range of permitted value is $(optL[7]) to $(optU[7])")
+    # end
+    # if warnFlag < optL[8] || qSucc > optU[8]
+    #     retCode = 30
+    #     error("Invalid option specified: OPT_PRINTWARNING = $warnFlag
+    #     range of permitted value is $(optL[8]) to $(optU[8])")
+    # end
     return retCode
 end

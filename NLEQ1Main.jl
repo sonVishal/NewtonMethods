@@ -184,7 +184,7 @@ while qIter
                 if jacGen == 2
                     #TODO: Jacobian with num diff without feedback
                 end
-            else if mStor == 1
+            elseif mStor == 1
                 if jacGen == 3
                     #TODO: banded num diff with feedback
                 end
@@ -198,7 +198,7 @@ while qIter
         #TODO: break if jacobian computation fails
         # Use try catch method
 
-    else if ~qSimpl
+    elseif ~qSimpl
         new += 1
     end
 
@@ -231,7 +231,7 @@ while qIter
                 for k = 1:n
                     a[1:n,k] = -a[1:n,k]*xW[k]
                 end
-            else if mStro == 1
+            elseif mStro == 1
                 for k = 1:n
                     l2 = max(1+m2-k,ml+1)
                     l3 = max(n+m2-k,m1)
@@ -244,7 +244,7 @@ while qIter
         if qScale
             if mStor == 0
                 (a,fW) = n1scrf(n,n,a)
-            else if mStro == 1
+            elseif mStro == 1
                 (a,fW) = n1scrb(n,m1,ml,mu,a)
             end
         else
@@ -255,6 +255,49 @@ while qIter
 # 2.4.3 Save and scale values of F(n)
     fA = f;
     t1 = f.*fW;
+# ------------------------------------------------------------------------------
+# 3 Central part of iteration step
+# ------------------------------------------------------------------------------
+# 3.1 Solution of the linear system
+# ------------------------------------------------------------------------------
+# 3.1.1 Decomposition of (n,n) matrix A
+    if new == 0 && (qLU || nIter == 0)
+        (l,u,p) = n1fact(n,m1,ml,mu,a,opt);
+
+        #TODO: break if failure
+    end
+
+    qlInit = 1;
+# ------------------------------------------------------------------------------
+# 3.1.2 Solution of (n,n) system
+    if new == 0
+        t1 = n1solv(n,m1,ml,mu,l,u,p,t1,opt);
+
+        #TODO: break if failure
+    else
+        alfa1 = sum(dx.*dxq./xW.^2)
+        alfa2 = sum(dx.^2./xW.^2)
+        alfa = alfa1/alfa2
+        beta = 1.0 - alfa
+        t1 = (dxq+(fca-one)*alfa*dx)/beta
+        if new == 1
+          dxsave[1:n,1] = dx
+        end
+        dxsave[1:n,new+1] = t1
+        dx = t1
+        t1 = t1./xw
+    end
+# ------------------------------------------------------------------------------
+# 3.2 Evaluation of scaled natural level function sumX
+# scaled maximum error norm conv
+# evaluation of (scaled) standard level function
+# and computation of ordinary Newton corrections dx[n]
+    if ~qSimpl
+        (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xw,f,new == 0)
+    else
+        (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xWa,f,new == 0)
+    end
+    
 
 
 end

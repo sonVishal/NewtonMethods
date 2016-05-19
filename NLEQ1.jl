@@ -30,6 +30,9 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # Initialize output statistics
     stats = Dict{ASCIIString,Any}()
 
+    # Initialize a common message string variable
+    message = ""
+
     # Initialize error code 0
     retCode = 0
 
@@ -81,7 +84,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         dLevFall    = []
         sumXQall    = []
         tolAll      = []
-        fCall       = []
+        fcAll       = []
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
@@ -165,8 +168,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     initOption!(opt,OPT_NOROWSCAL => 0)
 
     if qIniMon
-        write(printIO,"\nN = $n\n")
-        write(printIO,"\nPrescribed relative precision $(opt.options[OPT_RTOL])\n")
+        write(printIO,"INFO: ","N = $n\n")
+        write(printIO,"INFO: ","Prescribed relative precision $(opt.options[OPT_RTOL])\n")
         if jacMethod == 1
             message = "a user function"
         elseif jacMethod == 2
@@ -174,45 +177,74 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         elseif jacMethod == 3
             message = "numerical differentation (feedback strategy included)"
         end
-        write(printIO,"\nThe Jacobian is supplied by $message\n")
+        write(printIO,"INFO: ","The Jacobian is supplied by $message\n")
         if mStor == 0
             message = "full"
         elseif mStor == 1
             message = "banded"
         end
-        write(printIO,"The Jacobian will be stored in $message mode\n")
+        write(printIO,"INFO: ","The Jacobian will be stored in $message mode\n")
         if mStor == 1
-            write(printIO,"Lower bandwidth : $ml \t Upper bandwidth : $mu\n")
+            write(printIO,"INFO: ","Lower bandwidth : $ml \t Upper bandwidth : $mu\n")
         end
         if opt.options[OPT_NOROWSCAL] == 1
             message = "inhibited"
         else
             message = "allowed"
         end
-        write(printIO,"Automatic row scaling of the jacobian is $message\n")
+        write(printIO,"INFO: ","Automatic row scaling of the jacobian is $message\n")
     end
 
-    # Line 742 starts here
+    # Check for non linear option
     nonLin = getOption!(opt,OPT_NONLIN,3)
-    initOption!(opt,OPT_IBDAMP,0)
+    initOption!(opt,OPT_BOUNDEDDAMP,0)
 
-    if opt.options[OPT_IBDAMP] == 0
+    if opt.options[OPT_BOUNDEDDAMP] == 0
         qBDamp = Int(nonLin == 4)
-    elseif opt.options[OPT_IBDAMP] == 1
+    elseif opt.options[OPT_BOUNDEDDAMP] == 1
         qBDamp = 1
-    elseif opt.options[OPT_IBDAMP] == 2
+    elseif opt.options[OPT_BOUNDEDDAMP] == 2
         qBDamp = 0
     end
 
+    # Initialize bounded damping strategy restriction factor
     initOption!(opt,OPT_FCBAND,0.0)
-
     if qBDamp == 1
         if opt.options[OPT_FCBAND] < 1.0
             opt.options[OPT_FCBAND] = 10.0
         end
     end
 
-    # TODO: print somethings
+    if qIniMon
+        if qRank1 == 1
+            message = "allowed"
+        else
+            message = "inhibited"
+        end
+        write(printIO,"INFO: ","Rank-1 updates are $message\n")
+        if nonLin == 1
+            message = "linear"
+        elseif nonLin == 2
+            message = "mildly nonlinear"
+        elseif nonLin == 3
+            message = "highly nonlinear"
+        elseif nonLin == 4
+            message = "extremely nonlinear"
+        end
+        write(printIO,"INFO: ","Problem is specified as being ",message,"\n")
+        if qBDamp == 1
+            write(printIO,"INFO: ","Bounded damping strategy is active\n bounding factor is",
+            opt.options[OPT_FCBAND],"\n")
+        else
+            write(printIO,"INFO: ","Bounded damping strategy is off\n")
+        end
+        if qOrdi == 1
+            write(printIO,"INFO: ","Special mode: Ordinary Newton iteration will be done\n")
+        end
+        if qSimpl == 1
+            write(printIO,"INFO: ","Special mode: Simplified Newton iteration will be done\n")
+        end
+    end
 
     # Maximum permitted number of iteration steps
     nItmax = getOption!(opt,OPT_NITMAX,50)
@@ -221,7 +253,10 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         opt.options[OPT_NITMAX] = nItmax
     end
 
-    # TODO: Print somethings
+    if qIniMon
+        write(printIO,"INFO: ","Maximum permitted number of iteration steps : ",
+        nItmax,"\n")
+    end
 
     # Initial damping factor for highly nonlinear problems
     initOption!(opt,OPT_FCSTART,0.0)
@@ -241,7 +276,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
             opt.options[OPT_FCMIN] = 1.0e-8
         end
     end
-    fcmin = getOption!(opt,OPT_FCMIN,0.0)
+    fcMin = getOption(opt,OPT_FCMIN,0.0)
 
     # Rank1 decision parameter SIGMA
     initOption!(opt,OPT_SIGMA,0.0)
@@ -249,17 +284,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         opt.options[OPT_SIGMA] = 3.0
     end
     if qRank1 == 0
-        opt.options[OPT_SIGMA] = 10.0/fcmin
+        opt.options[OPT_SIGMA] = 10.0/fcMin
     end
 
     # Decision parameter about increasing too small predictor
     # to greater corrector value
     initOption!(opt,OPT_SIGMA2,0.0)
     if opt.options[OPT_SIGMA2] < 1.0
-        opt.options[OPT_SIGMA2] = 10.0/fcmin
+        opt.options[OPT_SIGMA2] = 10.0/fcMin
     end
 
-    # Starting value of damping factor (fcmin <= fc <= 1.0)
+    # Starting value of damping factor (fcMin <= fc <= 1.0)
     if nonLin <= 2 && !qFcStart
         # for linear or mildly nonlinear problems
         fc = 1.0
@@ -280,9 +315,13 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     opt.options[OPT_FCSTART] = fc
 
-    # Print something
-
-    # Time measurement
+    if printItMon >= 2 && qSucc == 0
+        write(printIO,"INFO: ","Internal parameters:",
+        "\n Starting value for damping factor OPT_FCSTART = ", opt.options[OPT_FCSTART],
+        "\n Minimum allowed damping factor OPT_FCMIN = ",fcMin,
+        "\n Rank-1 updates decision parameter OPT_SIGMA = ",
+        opt.options[OPT_SIGMA],"\n")
+    end
 
     retCode = -1
 
@@ -295,9 +334,38 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # Call to n1int
     # n1int(n,fcn,jacFcn,x,xScal,)
 
-    # Print statistics
-
     # set stats variable
+    stats[STATS_XSCAL] = xScal;
+    if retCode == -1
+        stats[STATS_RTOL] = tolAll[stats[STATS_NITER]]
+    else
+        stats[STATS_RTOL] = opt.options[OPT_RTOL]
+    end
+    stats[STATS_XITER]          = xIter
+    stats[STATS_NATLEVEL]       = sumXall
+    stats[STATS_SIMLEVEL]       = sumXQall
+    stats[STATS_STDLEVEL]       = dLevFall
+    stats[STATS_PRECISION]      = tolAll
+    stats[STATS_DAMPINGFC]      = fcAll
+    # TODO: these variables will be set inside n1int
+    # stats[niter = wk.niter
+    # stats[ncorr = wk.ncorr
+    # stats[nrejr1 = wk.nrejr1
+    # stats[njac = wk.njac
+    # stats[nfcn = wk.nfcn
+    # stats[nfcnj = wk.nfcnj # This variable is not needed in our code
+
+    # Print statistics
+    if printItMon >= 2 && retCode ~= -1 && retCode ~= 10
+        write(printIO,"\n",
+        @sprintf("***********   Statistics  ***********\n"),
+        @sprintf("***  Newton-iterations     : %7i  ***\n", (stats[STATS_NITER])),
+        @sprintf("***  Corrector steps       : %7i  ***\n", (stats[STATS_NCORR])),
+        @sprintf("***  Rejected Rank-1 steps : %7i  ***\n", (stats[STATS_NREJR1])),
+        @sprintf("***  Jacobian evaluations  : %7i  ***\n", (stats[STATS_NJAC])),
+        @sprintf("***  Function evaluations  : %7i  ***\n", (stats[STATS_NFCN])),
+        @sprintf("*************************************\n"))
+    end
 
     return (stats, retCode)
 end

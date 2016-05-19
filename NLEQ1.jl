@@ -59,7 +59,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     # First call or successive call
     qSucc   = getOption!(opt,OPT_QSUCC,0)
-    qIniMon = printItMon >= 1 && ~qSucc
+    qIniMon = (printItMon >= 1 && qSucc == 0)
 
     # Check input parameters and options
     n = length(x)
@@ -162,10 +162,34 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     initOption!(wk, WK_NEW,    0)
     initOption!(wk, WK_ICONV,  0)
 
-    initOption!(opt,OPT_QNSCAL => 0)
+    initOption!(opt,OPT_NOROWSCAL => 0)
 
     if qIniMon
-        println("\n N = %4i")
+        write(printIO,"\nN = $n\n")
+        write(printIO,"\nPrescribed relative precision $(opt.options[OPT_RTOL])\n")
+        if jacMethod == 1
+            message = "a user function"
+        elseif jacMethod == 2
+            message = "numerical differentation (without feedback strategy)"
+        elseif jacMethod == 3
+            message = "numerical differentation (feedback strategy included)"
+        end
+        write(printIO,"\nThe Jacobian is supplied by $message\n")
+        if mStor == 0
+            message = "full"
+        elseif mStor == 1
+            message = "banded"
+        end
+        write(printIO,"The Jacobian will be stored in $message mode\n")
+        if mStor == 1
+            write(printIO,"Lower bandwidth : $ml \t Upper bandwidth : $mu\n")
+        end
+        if opt.options[OPT_NOROWSCAL] == 1
+            message = "inhibited"
+        else
+            message = "allowed"
+        end
+        write(printIO,"Automatic row scaling of the jacobian is $message\n")
     end
 
     # Line 742 starts here

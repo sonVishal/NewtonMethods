@@ -20,3 +20,5 @@ xScal = ones(4);
 
 println("retCode = $retCode","\n");
 println("Options = $opt","\n");
+
+# throw(EvaluationError(Jac));

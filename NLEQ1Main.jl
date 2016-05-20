@@ -160,11 +160,11 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             if nIter != 0
                 # --------------------------------------------------------------
                 # 2.2 Aposteriori estimate of damping factor
-                dxqa = dxq
+                dxQa = dxQ
                 if !qOrdi
                     fcNumP = sum((dx./xw).^2)
                     th = fc - 1.0
-                    fcDnm = sum(((dxqa+th*dx)./xw).^2)
+                    fcDnm = sum(((dxQa+th*dx)./xw).^2)
                     # ----------------------------------------------------------
                     # 2.2.2 Decision criterion for Jacobian update technique
                     # qGenJ == true   numerical differentation,
@@ -199,7 +199,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                     # ----------------------------------------------------------
                     # 2.2.1 Computation of the numerator of damping
                     # factor predictor
-                    fcNmp2 = sum((dxqa./xw).^2)
+                    fcNmp2 = sum((dxQa./xw).^2)
                     fcNump = fcNump*fcNmp2
                 end
             end
@@ -334,11 +334,11 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 break
             end
         else
-            alfa1 = sum(dx.*dxq./xw.^2)
+            alfa1 = sum(dx.*dxQ./xw.^2)
             alfa2 = sum(dx.^2./xw.^2)
             alfa = alfa1/alfa2
             beta = 1.0 - alfa
-            t1 = (dxq+(fca-one)*alfa*dx)/beta
+            t1 = (dxQ+(fca-one)*alfa*dx)/beta
             if newt == 1
                 dxSave[1:n,1] = dx
             end
@@ -347,17 +347,190 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             t1 = t1./xw
         end
         # ----------------------------------------------------------------------
-        # 3.2 Evaluation of scaled natural level function sumX
+        # 3.2 Evaluation of scaled natural level function sumx
         # scaled maximum error norm conv
-        # evaluation of (scaled) standard level function
+        # evaluation of (scaled) standard level function dlevf
         # and computation of ordinary Newton corrections dx[n]
-        if ~qSimpl
-            (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xw,f,newt == 0)
+        if !qSimpl
+            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xw,f,newt == 0)
         else
-            (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xwa,f,newt == 0)
+            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,newt == 0)
+        end
+        stats[STATS_SUMX]   = sumX
+        stats[STATS_DLEVF]  = dLevF
+        xa[:]    = x
+        sumXa[:] = sumX
+        dLevXa   = sqrt(sumXa/n)
+        conva    = conv
+        dxANrm   = wnorm(n,dx,xw)
+        push!(sumXall,dLevXa)
+        push!(dLevFall,dLevF)
+
+        # ----------------------------------------------------------------------
+        # 3.3 A - priori estimate of damping factor fc
+        if nIter != 0 && nonLin != 1 && newt == 0 && !qOrdi
+            # 3.3.1 Computation of the denominatior of a-priori estimate
+            fcDnm = sum(((dx-dxQa)./xw).^2)*sumX
+            # ------------------------------------------------------------------
+            # 3.3.2 New damping factor
+            if fcDnm > fcNumP*fcMin2 || (nonLin == 4 && fcA^2*fcNumP < 4.0*fcDnm)
+                dMyPri = fcA*sqrt(fcNumP/fcDnm)
+                fcPri  = min(dMyPri,1.0)
+                if nonLin == 4
+                    fcPri = min(0.5*dMyPri,1.0)
+                end
+            else
+                fcPri = 1.0
+
+                dMyPri = -1.0
+            end
+
+            if printIterationMonitor >= 5
+                write(printIO,"\n",
+                @sprintf("+++++  apriori estimate  +++++\n"),
+                @sprintf(" fcPri  = %18.10e\n",fcPri),
+                @sprintf(" fc     = %18.10e\n",fc),
+                @sprintf(" fcA    = %18.10e\n",fcA),
+                @sprintf(" dMyPri = %18.10e\n",dMyPri),
+                @sprintf(" fcNumP = %18.10e\n",fcNumP),
+                @sprintf(" fcDnm  = %18.10e\n",fcDnm),
+                @sprintf("++++++++++++++++++++++++++++++\n"))
+            end
+
+            fc = max(fcPri,fcMin)
+            if qBDamp
+                fcbh = fcA*fcBand;
+                if fc > fcbh
+                    fc = fcbh
+                    if printIterationMonitor >= 4
+                        write(printIO, "*** Increase rest. act. (a priori)\n")
+                    end
+                end
+                fcbh = fcA/fcBand
+                if fc < fcbh
+                    fc = fcbh
+                    if printIterationMonitor >= 4
+                        write(printIO, "*** Decrease rest. act. (a priori)\n")
+                    end
+                end
+            end
         end
 
+        if iOrMon >= 2
+            sumxa2 = sumxa1
+            sumxa1 = sumxa0
+            sumxa0 = dLevXa
+            if sumxa0 == 0.0
+                sumxa0 = small
+            end
+            # Check convergence rate (linear or superlinear)
+            # iconv : Convergence idicator
+            #           = 0: No convergence indicated yet
+            #           = 1: Damping factor is 1.0e0
+            #           = 2: Superlinear convergence detected (alpha >=1.2)
+            #           = 3: Quadratic convergence detected (alpha > 1.8)
+            fcMon = min(fc,fcMon)
+            if fcMon < 1.0
+                iConv  = 0
+                alphaE = 0.0
+            end
+            if fcMon == 1.0 && iConv == 0
+                iConv = 1
+            end
+            if nIter >= 1
+                cLin1 = cLin0
+                cLin0 = sumxa0/sumxa1
+            end
+            if iConv >= 1 && nIter >= 2
+                alphaK = alphaE
+                alphaE = 0.0
+                if cLin1 <= 0.95
+                    alphaE = log(cLin0)/log(cLin1)
+                end
+                if alphaK != 0.0
+                    alphaK = 0.5*(alphaE+alphaK)
+                end
+                alphaA = min(alphaK,alphaE)
+                cAlphaK = cAlpha
+                cAlpha = 0.0
+                if alphaE != 0.0
+                    cAlpha = sumxa1/sumxa2^alphaE
+                end
+                sumXte = sqrt(cAlpha*cAlphaK)*sumxa1^alphaK-sumxa0
+                if alphaA >= 1.2 && iConv == 1
+                    iConv = 2
+                end
+                if alphaA > 1.8
+                    iConv = 3
+                end
+                if printIterationMonitor >= 4
+                    write(printIO,"\n",
+                    @sprintf(" ** iConv: %1i",iConv),
+                    @sprintf("  alpha:       %9.2e",alphaE),
+                    @sprintf("  const-alpha: %9.2e",cAlpha),
+                    @sprintf("  const-lin:   %9.2e **\n",cLin0),
+                    @sprintf(" ** alpha-post: %9.2e",alphaK),
+                    @sprintf("  check:       %9.2e",sumXte),
+                    @sprintf("                    **\n"))
+                end
+                if iConv >= 2 && alphaA < 0.9
+                    if iOrMon == 3
+                        retCode = 4
+                        break;
+                    else
+                        qmStop = 1
+                    end
+                end
+            end
+        end
+        fcMon = fc
+        # ----------------------------------------------------------------------
+        # 3.4 Save natural level for later computations of corrector
+        # and print iterate
+        fcNumK = sumX
+        if printIterationMonitor >= 2
+            n1prv1(dLevF,dLevXa,fcKeep,nIter,newt,printIterationMonitor,printIO,qMixIO)
+        end
+        nRed    = 0
+        qNext   = 0
+        qRep    = 0
+        qRed    = 0
+        iCnv    = 0
 
+        # Damping-factor reduction loop
+        # ======================================================================
+        while qRed
+            # ------------------------------------------------------------------
+            # 3.5 Preliminary new iterate
+            x = xa + dx*fc
+            push!(fcAll,fc)
+            # ------------------------------------------------------------------
+            # 3.5.2 Exit, if problem is specified as being linear
+            if nonLin == 1
+                retCode = 0
+                break
+            end
+            #-------------------------------------------------------------------
+            # 3.6.1 Computation of the residual vector
+            try
+                fcn(x,f)
+            catch err
+                retCode = 82
+                throw(EvaluationError(fcn,err))
+            end
 
+            if iFail == 1 || iFail == 2
+                #TODO
+            else
+                #TODO
+            end
+
+            qRed = !(qNext||qJcRfr)
+        end
+        # End of damping factor reduction loop
+        if nonLin == 1 || iCnv == 1 || (retCode != 0 && retCode != -1)
+            break
+        end
+        # ======================================================================
     end
 end

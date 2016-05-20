@@ -13,13 +13,14 @@ Base.showerror(io::IO, e::InvalidOption) = print(io, "The value \"", e.value, "\
 
 # Error when the function evaluation is not successful
 type EvaluationError <: Exception
-    funcName::Function
+    fcn::Function
+    err::Exception
 end
 
 # TODO: Display why the function failed
 
 Base.showerror(io::IO, e::EvaluationError) = print(io, "The function \"",
-string(e.funcName),"\" could not be evaluated.\n",
+string(e.fcn),"\" could not be evaluated due to ", string(e.err),".\n",
 "Please check that the function is correct!\n")
 
 # Error when the option 1 is incompatible with option 2

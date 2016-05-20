@@ -1,7 +1,5 @@
 # TODO: Make everything type independent
 # Currently everything is assumed to be Float64
-# TODO: Better comments.
-# TODO: Logging and printing of Logs!!
 
 # function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 #     Input parameters:
@@ -42,7 +40,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # Print warning messages?
     printFlag   = getOption!(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
-    printIt  = getOption!(opt,OPT_PRINTITERATION,0)
+    printIt     = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
@@ -102,10 +100,10 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # Assign the Jacobian depending on user input
     # Multiple dispatch calls the required function based on
     # the storage requirement of the user
-    jacMethod = getOption!(opt,OPT_JACMETHOD,0)
-    if jacMethod == 0
-        jacMethod = 2
-        opt.options[OPT_JACMETHOD] = jacMethod;
+    jacGen = getOption!(opt,OPT_JACGEN,0)
+    if jacGen == 0
+        jacGen = 2
+        opt.options[OPT_JACGEN] = jacGen;
     end
 
     qRank1 = getOption!(opt, OPT_QRANK1,    0)
@@ -122,6 +120,12 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         nBroy = 0
     end
 
+    # Initialize options
+    initOption!(opt, OPT_FCMIN,     0.0)
+    initOption!(opt, OPT_SIGMA,     0.0)
+    initOption!(opt, OPT_SIGMA2,    0.0)
+    initOption!(opt, OPT_NOROWSCAL, 0)
+
     # Workspace: WK
     initOption!(wk,WK_A,0.0)
 
@@ -131,6 +135,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         initOption!(wk,WK_DXSAVE,0.0)
     end
 
+    # Initialize temporary workspace
     initOption!(wk, WK_DX  , zeros(n))
     initOption!(wk, WK_DXQ , zeros(n))
     initOption!(wk, WK_XA  , zeros(n))
@@ -145,37 +150,33 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     initOption!(wk, WK_SUMXA0, 0.0)
     initOption!(wk, WK_SUMXA1, 0.0)
     initOption!(wk, WK_FCMON,  0.0)
-    initOption!(wk, WK_FCMIN,  0.0)
-    initOption!(wk, WK_SIGMA,  0.0)
-    initOption!(wk, WK_SIGMA2, 0.0)
     initOption!(wk, WK_FCA,    0.0)
     initOption!(wk, WK_FCKEEP, 0.0)
     initOption!(wk, WK_FCPRI,  0.0)
     initOption!(wk, WK_DMYCOR, 0.0)
-    initOption!(wk, WK_CONV,   0.0)
-    initOption!(wk, WK_SUMX,   0.0)
     initOption!(wk, WK_SUMXS,  0.0)
-    initOption!(wk, WK_DLEVF,  0.0)
-    initOption!(wk, WK_NITER,  0)
-    initOption!(wk, WK_NCORR,  0)
-    initOption!(wk, WK_NFCN,   0)
-    initOption!(wk, WK_NJAC,   0)
-    initOption!(wk, WK_NFCNJ,  0)
-    initOption!(wk, WK_NREJR1, 0)
-    initOption!(wk, WK_NEW,    0)
-    initOption!(wk, WK_ICONV,  0)
 
-    initOption!(opt,OPT_NOROWSCAL => 0)
+    # Initialize statistics
+    stats[STATS_NITER]  = 0
+    stats[STATS_NCORR]  = 0
+    stats[STATS_NFCN]   = 0
+    stats[STATS_NJAC]   = 0
+    stats[STATS_NREJR1] = 0
+    stats[STATS_NEW]    = 0
+    stats[STATS_ICONV]  = 0
+    stats[STATS_CONV]   = 0.0
+    stats[STATS_SUMX]   = 0.0
+    stats[STATS_DLEVF]  = 0.0
 
     if qIniMon
         write(printIO,"INFO: ","N = $n\n")
         write(printIO,"INFO: ","Prescribed relative precision ",
         "$(opt.options[OPT_RTOL])\n")
-        if jacMethod == 1
+        if jacGen == 1
             message = "a user function"
-        elseif jacMethod == 2
+        elseif jacGen == 2
             message = "numerical differentation (without feedback strategy)"
-        elseif jacMethod == 3
+        elseif jacGen == 3
             message = "numerical differentation (feedback strategy included)"
         end
         write(printIO,"INFO: ","The Jacobian is supplied by $message\n")
@@ -337,8 +338,25 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
         nBroy = 1
     end
 
+    # TODO: Initialize statistics before passing to n1int
+
     # Call to n1int
-    # n1int(n,fcn,jacFcn,x,xScal,)
+    (x,xScal,retCode, stats[STATS_CONV], stats[STATS_DLEVF], stats[STATS_NCORR],
+    stats[STATS_NFCN], stats[STATS_NJAC], stats[STATS_NREJR1],
+    stats[STATS_NEW],stats[STATS_ICONV]) = n1int(n, fcn, jac, x, xScal,
+    opt.options[OPT_RTOL], nItmax, nonLin, opt, retCode, wk, m1, m2, nBroy,
+    xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, wk.options[WK_A],
+    wk.options[WK_DXSAVE], wk.options[WK_DX], wk.options[WK_DXQ],
+    wk.options[WK_XA],wk.options[WK_XWA],wk.options[WK_F],wk.options[WK_FA],
+    wk.options[WK_ETA], wk.options[WK_XW], wk.options[WK_FW], wk.options[WK_DXQA],
+    wk.options[WK_SUMXA0],wk.options[WK_SUMXA1],wk.options[WK_FCMON],
+    opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
+    opt.options[OPT_SIGMA2], wk.options[WK_FCA], wk.options[WK_FCKEEP],
+    wk.options[WK_FCPRI], wk.options[WK_DMYCOR], stats[STATS_CONV],
+    wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printWarning,
+    printIterationMonitor, printSolution, printIO, stats[STATS_NITER],
+    stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NJAC], stats[STATS_NREJR1],
+    stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
 
     # TODO: This is supposed to happen inside n1int
     push!(xIter,1)

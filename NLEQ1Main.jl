@@ -954,4 +954,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     xScal = xw
     # End of exits
     # End of function n1int
+    # TODO: take care of the return variables
+    # It is different in Julia
+    # return ....
 end

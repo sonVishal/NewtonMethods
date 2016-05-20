@@ -155,8 +155,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            xw = n1scal(n,x,xa,xScal,
-                                iscal,qIniSc,opt)
+            xw = n1scal(n , x, xa, xScal, iScal, qIniSc, opt)
             qIniSc = false
             if nIter != 0
                 # --------------------------------------------------------------
@@ -213,11 +212,14 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # if qGenJ == true
         # - or -
         # Rank-1 update of Jacobian if qGenJ == false
-        if qGenJ && (~qSimpl || nIter == 0)
+        if qGenJ && (!qSimpl || nIter == 0)
             newt = 0
             if jacGen == 1
-                jac(x,J)
-                a[:,:] = J[:,:]
+                try
+                    jac(x,a)
+                catch err
+                    throw(EvaluationError(jac,err))
+                end
             else
                 if mStor == 0
                     if jacGen == 3
@@ -239,23 +241,32 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
 
             #TODO: break if jacobian computation fails
             # Use try catch method
+            if jacGen == 1 && iFail < 0
+                retCode = 83
+                break
+            end
+
+            if jacGen != 1 && iFail != 0
+                retCode = 82
+                break
+            end
 
         elseif ~qSimpl
             newt += 1
         end
 
         if newt == 0 && (qLU || nIter == 0)
-            # ----------------------------------------------------------------------
+            # ------------------------------------------------------------------
             # 2.3.2.1 Save scaling values
-            xWa = xW[1:n]
+            xwa = xw[1:n]
             if issparse(a)
                 nza = nnz(a)
-                (row,col) = find(a~=0);
+                (row,col) = findn(a);
                 for k = 1:nza
-                    a[row[k],col[k]] = -a[row[k],col[k]]*xW[col[k]]
+                    a[row[k],col[k]] = -a[row[k],col[k]]*xw[col[k]]
                 end
             else
-                # ----------------------------------------------------------------------
+                # --------------------------------------------------------------
                 # 2.3.2.2 Prepare Jacobian for use by band-solver
                 if mStor == 1
                     for l1 = 1:n
@@ -264,39 +275,38 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                         end
                     end
                 end
-
-                # ----------------------------------------------------------------------
+                # --------------------------------------------------------------
                 # 2.4 Prepare solution of the linear system
-                # ----------------------------------------------------------------------
+                # --------------------------------------------------------------
                 # 2.4.1 Internal column scaling of matrix A
                 if mStor == 0
                     for k = 1:n
-                        a[1:n,k] = -a[1:n,k]*xW[k]
+                        a[1:n,k] = -a[1:n,k]*xw[k]
                     end
                 elseif mStro == 1
                     for k = 1:n
                         l2 = max(1+m2-k,ml+1)
                         l3 = max(n+m2-k,m1)
-                        a[l2:l3,k] = -a[l2:l3,k]*xW[k]
+                        a[l2:l3,k] = -a[l2:l3,k]*xw[k]
                     end
                 end
             end
-            # ----------------------------------------------------------------------
+            # ------------------------------------------------------------------
             # 2.4.2 Row scaling of matrix A
             if qScale
                 if mStor == 0
-                    (a,fW) = n1scrf(n,n,a)
+                    (a,fw) = n1scrf(n,n,a)
                 elseif mStro == 1
-                    (a,fW) = n1scrb(n,m1,ml,mu,a)
+                    (a,fw) = n1scrb(n,m1,ml,mu,a)
                 end
             else
-                fW = ones(n);
+                fw = ones(n);
             end
         end
         # ----------------------------------------------------------------------
         # 2.4.3 Save and scale values of F(n)
-        fA = f;
-        t1 = f.*fW;
+        fa[:] = f;
+        t1 = f.*fw;
         # ----------------------------------------------------------------------
         # 3 Central part of iteration step
         # ----------------------------------------------------------------------
@@ -304,24 +314,31 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # ----------------------------------------------------------------------
         # 3.1.1 Decomposition of (n,n) matrix A
         if newt == 0 && (qLU || nIter == 0)
-            (l,u,p) = n1fact(n,m1,ml,mu,a,opt);
-
-            #TODO: break if failure
+            (l,u,p,iFail) = n1fact(n,m1,ml,mu,a,opt);
+            if iFail != 0
+                if iFail == 1
+                    retCode = 1
+                else
+                    retCode = 80
+                end
+                break
+            end
         end
-
-        qlInit = 1;
+        qLInit = 1;
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0
-            t1 = n1solv(n,m1,ml,mu,l,u,p,t1,opt);
-
-            #TODO: break if failure
+            (t1,iFail) = n1solv(n,m1,ml,mu,l,u,p,t1,opt);
+            if iFail != 0
+                retCode = 81
+                break
+            end
         else
-            alfa1 = sum(dx.*dxQ./xW.^2)
-            alfa2 = sum(dx.^2./xW.^2)
+            alfa1 = sum(dx.*dxq./xw.^2)
+            alfa2 = sum(dx.^2./xw.^2)
             alfa = alfa1/alfa2
             beta = 1.0 - alfa
-            t1 = (dxQ+(fca-one)*alfa*dx)/beta
+            t1 = (dxq+(fca-one)*alfa*dx)/beta
             if newt == 1
                 dxSave[1:n,1] = dx
             end
@@ -337,7 +354,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         if ~qSimpl
             (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xw,f,newt == 0)
         else
-            (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xWa,f,newt == 0)
+            (dx,conv,sumx,dlevf) = n1lvls(n,dx,t1,xwa,f,newt == 0)
         end
 
 

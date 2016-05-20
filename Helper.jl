@@ -14,16 +14,18 @@ function n1scal(n,x,xa,xScal,iScal,qIniSc,opt)
     if mPr >= 6
         printIO = opt.options[OPT_PRINTIO]
         write(printIO,"\n\n",
-        "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n",
+        "+++++++++++++++++++++++++++++++++++++++++++++++++\n",
         "      x-components         scaling-components\n")
         for l1 = 1:n
             write(printIO,"  %18.10e   %18.10e\n",x[l1],xw[l1])
         end
-        write(printIO,"+++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n")
+        write(printIO,"+++++++++++++++++++++++++++++++++++++++++++++++++\n\n")
     end
     return xw
 end
 
+# TODO: There is a smarter way to write scaling using in built scale!(A,b) (col)
+# and scale!(b,A) (row) functions
 function n1scrf(m,n,a)
     # Begin
     fw = zeros(n)

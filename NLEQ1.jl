@@ -341,7 +341,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     # TODO: Initialize statistics before passing to n1int
 
     # Call to n1int
-    (x,xScal,retCode, stats) = n1int(n, fcn, jac, x, xScal,
+    (x, xScal, retCode, stats) = n1int(n, fcn, jac, x, xScal,
     opt.options[OPT_RTOL], nItmax, nonLin, opt, retCode, wk, m1, m2, nBroy,
     xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, wk.options[WK_A],
     wk.options[WK_DXSAVE], wk.options[WK_DX], wk.options[WK_DXQ],
@@ -355,19 +355,6 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     printIterationMonitor, printSolution, printIO, stats[STATS_NITER],
     stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NJAC], stats[STATS_NREJR1],
     stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
-
-    # TODO: Delete this. This is supposed to happen inside n1int
-    # push!(xIter,1)
-    # push!(sumXall,1)
-    # push!(sumXQall,1)
-    # push!(dLevFall,1)
-    # push!(tolAll,1)
-    # push!(fcAll,1)
-    # stats[STATS_NITER]  = 1
-    # stats[STATS_NCORR]  = 1
-    # stats[STATS_NREJR1] = 1
-    # stats[STATS_NFCN]   = 1
-    # stats[STATS_NJAC]   = 1
 
     # set stats variable
     stats[STATS_XSCAL] = xScal;

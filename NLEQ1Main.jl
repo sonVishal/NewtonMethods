@@ -936,8 +936,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     end
     if !qOrdi
         if retCode != 4
-            nIter += nIter
-            stats[STATS_NITER] = nIter
+            nIter += 1
         end
         dLevF = dLevFn
         # Print solution or final iteration vector
@@ -950,11 +949,22 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             n1sout(n,x,modefi,opt,wk,mPrSol,printIO)
         end
     end
-    # Return the latest internal scaling xScal
-    xScal = xw
     # End of exits
+
+    # --------------------------------------------------------------------------
+    # 10 Prepare all the variables for returning
+    xScal = xw
+
+    opt.options[OPT_QSUCC]  = Int(qSucc)
+
+    stats[STATS_NITER]  = nIter
+    stats[STATS_NCORR]  = nCorr
+    stats[STATS_NFCN]   = nFcn
+    stats[STATS_NJAC]   = nJac
+    stats[STATS_NREJR1] = nRejR1
+    stats[STATS_NEW]    = newt
+    stats[STATS_ICONV]  = iConv
+
+    return (x, xScal, retCode, stats)
     # End of function n1int
-    # TODO: take care of the return variables
-    # It is different in Julia
-    # return ....
 end

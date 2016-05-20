@@ -360,3 +360,4 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
 
 
     end
+end

@@ -540,7 +540,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 if printIterationMonitor >= 2
                     write(printIO,
                     @sprintf("        %2i",nIter),
-                    @sprintf(" $fcn could not be evaluated     %7.5f    %2i\n",fc,newt))
+                    @sprintf(" %s could not be evaluated     %7.5f    %2i\n",fcn,fc,newt))
                 end
                 fch = fc
                 fc  = fcRedu*fc

@@ -144,8 +144,8 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     else
         qIniSc = false
     end
-    # ----------------------------------------------------------------------
-    # ----------------------------------------------------------------------
+    # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Main iteration loop
 
     # Repeat
@@ -153,26 +153,29 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
         if !qJcRfr
-            # ----------------------------------------------------------------------
+            # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            xw[:] = n1scal(n,x,xa[:],xScal,
+            xw = n1scal(n,x,xa,xScal,
                                 iscal,qIniSc,opt)
             qIniSc = false
             if nIter != 0
-                # ----------------------------------------------------------------------
+                # --------------------------------------------------------------
                 # 2.2 Aposteriori estimate of damping factor
-                dxQa[:] = dxQ[:]
+                dxqa = dxq
                 if !qOrdi
                     fcNumP = sum((dx./xw).^2)
                     th = fc - 1.0
-                    fcDnm =
-                    sum(((dxQa+th*dx)./xw).^2)
-                    # ----------------------------------------------------------------------
+                    fcDnm = sum(((dxqa+th*dx)./xw).^2)
+                    # ----------------------------------------------------------
                     # 2.2.2 Decision criterion for Jacobian update technique
+                    # qGenJ == true   numerical differentation,
+                    # qGenJ == false  rank1 updating
                     qGenJ = true
                     if fc == fcPri
-                        qGenJ = fc < 1.0 || fcA < 1.0 || dMyCor <= fc*sigma || ~qRank1 || newt + 2 > nBroy
-                        fca = fc
+                        qGenJ = fc < 1.0 || fcA < 1.0 || dMyCor <= fc*sigma ||
+                        !qRank1 || newt + 2 > nBroy
+
+                        fcA = fc
                     else
                         dMyCor = fcA*fcA*0.5*sqrt(fcNump/fcDnm)
                         if nonLin <= 3
@@ -182,13 +185,22 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                         end
                         fcA = max(min(fc,fcCor),fcMin)
 
-                        #TODO: print something
-
+                        if printIterationMonitor >= 5
+                            write(printIO,"\n",
+                            @sprintf("+++  aposteriori estimate  +++\n"),
+                            @sprintf(" fcCor  = %18.10e\n",fcCor),
+                            @sprintf(" fc     = %18.10e\n",fc),
+                            @sprintf(" dMyCor = %18.10e\n",dMyCor),
+                            @sprintf(" fcNumP = %18.10e\n",fcNumP),
+                            @sprintf(" fcDnm  = %18.10e\n",fcDnm),
+                            @sprintf("++++++++++++++++++++++++++++++\n"))
+                        end
                     end
                     fck2 = fcA
-                    # ----------------------------------------------------------------------
-                    # 2.2.1 Computation of the numerator of damping factor predictor
-                    fcNmp2 = sum((dxQa./xW).^2)
+                    # ----------------------------------------------------------
+                    # 2.2.1 Computation of the numerator of damping
+                    # factor predictor
+                    fcNmp2 = sum((dxqa./xw).^2)
                     fcNump = fcNump*fcNmp2
                 end
             end

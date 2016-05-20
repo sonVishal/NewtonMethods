@@ -18,8 +18,7 @@
 include("CheckOptionsNLEQ1.jl")
 include("Jacobian.jl")
 include("Error.jl")
-function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
-    wk::OptionsNLEQ)
+function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # TODO: persistent variables
     # Might be a good idea to store them inside opt
@@ -27,6 +26,9 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
 
     # Initialize output statistics
     stats = Dict{ASCIIString,Any}()
+
+    # Initialize workspace options
+    wk = OptionsNLEQ()
 
     # Initialize a common message string variable
     message = ""
@@ -103,7 +105,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     jacGen = getOption!(opt,OPT_JACGEN,0)
     if jacGen == 0
         jacGen = 2
-        opt.options[OPT_JACGEN] = jacGen;
+        opt.options[OPT_JACGEN] = jacGen
     end
 
     qRank1 = getOption!(opt, OPT_QRANK1,    0)
@@ -357,7 +359,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,
     stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
 
     # set stats variable
-    stats[STATS_XSCAL] = xScal;
+    stats[STATS_XSCAL] = xScal
     if retCode == -1
         stats[STATS_RTOL] = tolAll[stats[STATS_NITER]]
     else

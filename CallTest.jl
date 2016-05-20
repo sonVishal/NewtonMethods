@@ -11,12 +11,11 @@ function Jac(x,y)
 end
 
 opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_PRINTITERATION => 5, OPT_RTOL => 1)
-wk  = OptionsNLEQ()
 
 x = ones(4);
 xScal = ones(4);
 
-(stats,retCode) = nleq1(f,x,xScal,opt,wk);
+(stats,retCode) = nleq1(f,x,xScal,opt);
 
 println("retCode = $retCode","\n");
 println("Options = $opt","\n");

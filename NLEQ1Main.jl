@@ -347,7 +347,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             t1 = t1./xw
         end
         # ----------------------------------------------------------------------
-        # 3.2 Evaluation of scaled natural level function sumx
+        # 3.2 Evaluation of scaled natural level function sumX
         # scaled maximum error norm conv
         # evaluation of (scaled) standard level function dlevf
         # and computation of ordinary Newton corrections dx[n]
@@ -518,13 +518,200 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 retCode = 82
                 throw(EvaluationError(fcn,err))
             end
-
+            nFcn += 1
+            # TODO: Understand what is happening here
+            # and handle the failure properly
+            # What does iFail = 1 and iFail = 2 mean??
             if iFail == 1 || iFail == 2
-                #TODO
-            else
-                #TODO
-            end
+                if qOrdi
+                    retCode = 82
+                    break
+                end
+                if iFail == 1
+                    fcRedu = 0.5
+                else
+                    fcRedu = f[1]
 
+                    if fcRedu <= 0 || fcRedu >= 1
+                        retCode = 82
+                        break
+                    end
+                end
+                if printIterationMonitor >= 2
+                    write(printIO,
+                    @sprintf("        %2i",nIter),
+                    @sprintf(" $fcn could not be evaluated     %7.5f    %2i\n",fc,newt))
+                end
+                fch = fc
+                fc  = fcRedu*fc
+                if fch > fcMin
+                    fc = max(fc,fcMin)
+                end
+                if qBDamp
+                    fcbh = fch/fcBand
+                    if fc < fcbh
+                        fc = fcbh
+                        if printIterationMonitor >= 4
+                            write(printIO," *** Decrease rest. act. (fcn redu.) ***\n")
+                        end
+                    end
+                end
+                if fc < fcMin
+                    retCode = 3
+                    break
+                end
+            else
+                if qOrdi
+                    # ----------------------------------------------------------
+                    # 3.6.2 Convergence test for ordinary Newton iteration
+                    push!(tolAll,dxANrm)
+                    if dxANrm <= rTol
+                        retCode = 0
+                        iCnv    = 1
+                        break
+                    end
+                else
+                    t1 = f.*fw
+                    # ------------------------------------------------------
+                    # 3.6.3 Solution of linear (n,n) system
+                    (t1,iFail) = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
+                    if iFail != 0
+                        retCode = 81
+                        break
+                    end
+                    if newt > 0
+                        dxQ = t1.*xwa
+                        for iLoop = 1:newt
+                            sum1 = sum((dxQ.*dxSave[1:n,iLoop])./xw.^2)
+                            sum2 = sum((dxSave[1:n,iLoop]./xw).^2)
+                            beta = sum1/sum2
+                            dxQ = dxQ + beta*dxSave[1:n,iLoop+1]
+                            t1 = dxQ./xw
+                        end
+                    end
+                    # ------------------------------------------------------
+                    # 3.6.4 Evaluation of scaled natural level function
+                    #       sumX
+                    #       scaled maximum error norm conv and evaluation
+                    #       of (scaled) standard level function dLevFn
+                    if !qSimpl
+                        (dxQ,conv,sumX,dLevFn) =
+                        n1lvls(n,dxQ,t1,xw,f,printIterationMonitor,newt==0)
+                    else
+                        (dxQ,conv,sumX,dLevFn) =
+                        n1lvls(n,dxQ,t1,xwa,f,printIterationMonitor,newt==0)
+                    end
+                    push!(sumXQall,sqrt(sumX/n))
+                    dxNrm = wnorm(n,dxQ,xw)
+                    # ------------------------------------------------------
+                    # 3.6.5 Convergence test
+                    push!(tolAll,dxNrm)
+                    if dxNrm <= rTol && dxANrm <= rSmall && fc == 1.0
+                        retCode = 0
+                        iCnv = 1
+                        break
+                    end
+
+                    fcA = fc
+                    # ------------------------------------------------------
+                    # 3.6.6 Evaluation of reduced damping factor
+                    th = fcA - 1.0
+                    fcDnm = sum(((dxQ+th*dx)./xw).^2)
+                    if fcDnm != 0.0
+                        dMyCor = fcA*fcA*0.5*sqrt(fcNumK/fcDnm)
+                    else
+                        dMyCor = 1.0e+35
+                    end
+                    if nonLin <= 3
+                        fcCor = min(1.0,dMyCor)
+                    else
+                        fcCor = min(1.0,0.5*dMyCor)
+                    end
+
+                    if printIterationMonitor >= 5
+                        write(printIO,
+                        @sprintf(" +++ corrector computation +++\n"),
+                        @sprintf("  fcCor    = %18.10e\n",fcCor),
+                        @sprintf("  fc       = %18.10e\n",fc),
+                        @sprintf("  dMyCor   = %18.10e\n",dMyCor),
+                        @sprintf("  fcNumK   = %18.10e\n",fcNumK),
+                        @sprintf("  fcDnm    = %18.10e\n",fcDnm),
+                        @sprintf("  fcA      = %18.10e\n",fcA),
+                        @sprintf("++++++++++++++++++++++++++++++\n"))
+                    end
+                end
+                # ----------------------------------------------------------
+                # 3.7 Natural monotonicity test
+                if sumX > sumXa && !qOrdi
+                    # ------------------------------------------------------
+                    # 3.8 Output of iterate
+                    if printIterationMonitor >= 3
+                        n1prv2(dLevFn,sqrt(sumX/n),fc,niter,printIterationMonitor,
+                        printIO,qMixIO,"*")
+                    end
+                    if qmStop
+                        retCode = 4
+                        break
+                    end
+                    fch = min(fcCor,0.5*fc)
+                    if fc > fcMin
+                        fc = max(fch,fcMin)
+                    else
+                        fc = fch
+                    end
+                    if qBDamp
+                        fcbh = fcA/fcBand
+                        if fc < fcbh
+                            fc = fcbh
+                            if printIterationMonitor >= 4
+                                write(printIO,
+                                " *** Decrese rest. sct. (a posteriori) ***\n")
+                            end
+                        end
+                    end
+                    fcMon = fc
+
+                    if printIterationMonitor >= 5
+                        write(printIO,
+                        " +++ corrector setting 1 +++\n",
+                        @sprintf("fc    = %18.10e\n",fc),
+                        " +++++++++++++++++++++++++++\n")
+                    end
+
+                    qRep = 1
+                    nCorr += 1
+                    nRed += 1
+                    # ------------------------------------------------------
+                    # 3.10 If damping factor is too small:
+                    #      Refreash Jacobian, if current Jacobian was computed
+                    #      by a Rank-1 update, else fail and exit
+                    qJcRfr = fc < fcMin || (newt > 0 && nRed > 1)
+
+                    if qJcRfr && newt == 0
+                        retCode = 3
+                        break
+                    end
+                else
+                    if !qOrdi && !qRep && fcCor > sigma2*fc
+                        if printIterationMonitor >= 3
+                            n1prv2(dLevFn,sqrt(sumX/n),fc,nIter,
+                            printIterationMonitor,printIO,qMixIO,"+")
+                        end
+                        fc = fcCor
+
+                        if printIterationMonitor >= 5
+                            write(printIO,
+                            " +++ corrector setting 2 +++\n",
+                            @sprintf("fc    = %18.10e\n",fc),
+                            " +++++++++++++++++++++++++++\n")
+                        end
+
+                        qRep = 1
+                    else
+                        qNext = 1
+                    end
+                end
+            end
             qRed = !(qNext||qJcRfr)
         end
         # End of damping factor reduction loop
@@ -532,5 +719,60 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             break
         end
         # ======================================================================
+        if qJcRfr
+            # ------------------------------------------------------------------
+            # 3.11 Restore former values for repeating iteration step
+            nRejR1 += 1
+            x[:] = xa
+            f[:] = fa
+            if printIterationMonitor >= 2
+                write(printIO,
+                @sprintf("        %2i not accepted damping factor %7.5f",nIter,fc),
+                @sprintf("    %2i\n",newt))
+            end
+            fc  = fcKeep
+            fcA = fck2
+            if nIter == 0
+                fc = fcMin
+            end
+            qGenJ = 1
+        else
+            # ------------------------------------------------------------------
+            # 4 Preparations to start the following iteration step
+            # ------------------------------------------------------------------
+            # Print values
+            if printIterationMonitor >= 3 && !qOrdi
+                n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,printIterationMonitor,
+                printIO,qMixIO,"*")
+            end
+            # Print the natural level of the current iterate and
+            # return it in one-step mode
+            sumXs = sumX
+            sumX = sumXa
+            if printSolution >= 2 && nIter != 0
+                n1sout(n,xa,2,opt,wk,printSolution,printIO)
+            elseif printSolution >= 1 && nIter == 0
+                n1sout(n,xa,1,opt,wk,printSolution,printIO)
+            end
+            nIter += 1
+            stats[STATS_NITER] = nIter
+            push!(xIter,x)
+            dLevF = dLevFn
+            if nIter >= nItmax
+                retCode = 2
+                break
+            end
+            fcKeep = fc
+            # ------------------------------------------------------------------
+            # 4.2 Return if in one-step mode
+            if mode == 1
+                qSucc = 1
+                return
+            end
+        end
     end
+    # End repeat
+    # End of main iteration loop
+    # --------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 end

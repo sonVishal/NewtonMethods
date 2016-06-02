@@ -159,10 +159,10 @@ function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
         end
     end
     if mPr >= 3 || niter == 0
-        write(printIO,@sprintf("\t%4i\t\t\t%10.3e\t%10.3e\t\t%2i\n",niter,dlevf,dlevx,newt))
+        write(printIO,@sprintf("     %4i\t%10.3e\t%10.3e\t%2i\n",niter,dlevf,dlevx,newt))
     end
     if mPr == 2 && niter != 0
-        write(printIO,@sprintf("\t%4i\t\t\t%10.3e\t%10.3e\t%7.5f\t%2i\n",niter,dlevf,dlevx,fc,newt))
+        write(printIO,@sprintf("     %4i\t%10.3e\t%10.3e\t%7.5f\t%2i\n",niter,dlevf,dlevx,fc,newt))
     end
     if qMixIO
         write(printIO,"*******************************************************",

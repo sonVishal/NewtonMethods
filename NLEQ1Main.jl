@@ -124,7 +124,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             "\n",
             "*******************************************************************",
             "\n",
-            "        It       Normf           Normx         Damp.Fct.   New\n")
+            "\tIt\tNormf\t\tNormx\t\tDamp.Fct.\tNew\n")
         end
         # ----------------------------------------------------------------------
         # 1.7 Startup step
@@ -499,9 +499,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             n1prv1(dLevF,dLevXa,fcKeep,nIter,newt,mPr,printIO,qMixIO)
         end
         nRed    = 0
-        qNext   = 0
-        qRep    = 0
-        qRed    = 0
+        qNext   = false
+        qRep    = false
+        qRed    = true
         iCnv    = 0
 
         # Damping-factor reduction loop
@@ -686,7 +686,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                         " +++++++++++++++++++++++++++\n")
                     end
 
-                    qRep = 1
+                    qRep = true
                     nCorr += 1
                     nRed += 1
                     # ------------------------------------------------------
@@ -714,9 +714,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                             " +++++++++++++++++++++++++++\n")
                         end
 
-                        qRep = 1
+                        qRep = true
                     else
-                        qNext = 1
+                        qNext = true
                     end
                 end
             end

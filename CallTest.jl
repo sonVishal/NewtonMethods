@@ -1,23 +1,20 @@
 include("NLEQ1.jl")
-function f(x)
-    x = x-1;
-    return nothing;
-end
-
-function Jac(x,y)
-    y[1] = x[1]+2
-    y[2] = x[2]+3;
-    return nothing;
+function fcn(x,f)
+    f = zeros(x)
+    f[1] = x[1]
+    f[2] = x[2]
+    return nothing
 end
 
 opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_PRINTITERATION => 5)
 
-x = ones(4);
-xScal = ones(4);
+x = ones(2);
+xScal = ones(2);
 
-(stats,retCode) = nleq1(f,x,xScal,opt);
+(sol, stats, retCode) = nleq1(fcn,x,xScal,opt);
 
 println("retCode = $retCode","\n");
 println("Options = $opt","\n");
+println("SOlution = $sol");
 
 # throw(EvaluationError(Jac));

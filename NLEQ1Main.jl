@@ -1,7 +1,9 @@
-function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+#include("Helper.jl")
+#include("Jacobian.jl")
+function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
-    a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcmon,
-    fcStart, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
+    a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
+    fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
     dLevF, mStor, printWarning, mPr, mPrSol, printIO,
     nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp, stats)
 
@@ -85,7 +87,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         push!(xIter,x)
 
         nIter  = 0
-        stats[STATS_NITER] = nIter;
+        stats[STATS_NITER] = nIter
         nCorr  = 0
         nRejR1 = 0
         nFcn   = 0
@@ -136,7 +138,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             #throw(EvaluationError(fcn,err))
         end
         nFcn += 1
-        if length(f) ~= n
+        if length(f) != n
             retCode = 22
             qIter   = false
             #=throw(DimensionMismatch("Dimension of the function output does not
@@ -217,7 +219,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         if qGenJ && (!qSimpl || nIter == 0)
             newt = 0
             if jacGen == 1
-                jac = getOption(opt,OPT_JACFCN,0);
+                jac = getOption(opt,OPT_JACFCN,0)
                 try
                     jac(x,a)
                 catch
@@ -266,7 +268,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             xwa = xw[1:n]
             if issparse(a)
                 nza = nnz(a)
-                (row,col) = findn(a);
+                (row,col) = findn(a)
                 for k = 1:nza
                     a[row[k],col[k]] = -a[row[k],col[k]]*xw[col[k]]
                 end
@@ -305,13 +307,13 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                     (a,fw) = n1scrb(n,m1,ml,mu,a)
                 end
             else
-                fw = ones(n);
+                fw = ones(n)
             end
         end
         # ----------------------------------------------------------------------
         # 2.4.3 Save and scale values of F(n)
-        fa[:] = f;
-        t1 = f.*fw;
+        fa[:] = f
+        t1 = f.*fw
         # ----------------------------------------------------------------------
         # 3 Central part of iteration step
         # ----------------------------------------------------------------------
@@ -319,7 +321,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # ----------------------------------------------------------------------
         # 3.1.1 Decomposition of (n,n) matrix A
         if newt == 0 && (qLU || nIter == 0)
-            (l,u,p,iFail) = n1fact(n,m1,ml,mu,a,opt);
+            (l,u,p,iFail) = n1fact(n,m1,ml,mu,a,opt)
             if iFail != 0
                 if iFail == 1
                     retCode = 1
@@ -329,11 +331,11 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 break
             end
         end
-        qLInit = 1;
+        qLInit = 1
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0
-            (t1,iFail) = n1solv(n,m1,ml,mu,l,u,p,t1,opt);
+            (t1,iFail) = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
             if iFail != 0
                 retCode = 81
                 break
@@ -357,14 +359,14 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # evaluation of (scaled) standard level function dlevf
         # and computation of ordinary Newton corrections dx[n]
         if !qSimpl
-            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xw,f,newt == 0)
+            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xw,f,mPr,newt == 0)
         else
-            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,newt == 0)
+            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,mPr,newt == 0)
         end
         stats[STATS_SUMX]   = sumX
         stats[STATS_DLEVF]  = dLevF
         xa[:]    = x
-        sumXa[:] = sumX
+        sumXa = sumX
         dLevXa   = sqrt(sumXa/n)
         conva    = conv
         dxANrm   = wnorm(n,dx,xw)
@@ -404,7 +406,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
 
             fc = max(fcPri,fcMin)
             if qBDamp
-                fcbh = fcA*fcBand;
+                fcbh = fcA*fcBand
                 if fc > fcbh
                     fc = fcbh
                     if mPr >= 4
@@ -481,7 +483,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 if iConv >= 2 && alphaA < 0.9
                     if iOrMon == 3
                         retCode = 4
-                        break;
+                        break
                     else
                         qmStop = 1
                     end
@@ -874,10 +876,10 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # either on STDOUT or in file
         if qmStop
             write(printIO,"\nWARNING: Monotonicity test failed after ",ctyp,
-            " convergence was already checked;\nrTol requirement may be too",
+            " convergence was already checked\nrTol requirement may be too",
             " stringent\n")
         else
-            write(printIO,"\nWARNING: ",ctyp, " convergence slowed down;\n",
+            write(printIO,"\nWARNING: ",ctyp, " convergence slowed down\n",
             "rTol requirement may be too stringent\n")
         end
     end

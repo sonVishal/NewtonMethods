@@ -15,9 +15,9 @@
 #         retCode:    Return code signifying success or failure
 # This function does the bookkeeping. The actual computation are done in n1int
 
-include("CheckOptionsNLEQ1.jl")
-include("Jacobian.jl")
-include("Error.jl")
+#include("CheckOptionsNLEQ1.jl")
+#include("Error.jl")
+#include("NLEQ1Main.jl")
 function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # TODO: persistent variables
@@ -320,10 +320,10 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     if printIt >= 2 && qSucc == 0
         write(printIO,"INFO: ","Internal parameters:",
-        "\n Starting value for damping factor ",
+        "\n\tStarting value for damping factor ",
         "OPT_FCSTART = $(opt.options[OPT_FCSTART])",
-        "\n Minimum allowed damping factor OPT_FCMIN = $fcMin",
-        "\n Rank-1 updates decision parameter ",
+        "\n\tMinimum allowed damping factor OPT_FCMIN = $fcMin",
+        "\n\tRank-1 updates decision parameter ",
         "OPT_SIGMA = $(opt.options[OPT_SIGMA])\n")
     end
 
@@ -346,8 +346,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
     opt.options[OPT_SIGMA2], wk.options[WK_FCA], wk.options[WK_FCKEEP],
     wk.options[WK_FCPRI], wk.options[WK_DMYCOR], stats[STATS_CONV],
-    wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printWarning,
-    printIterationMonitor, printSolution, printIO, stats[STATS_NITER],
+    wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printFlag,
+    printIt, printSol, printIO, stats[STATS_NITER],
     stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NFCNJ], stats[STATS_NJAC], stats[STATS_NREJR1],
     stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
 
@@ -377,5 +377,5 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         @sprintf("*****************************************\n"))
     end
 
-    return (stats, retCode)
+    return (x, stats, retCode)
 end

@@ -51,7 +51,7 @@ function n1scrf(m,n,a)
     else
         aout = zeros(a)
         for k = 1:m
-            s1 = max(abs(a[k,1:n]))
+            s1 = maximum(abs(a[k,1:n]))
             if s1 > 0.0
                 s1 = 1.0/s1
                 aout[k,1:n] = a[k,1:n]*s1
@@ -139,7 +139,7 @@ function n1lvls(n,dxq,dx1,xw,f,mPr,qdscal)
     # --------------------------------------------------------------------------
     # 2 Evaluation of scaled natural level function sumx and scaled maximum
     # error norm conv
-    conv = max(abs(dx1))
+    conv = maximum(abs(dx1))
     sumx = sum(dx1.^2)
     # --------------------------------------------------------------------------
     # 3 Evaluation of (scaled) standard level function dlevf

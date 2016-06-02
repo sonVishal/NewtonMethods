@@ -10,6 +10,8 @@ function n1jac(fcn,n,lda,x,fx,yscal,ajdel,ajmin,nFcn)
     # Begin
     iFail = 0
     nFcnNew = nFcn
+    a = zeros(n,n)
+    fu = zero(x)
     for k = 1:n
         w = x[k]
         su = sign(x[k])

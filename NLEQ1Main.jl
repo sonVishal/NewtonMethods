@@ -3,7 +3,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcmon,
     fcStart, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
     dLevF, mStor, printWarning, mPr, mPrSol, printIO,
-    nIter, nCorr, nFcn, nJac, nRejR1, newt, iConv, qBDamp, stats)
+    nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp, stats)
 
     epMach  = getMachineConstants(3)
     small   = getMachineConstants(6)
@@ -89,6 +89,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         nCorr  = 0
         nRejR1 = 0
         nFcn   = 0
+        nFcnJ  = 0
         nJac   = 0
         iConv  = 0
         conv   = 0.0
@@ -227,17 +228,17 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             else
                 if mStor == 0
                     if jacGen == 3
-                        #TODO: Jacobian with num diff feedback
+                        (a,eta,nFcnJ,iFail) = n1jcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
                     end
                     if jacGen == 2
-                        #TODO: Jacobian with num diff without feedback
+                        (a,nFcnJ,iFail) = n1jac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ)
                     end
                 elseif mStor == 1
                     if jacGen == 3
-                        #TODO: banded num diff with feedback
+                        (a,eta,nFcnJ,iFail) = n1jcfb(fcn,n,m1,ml,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
                     end
                     if jacGen == 2
-                        #TODO: banded num diff without feedback
+                        (a,nFcnJ,iFail) = n1jacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ)
                     end
                 end
             end
@@ -965,6 +966,7 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     stats[STATS_NITER]  = nIter
     stats[STATS_NCORR]  = nCorr
     stats[STATS_NFCN]   = nFcn
+    stats[STATS_NFCNJ]  = nFcnJ
     stats[STATS_NJAC]   = nJac
     stats[STATS_NREJR1] = nRejR1
     stats[STATS_NEW]    = newt

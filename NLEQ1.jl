@@ -155,6 +155,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     stats[STATS_NITER]  = 0
     stats[STATS_NCORR]  = 0
     stats[STATS_NFCN]   = 0
+    stats[STATS_NFCNJ]  = 0
     stats[STATS_NJAC]   = 0
     stats[STATS_NREJR1] = 0
     stats[STATS_NEW]    = 0
@@ -347,7 +348,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     wk.options[WK_FCPRI], wk.options[WK_DMYCOR], stats[STATS_CONV],
     wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printWarning,
     printIterationMonitor, printSolution, printIO, stats[STATS_NITER],
-    stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NJAC], stats[STATS_NREJR1],
+    stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NFCNJ], stats[STATS_NJAC], stats[STATS_NREJR1],
     stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
 
     # set stats variable

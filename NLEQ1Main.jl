@@ -129,17 +129,17 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # 1.7.1 Computation of residual vector
         try
             fcn(x,f)
-        catch err
+        catch
             retCode = 82
-            # qIter   = false
-            throw(EvaluationError(fcn,err))
+            qIter   = false
+            #throw(EvaluationError(fcn,err))
         end
         nFcn += 1
         if length(f) ~= n
             retCode = 22
-            # qIter   = false
-            throw(DimensionMismatch("Dimension of the function output does not
-            match the input dimension. Please check the function \"$fcn\" again."))
+            qIter   = false
+            #=throw(DimensionMismatch("Dimension of the function output does not
+            match the input dimension. Please check the function \"$fcn\" again."))=#
         end
     else
         qIniSc = false
@@ -216,10 +216,13 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         if qGenJ && (!qSimpl || nIter == 0)
             newt = 0
             if jacGen == 1
+                jac = getOption(opt,OPT_JACFCN,0);
                 try
                     jac(x,a)
-                catch err
-                    throw(EvaluationError(jac,err))
+                catch
+                    retCode = 82
+                    iFail   = -1
+                    #throw(EvaluationError(jac,err))
                 end
             else
                 if mStor == 0
@@ -515,9 +518,10 @@ function n1int(n, fcn, jac, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             # 3.6.1 Computation of the residual vector
             try
                 fcn(x,f)
-            catch err
+            catch
+                iFail = -1
                 retCode = 82
-                throw(EvaluationError(fcn,err))
+                # throw(EvaluationError(fcn,err))
             end
             nFcn += 1
             # TODO: Understand what is happening here

@@ -96,6 +96,24 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         end
     end
 
+    # Assign the Jacobian depending on user input
+    # Multiple dispatch calls the required function based on
+    # the storage requirement of the user
+    jacGen = getOption!(opt,OPT_JACGEN,0)
+    if jacGen == 1
+        jacFcn = getOption!(opt,OPT_JACFCN,0)
+        if typeof(jacFcn) != Function
+            retCode = 99
+            println("ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
+            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")
+            return retCode
+        end
+    elseif jacGen == 0
+        jacGen = 2
+        opt.options[OPT_JACGEN] = jacGen
+    end
+
+
     # TODO: Not in MATLAB file but not sure if the other options should be tested
     # # Define lower and upper bounds for options
     # optL = zeros(8);

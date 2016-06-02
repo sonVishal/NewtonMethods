@@ -99,14 +99,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         m2 = ml + mu + 1
     end
 
-    # Assign the Jacobian depending on user input
-    # Multiple dispatch calls the required function based on
-    # the storage requirement of the user
-    jacGen = getOption!(opt,OPT_JACGEN,0)
-    if jacGen == 0
-        jacGen = 2
-        opt.options[OPT_JACGEN] = jacGen
-    end
+    jacGen = getOption(opt,OPT_JACGEN,2);
 
     qRank1 = getOption!(opt, OPT_QRANK1,    0)
     qOrdi  = getOption!(opt, OPT_QORDI,     0)
@@ -169,6 +162,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     stats[STATS_CONV]   = 0.0
     stats[STATS_SUMX]   = 0.0
     stats[STATS_DLEVF]  = 0.0
+    stats[STATS_RTOL]   = 0.0
 
     if qIniMon
         write(printIO,"INFO: ","N = $n\n")
@@ -340,10 +334,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         nBroy = 1
     end
 
-    # TODO: Initialize statistics before passing to n1int
-
     # Call to n1int
-    (x, xScal, retCode, stats) = n1int(n, fcn, jac, x, xScal,
+    (x, xScal, retCode, stats) = n1int(n, fcn, x, xScal,
     opt.options[OPT_RTOL], nItmax, nonLin, opt, retCode, wk, m1, m2, nBroy,
     xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, wk.options[WK_A],
     wk.options[WK_DXSAVE], wk.options[WK_DX], wk.options[WK_DXQ],

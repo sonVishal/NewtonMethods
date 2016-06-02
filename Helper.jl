@@ -106,7 +106,7 @@ function n1fact(n,lda,ml,mu,a,opt)
         l = a[:,:]
         # Use LINPACK function to compute the LU in place
         # p stores the pivot vectors and not the
-        (l,p) = gbtrf!(ml,mu,lda,l)
+        (l,p,iFail) = dgbfa(a,lda,n,ml,mu)
         u = []
     end
     if iFail != 0
@@ -119,13 +119,30 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     # Begin
     mStor = opt.options[OPT_MSTOR]
     if mStor == 0
-        x = p*b
+        x = b[p]
         x = l\x
         x = u\x
     elseif mStor == 1
-        # TODO: Check this. Should be "a" in place of "l"
-        gbtrs!(N,ml,mu,lda,l,p,b)
+        x = dgbsl(l,lda,n,ml,mu,p,b,0)
     end
     iFail = 0
     return (x,iFail)
+end
+
+function n1lvls(n,dxq,dx1,xw,f,mPr,qdscal)
+    # Begin
+    if qdscal
+        # ----------------------------------------------------------------------
+        # 1.2 Descaling of solution dx1 (stored to dxq)
+        dxq = dx1.*xw
+    end
+    # --------------------------------------------------------------------------
+    # 2 Evaluation of scaled natural level function sumx and scaled maximum
+    # error norm conv
+    conv = max(abs(dx1))
+    sumx = sum(dx1.^2)
+    # --------------------------------------------------------------------------
+    # 3 Evaluation of (scaled) standard level function dlevf
+    dlevf = sqrt(sum(f.^2)/n)
+    return (dxq,conv,sumx,dlevf)
 end

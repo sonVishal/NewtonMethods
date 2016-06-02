@@ -146,3 +146,78 @@ function n1lvls(n,dxq,dx1,xw,f,mPr,qdscal)
     dlevf = sqrt(sum(f.^2)/n)
     return (dxq,conv,sumx,dlevf)
 end
+
+function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
+    if qMixIO
+        write(printIO,"*******************************************************",
+        "\n");
+        if mPr >= 3
+            write(printIO,"\tIt\t\t\tNormf\t\t\tNormx\t\t\t\tNew\n")
+        end
+        if mPr == 2
+            write(printIO,"\tIt\t\t\tNormf\t\t\tNormx\t\tDamp.Fct.\tNew\n")
+        end
+    end
+    if mPr >= 3 || niter == 0
+        write(printIO,@sprintf("\t%4i\t\t\t%10.3e\t%10.3e\t\t%2i\n",niter,dlevf,dlevx,newt))
+    end
+    if mPr == 2 && niter != 0
+        write(printIO,@sprintf("\t%4i\t\t\t%10.3e\t%10.3e\t%7.5f\t%2i\n",niter,dlevf,dlevx,fc,newt))
+    end
+    if qMixIO
+        write(printIO,"*******************************************************",
+        "\n");
+    end
+    return nothing
+end
+
+function n1prv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
+    if qMixIO
+        write(printIO,"*******************************************************",
+        "\n");
+        write(printIO,"\tIt\t\tNormf\t\tNormx\t\tDamp.Fct\n")
+    end
+    write(printIO,@sprintf("\t%4i\t\t%10.3e\t%1s %10.3e\t\t%7.5f\n",niter,dlevf,cmark,dlevx,fc))
+    if qMixIO
+        write(printIO,"*******************************************************",
+        "\n");
+    end
+    return nothing
+end
+
+function n1sout(n,x,mode,opt,stats,mPr,printIO)
+    # Begin
+    qNorm = true
+    if qNorm
+        if mode == 1
+            write(printIO,@sprintf("%s\n%s%5i\n\n%s\n","  Start data:","  N =",n, "  Format: iteration-number, (x(i),i=1,...N) , Normf , Normx "))
+            write(printIO,@sprintf("%s\n","  Initial data:"))
+        elseif mode == 3
+            write(printIO,@sprintf("%s\n","  Solution data:"))
+        elseif mode == 4
+            write(printIO,@sprintf("%s\n","  Final data:"))
+        end
+        write(printIO,@sprintf(" %5i\n",stats[STATS_NITER]))
+        l2 = 0
+        for l1 = 1:n
+            write(printIO,@sprintf("%18.10e ",x[l1]))
+            l2 += 1
+            if l2 == 3
+                write(printIO,"%1s\n"," ")
+                l2 = 0
+            end
+        end
+        write(printIO,@sprintf("%18.10e %18.10e \n",stats[STATS_DLEVF],sqrt(stats[STATS_SUMX]/n)))
+        if mode == 1 && mPr >= 2
+            write(printIO,@sprintf("%s\n","  Intermediate data:"))
+        elseif mode >= 3
+            write(printIO,@sprintf("%s\n","  End data:"))
+        end
+    end
+    return nothing
+end
+
+function wnorm(n,z,xw)
+    # Begin
+    return sqrt(sum((z./xw).^2)/n)
+end

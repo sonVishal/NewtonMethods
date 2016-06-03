@@ -61,7 +61,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 #-------------------------------------------------------------------------------
 
     # First call or successive call
-    qSucc   = getOption!(opt,OPT_QSUCC,0)
+    qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
     qIniMon = (printIt >= 1 && qSucc == 0)
 
     # Check input parameters and options
@@ -77,7 +77,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # Check if this is a first call or successive call
     # to nleq1
-    if qSucc == 0
+    if !qSucc
         # If this is the first call then assign memory to the variables
         xIter       = []
         sumXall     = []
@@ -101,11 +101,11 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     jacGen = getOption(opt,OPT_JACGEN,2);
 
-    qRank1 = getOption!(opt, OPT_QRANK1,    0)
-    qOrdi  = getOption!(opt, OPT_QORDI,     0)
-    qSimpl = getOption!(opt, OPT_QSIMPL,    0)
+    qRank1 = Bool(getOption!(opt, OPT_QRANK1,    0))
+    qOrdi  = Bool(getOption!(opt, OPT_QORDI,     0))
+    qSimpl = Bool(getOption!(opt, OPT_QSIMPL,    0))
 
-    if qRank1 == 1
+    if qRank1
         nBroy = getOption!(opt,OPT_NBROY,0)
         if nBroy == 0
             nBroy = max(m2,10)
@@ -124,7 +124,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # Workspace: WK
     initOption!(wk,WK_A,0.0)
 
-    if qRank1 == 1
+    if qRank1
         initOption!(wk,WK_DXSAVE,zeros(n,nBroy))
     else
         initOption!(wk,WK_DXSAVE,0.0)
@@ -201,23 +201,23 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     initOption!(opt,OPT_BOUNDEDDAMP,0)
 
     if opt.options[OPT_BOUNDEDDAMP] == 0
-        qBDamp = Int(nonLin == 4)
+        qBDamp = nonLin == 4
     elseif opt.options[OPT_BOUNDEDDAMP] == 1
-        qBDamp = 1
+        qBDamp = true
     elseif opt.options[OPT_BOUNDEDDAMP] == 2
-        qBDamp = 0
+        qBDamp = false
     end
 
     # Initialize bounded damping strategy restriction factor
     initOption!(opt,OPT_FCBAND,0.0)
-    if qBDamp == 1
+    if qBDamp
         if opt.options[OPT_FCBAND] < 1.0
             opt.options[OPT_FCBAND] = 10.0
         end
     end
 
     if qIniMon
-        if qRank1 == 1
+        if qRank1
             message = "allowed"
         else
             message = "inhibited"
@@ -233,17 +233,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
             message = "extremely nonlinear"
         end
         write(printIO,"INFO: ","Problem is specified as being $message\n")
-        if qBDamp == 1
+        if qBDamp
             write(printIO,"INFO: ","Bounded damping strategy is active\n",
             "bounding factor is $(opt.options[OPT_FCBAND])\n")
         else
             write(printIO,"INFO: ","Bounded damping strategy is off\n")
         end
-        if qOrdi == 1
+        if qOrdi
             write(printIO,"INFO: ","Special mode: ",
             "Ordinary Newton iteration will be done\n")
         end
-        if qSimpl == 1
+        if qSimpl
             write(printIO,"INFO: ","Special mode: ",
             "Simplified Newton iteration will be done\n")
         end
@@ -286,7 +286,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     if opt.options[OPT_SIGMA] < 1.0
         opt.options[OPT_SIGMA] = 3.0
     end
-    if qRank1 == 0
+    if !qRank1
         opt.options[OPT_SIGMA] = 10.0/fcMin
     end
 
@@ -307,18 +307,18 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     # Simplified Newton iteration implies ordinary Newton iteration mode
-    if getOption!(opt,OPT_QSIMPL,0) == 1
+    if Bool(getOption!(opt,OPT_QSIMPL,0))
         fc = 1.0
     end
 
     # If ordinary Newton iteration, damping factor is always 1
-    if getOption!(opt,OPT_QORDI,0) == 1
+    if Bool(getOption!(opt,OPT_QORDI,0))
         fc = 1.0
     end
 
     setOption!(opt,OPT_FCSTART,fc)
 
-    if printIt >= 2 && qSucc == 0
+    if printIt >= 2 && !qSucc
         write(printIO,"INFO: ","Internal parameters:",
         "\n\tStarting value for damping factor ",
         "OPT_FCSTART = $(opt.options[OPT_FCSTART])",

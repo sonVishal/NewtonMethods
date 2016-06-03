@@ -57,7 +57,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     qIter               = true
     iFail               = 0
     fcBand              = 0.0
-    if qBDamp == 1
+    if qBDamp
         fcBand = fcband
     end
     # --------------------------------------------------------------------------
@@ -258,7 +258,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 break
             end
 
-        elseif ~qSimpl
+        elseif !qSimpl
             newt += 1
         end
 
@@ -331,7 +331,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 break
             end
         end
-        qLInit = 1
+        qLInit = true
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0
@@ -485,7 +485,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                         retCode = 4
                         break
                     else
-                        qmStop = 1
+                        qmStop = true
                     end
                 end
             end
@@ -743,7 +743,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             if nIter == 0
                 fc = fcMin
             end
-            qGenJ = 1
+            qGenJ = true
         else
             # ------------------------------------------------------------------
             # 4 Preparations to start the following iteration step
@@ -774,7 +774,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             # ------------------------------------------------------------------
             # 4.2 Return if in one-step mode
             if mode == 1
-                qSucc = 1
+                qSucc = true
                 return
             end
         end

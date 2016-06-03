@@ -1,12 +1,12 @@
 function n1scal(n,x,xa,xScal,iScal,qIniSc,opt)
     small = getMachineConstants(6)
     # Begin
+    xw = zeros(n)
     if iScal == 1
-        xw = xScal
+        xw[:] = xScal
     else
-        xw = zeros(n)
         for l1 = 1:n
-            xw[l1] = max(xScal[l1],max((abs(x[l1])+abs(xa[l1])*0.5),small))
+            xw[l1] = max(xScal[l1],max((abs(x[l1])+abs(xa[l1]))*0.5,small))
         end
     end
 
@@ -54,6 +54,7 @@ function n1scrf(m,n,a)
             s1 = maximum(abs(a[k,1:n]))
             if s1 > 0.0
                 s1 = 1.0/s1
+                fw[k] = s1
                 aout[k,1:n] = a[k,1:n]*s1
             else
                 fw[k] = 1.0

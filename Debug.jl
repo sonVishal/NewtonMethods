@@ -63,14 +63,20 @@ function chebyquad(n::Integer)
     return name, f!, g!, x
 end
 
-opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_PRINTITERATION => 5);
+function test(x,f)
+    f[:] = x;
+end
 
-(name,fcn,jac,x) = chebyquad(2);
-xScal = ones(2);
+#opt = OptionsNLEQ(OPT_PRINTWARNING => 1, OPT_PRINTITERATION => 5);
+optTest = OptionsNLEQ(OPT_RTOL => 1e-3);
 
+#(name,fcn,jac,x) = chebyquad(2);
+
+x = ones(3);
+xScal = ones(3);
 println("Done setting up the problem")
 println("Calling the function")
-(sol, stats, retCode) = nleq1(fcn,x,xScal,opt);
+(sol, stats, retCode) = nleq1(test,x,xScal,optTest);
 println("Done calling the function")
 println("retCode = $retCode","\n");
 println("Options = $opt","\n");

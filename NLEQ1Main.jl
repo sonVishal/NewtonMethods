@@ -1,6 +1,7 @@
 #include("Helper.jl")
 #include("Jacobian.jl")
-function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+using Debug
+@debug function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
@@ -15,11 +16,11 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     # 1 Initialization
     # --------------------------------------------------------------------------
     # 1.1 Control variables
-    qSucc       = opt.options[OPT_QSUCC]        == 1
+    qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL]    != 1
-    qOrdi       = opt.options[OPT_QORDI]        == 1
-    qSimpl      = opt.options[OPT_QSIMPL]       == 1
-    qRank1      = opt.options[OPT_QRANK1]       == 1
+    qOrdi       = Bool(opt.options[OPT_QORDI])
+    qSimpl      = Bool(opt.options[OPT_QSIMPL])
+    qRank1      = Bool(opt.options[OPT_QRANK1])
     iOrMon      = getOption!(opt, OPT_IORMON, 0)
     if iOrMon == 0
         iOrMon = 2
@@ -132,7 +133,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # 1.7.1 Computation of residual vector
         try
             fcn(x,f)
+            iFail = 0
         catch
+            iFail = -1
             retCode = 82
             qIter   = false
             #throw(EvaluationError(fcn,err))
@@ -313,6 +316,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # ----------------------------------------------------------------------
         # 2.4.3 Save and scale values of F(n)
         fa[:] = f
+        @bp
         t1 = f.*fw
         # ----------------------------------------------------------------------
         # 3 Central part of iteration step
@@ -654,8 +658,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                     # ------------------------------------------------------
                     # 3.8 Output of iterate
                     if mPr >= 3
-                        n1prv2(dLevFn,sqrt(sumX/n),fc,niter,mPr,
-                        printIO,qMixIO,"*")
+                        n1prv2(dLevFn,sqrt(sumX/n),fc,niter,mPr,printIO,qMixIO,"*")
                     end
                     if qmStop
                         retCode = 4
@@ -749,9 +752,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             # 4 Preparations to start the following iteration step
             # ------------------------------------------------------------------
             # Print values
+            println("qOrdi = $qOrdi")
             if mPr >= 3 && !qOrdi
-                n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPr,
-                printIO,qMixIO,"*")
+                n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPr,printIO,qMixIO,"*")
             end
             # Print the natural level of the current iterate and
             # return it in one-step mode

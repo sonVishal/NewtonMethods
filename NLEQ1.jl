@@ -122,7 +122,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     initOption!(opt, OPT_NOROWSCAL, 0)
 
     # Workspace: WK
-    initOption!(wk,WK_A,0.0)
+    initOption!(wk,WK_A,zeros(n,n))
 
     if qRank1
         initOption!(wk,WK_DXSAVE,zeros(n,nBroy))

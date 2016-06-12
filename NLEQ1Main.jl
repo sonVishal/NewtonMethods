@@ -12,9 +12,10 @@
     # 0. Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
     # @bp
-    dLevFn = 1.0;
-    fcNump = 1.0;
-    sumXa  = 1.0;
+    dLevFn  = 1.0;
+    fcNump  = 1.0;
+    sumXa   = 1.0;
+    retCode = 0.0;
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
@@ -142,7 +143,7 @@
         # 1.7.1 Computation of residual vector
         try
             fcn(x,f)
-            iFail = 0
+            # iFail = 0
         catch
             iFail = -1
             retCode = 82
@@ -235,10 +236,11 @@
                 jac = getOption(opt,OPT_JACFCN,0)
                 try
                     jac(x,a)
-                catch
+                    # iFail = 0
+                catch err
                     retCode = 82
                     iFail   = -1
-                    #throw(EvaluationError(jac,err))
+                    throw(err)
                 end
             else
                 if mStor == 0
@@ -534,6 +536,7 @@
             # 3.6.1 Computation of the residual vector
             try
                 fcn(x,f)
+                # iFail = 0
             catch
                 iFail = -1
                 retCode = 82
@@ -769,9 +772,11 @@
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                n1sout(n,xa,2,opt,wk,mPrSol,printIO)
+                println("Number 1")
+                n1sout(n,xa,2,opt,stats,mPrSol,printIO)
             elseif mPrSol >= 1 && nIter == 0
-                n1sout(n,xa,1,opt,wk,mPrSol,printIO)
+                println("Number 2")
+                n1sout(n,xa,1,opt,stats,mPrSol,printIO)
             end
             nIter += 1
             stats[STATS_NITER] = nIter
@@ -787,7 +792,7 @@
             # 4.2 Return if in one-step mode
             if mode == 1
                 qSucc = true
-                return
+                return (x, xScal, retCode, stats)
             end
         end
     end
@@ -951,9 +956,11 @@
         if qOrdi
             mode = 3
         end
-        n1sout(n,xa,mode,opt,wk,mPrSol,printIO)
+        println("Number 3")
+        n1sout(n,xa,mode,opt,stats,mPrSol,printIO)
     elseif mPrSol >= 1 && nIter == 0
-        n1sout(n,xa,1,opt,wk,mPrSol,printIO)
+        println("Number 4")
+        n1sout(n,xa,1,opt,stats,mPrSol,printIO)
     end
     if !qOrdi
         if retCode != 4
@@ -967,7 +974,8 @@
             else
                 modefi = 4
             end
-            n1sout(n,x,modefi,opt,wk,mPrSol,printIO)
+            println("Number 5")
+            n1sout(n,x,modefi,opt,stats,mPrSol,printIO)
         end
     end
     # End of exits

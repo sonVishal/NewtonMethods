@@ -1,12 +1,21 @@
 #include("Helper.jl")
 #include("Jacobian.jl")
-using Debug
-@debug function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+# using Debug
+#=@debug=#function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
     dLevF, mStor, printWarning, mPr, mPrSol, printIO,
     nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp, stats)
+
+    # --------------------------------------------------------------------------
+    # 0. Variables that need to be defined before since they appear in different
+    # scopes. The declaration and usage are in different scopes.
+    # @bp
+    dLevFn = 1.0;
+    fcNump = 1.0;
+    sumXa  = 1.0;
+    # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
     small   = getMachineConstants(6)
@@ -206,6 +215,7 @@ using Debug
                     # 2.2.1 Computation of the numerator of damping
                     # factor predictor
                     fcNmp2 = sum((dxQa./xw).^2)
+                    # @bp
                     fcNump = fcNump*fcNmp2
                 end
             end
@@ -316,7 +326,6 @@ using Debug
         # ----------------------------------------------------------------------
         # 2.4.3 Save and scale values of F(n)
         fa[:] = f
-        @bp
         t1 = f.*fw
         # ----------------------------------------------------------------------
         # 3 Central part of iteration step
@@ -752,7 +761,6 @@ using Debug
             # 4 Preparations to start the following iteration step
             # ------------------------------------------------------------------
             # Print values
-            println("qOrdi = $qOrdi")
             if mPr >= 3 && !qOrdi
                 n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPr,printIO,qMixIO,"*")
             end
@@ -769,6 +777,7 @@ using Debug
             stats[STATS_NITER] = nIter
             push!(xIter,x)
             dLevF = dLevFn
+            # @bp
             if nIter >= nItmax
                 retCode = 2
                 break
@@ -793,6 +802,7 @@ using Debug
     # 9 Exits
     # --------------------------------------------------------------------------
     # 9.1 Solution exit
+    # @bp
     aprec = -1.0
 
     if retCode == 0 || retCode == 4

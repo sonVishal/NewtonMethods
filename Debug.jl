@@ -79,5 +79,5 @@ println("Calling the function")
 (sol, stats, retCode) = nleq1(test,x,xScal,optTest);
 println("Done calling the function")
 println("retCode = $retCode","\n");
-println("Options = $opt","\n");
+println("Options = $optTest","\n");
 println("Answer = $sol")

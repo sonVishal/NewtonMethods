@@ -772,10 +772,8 @@
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                println("Number 1")
                 n1sout(n,xa,2,opt,stats,mPrSol,printIO)
             elseif mPrSol >= 1 && nIter == 0
-                println("Number 2")
                 n1sout(n,xa,1,opt,stats,mPrSol,printIO)
             end
             nIter += 1
@@ -956,10 +954,8 @@
         if qOrdi
             mode = 3
         end
-        println("Number 3")
         n1sout(n,xa,mode,opt,stats,mPrSol,printIO)
     elseif mPrSol >= 1 && nIter == 0
-        println("Number 4")
         n1sout(n,xa,1,opt,stats,mPrSol,printIO)
     end
     if !qOrdi
@@ -974,7 +970,6 @@
             else
                 modefi = 4
             end
-            println("Number 5")
             n1sout(n,x,modefi,opt,stats,mPrSol,printIO)
         end
     end

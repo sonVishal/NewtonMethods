@@ -377,5 +377,5 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         @sprintf("*****************************************\n"))
     end
 
-    return (x, stats, retCode)
+    return (x, stats, retCode);
 end

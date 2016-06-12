@@ -153,17 +153,17 @@ function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
         write(printIO,"*******************************************************",
         "\n");
         if mPr >= 3
-            write(printIO,"\tIt\t\t\tNormf\t\t\tNormx\t\t\t\tNew\n")
+            write(printIO,"\tIt\tNormf\t\tNormx\t\tNew\n")
         end
         if mPr == 2
-            write(printIO,"\tIt\t\t\tNormf\t\t\tNormx\t\tDamp.Fct.\tNew\n")
+            write(printIO,"\tIt\tNormf\tNormx\tDamp.Fct.\tNew\n")
         end
     end
     if mPr >= 3 || niter == 0
-        write(printIO,@sprintf("     %4i\t%10.3e\t%10.3e\t%2i\n",niter,dlevf,dlevx,newt))
+        write(printIO,@sprintf("\t%i\t%1.3e\t%1.3e\t%i\n",niter,dlevf,dlevx,newt))
     end
     if mPr == 2 && niter != 0
-        write(printIO,@sprintf("     %4i\t%10.3e\t%10.3e\t%7.5f\t%2i\n",niter,dlevf,dlevx,fc,newt))
+        write(printIO,@sprintf("\t%i\t%1.3e\t%1.3e\t%7.5f\t%i\n",niter,dlevf,dlevx,fc,newt))
     end
     if qMixIO
         write(printIO,"*******************************************************",
@@ -176,9 +176,9 @@ function n1prv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     if qMixIO
         write(printIO,"*******************************************************",
         "\n");
-        write(printIO,"\tIt\t\tNormf\t\tNormx\t\tDamp.Fct\n")
+        write(printIO,"\tIt\tNormf\t\tNormx\t\tDamp.Fct\n")
     end
-    write(printIO,@sprintf("\t%4i\t\t%10.3e\t%1s %10.3e\t\t%7.5f\n",niter,dlevf,cmark,dlevx,fc))
+    write(printIO,@sprintf("\t%i\t%1.3e   %s   %1.3e\t%7.5f\n",niter,dlevf,cmark,dlevx,fc))
     if qMixIO
         write(printIO,"*******************************************************",
         "\n");

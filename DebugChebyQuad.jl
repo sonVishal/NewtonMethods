@@ -1,6 +1,4 @@
 include("ChebyQuad.jl");
-# include("Constants.jl");
-# include("Options.jl");
 
 # Dimension of the problem 2 <= dim <= 9
 dim = 2;
@@ -25,3 +23,5 @@ x0    = collect(1:dim)./n1;
 xScal = zeros(x0);
 
 (sol, stats, retCode) = nleq1(fcn,x0,xScal,opt);
+
+println("DONE")

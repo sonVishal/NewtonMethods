@@ -25,3 +25,6 @@ ReferenceBooks/
 
 # PDFs
 *.pdf
+
+# Atom ctags
+.tags*

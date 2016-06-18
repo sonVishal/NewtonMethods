@@ -152,18 +152,20 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     initOption!(wk, WK_SUMXS,  0.0)
 
     # Initialize statistics
-    stats[STATS_NITER]  = 0
-    stats[STATS_NCORR]  = 0
-    stats[STATS_NFCN]   = 0
-    stats[STATS_NFCNJ]  = 0
-    stats[STATS_NJAC]   = 0
-    stats[STATS_NREJR1] = 0
-    stats[STATS_NEW]    = 0
-    stats[STATS_ICONV]  = 0
-    stats[STATS_CONV]   = 0.0
-    stats[STATS_SUMX]   = 0.0
-    stats[STATS_DLEVF]  = 0.0
-    stats[STATS_RTOL]   = 0.0
+    if !qSucc
+        stats[STATS_NITER]  = 0
+        stats[STATS_NCORR]  = 0
+        stats[STATS_NFCN]   = 0
+        stats[STATS_NFCNJ]  = 0
+        stats[STATS_NJAC]   = 0
+        stats[STATS_NREJR1] = 0
+        stats[STATS_NEW]    = 0
+        stats[STATS_ICONV]  = 0
+        stats[STATS_CONV]   = 0.0
+        stats[STATS_SUMX]   = 0.0
+        stats[STATS_DLEVF]  = 0.0
+        stats[STATS_RTOL]   = 0.0
+    end
 
     if qIniMon
         write(printIOmon,"\nINFO: ","N = $n\n")

@@ -17,14 +17,17 @@
     sumXa   = 1.0;
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
-    # cLin0 = opt.getOption!("persistent_cLin0",0.0)
-    # cLin1 = opt.getOption!("persistent_cLin1",0.0)
-    # cAlpha = opt.getOption!("persistent_cAlpha",0.0)
-    # alphaE = opt.getOption!("persistent_alphaE",0.0)
-    # alphaK = opt.getOption!("persistent_alphaK",0.0)
-    # alphaA = opt.getOption!("persistent_alphaA",0.0)
-    # qMStop = opt.getOption!("persistent_qMStop",false)
-    # sumxa2 = opt.getOption!("persistent_qMStop",0.0)
+    cLin0   = getOption!(opt,"persistent_cLin0",0.0)
+    cLin1   = getOption!(opt,"persistent_cLin1",0.0)
+    cAlpha  = getOption!(opt,"persistent_cAlpha",0.0)
+    alphaE  = getOption!(opt,"persistent_alphaE",0.0)
+    alphaK  = getOption!(opt,"persistent_alphaK",0.0)
+    alphaA  = getOption!(opt,"persistent_alphaA",0.0)
+    qMStop  = getOption!(opt,"persistent_qMStop",false)
+    sumxa2  = getOption!(opt,"persistent_qMStop",0.0)
+    l       = getOption!(opt,"persistent_l",Float64[])
+    u       = getOption!(opt,"persistent_u",Float64[])
+    p       = getOption!(opt,"persistent_p",Float64[])
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
@@ -804,6 +807,17 @@
             if mode == 1
                 qSucc = true
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
+                setOption!(opt,"persistent_cLin0",cLin0)
+                setOption!(opt,"persistent_cLin1",cLin1)
+                setOption!(opt,"persistent_cAlpha",cAlpha)
+                setOption!(opt,"persistent_alphaE",alphaE)
+                setOption!(opt,"persistent_alphaK",alphaK)
+                setOption!(opt,"persistent_alphaA",alphaA)
+                setOption!(opt,"persistent_qMStop",qMStop)
+                setOption!(opt,"persistent_qMStop",sumxa2)
+                setOption!(opt,"persistent_l",l)
+                setOption!(opt,"persistent_u",u)
+                setOption!(opt,"persistent_p",p)
                 return (x, xScal, retCode, stats)
             end
         end

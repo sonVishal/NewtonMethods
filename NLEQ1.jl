@@ -77,15 +77,15 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # Check if this is a first call or successive call
     # to nleq1
-    if !qSucc
-        # If this is the first call then assign memory to the variables
-        xIter       = []
-        sumXall     = []
-        dLevFall    = []
-        sumXQall    = []
-        tolAll      = []
-        fcAll       = []
-    end
+    # if !qSucc
+    # If this is the first call then assign memory to the variables
+    xIter       = getOption!(opt,"persistent_xIter",[])
+    sumXall     = getOption!(opt,"persistent_sumXall",[])
+    dLevFall    = getOption!(opt,"persistent_dLevFall",[])
+    sumXQall    = getOption!(opt,"persistent_sumXQall",[])
+    tolAll      = getOption!(opt,"persistent_tolAll",[])
+    fcAll       = getOption!(opt,"persistent_fcAll",[])
+    # end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
     mStor = getOption!(opt,OPT_MSTOR,0)

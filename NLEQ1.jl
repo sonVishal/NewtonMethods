@@ -374,6 +374,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         @sprintf("***  Rejected Rank-1 steps : %7i  ***\n", (stats[STATS_NREJR1])),
         @sprintf("***  Jacobian evaluations  : %7i  ***\n", (stats[STATS_NJAC])),
         @sprintf("***  Function evaluations  : %7i  ***\n", (stats[STATS_NFCN])),
+        @sprintf("***  ... for Jacobain eval : %7i  ***\n", (stats[STATS_NFCNJ])),
         @sprintf("*****************************************\n"))
     end
 

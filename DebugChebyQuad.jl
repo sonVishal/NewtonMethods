@@ -16,12 +16,12 @@ opt = OptionsNLEQ(OPT_MODE              => 1,
                   OPT_JACFCN            => chebyQuadJac,
                   OPT_MSTOR             => 0,
                   OPT_NOROWSCAL         => 0,
-                  OPT_PRINTIOWARN       => fRest,
-                  OPT_PRINTIOMON        => fRest,
-                  OPT_PRINTSOLUTION     => fSol,
                   OPT_PRINTWARNING      => 1,
                   OPT_PRINTITERATION    => 3,
                   OPT_PRINTSOLUTION     => 2,
+                  OPT_PRINTIOWARN       => fRest,
+                  OPT_PRINTIOMON        => fRest,
+                  OPT_PRINTIOSOL        => fSol,
                   OPT_NITMAX            => 10,
                   OPT_RTOL              => 1e-5)
 
@@ -39,6 +39,8 @@ xScal = zeros(x0)
 
 (sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt);
 
+flush(fSol)
+flush(fRest)
 close(fSol)
 close(fRest)
 

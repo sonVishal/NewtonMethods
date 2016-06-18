@@ -9,13 +9,22 @@
     nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp, stats)
 
     # --------------------------------------------------------------------------
-    # 0. Variables that need to be defined before since they appear in different
+    # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
     # @bp
     dLevFn  = 1.0;
     fcNump  = 1.0;
     sumXa   = 1.0;
-    retCode = 0.0;
+    # --------------------------------------------------------------------------
+    # 0.2 Persistent variables
+    # cLin0 = opt.getOption!("persistent_cLin0",0.0)
+    # cLin1 = opt.getOption!("persistent_cLin1",0.0)
+    # cAlpha = opt.getOption!("persistent_cAlpha",0.0)
+    # alphaE = opt.getOption!("persistent_alphaE",0.0)
+    # alphaK = opt.getOption!("persistent_alphaK",0.0)
+    # alphaA = opt.getOption!("persistent_alphaA",0.0)
+    # qMStop = opt.getOption!("persistent_qMStop",false)
+    # sumxa2 = opt.getOption!("persistent_qMStop",0.0)
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
@@ -794,6 +803,7 @@
             # 4.2 Return if in one-step mode
             if mode == 1
                 qSucc = true
+                setOption!(opt, OPT_QSUCC, Int(qSucc))
                 return (x, xScal, retCode, stats)
             end
         end

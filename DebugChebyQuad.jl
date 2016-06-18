@@ -19,9 +19,9 @@ opt = OptionsNLEQ(OPT_MODE              => 1,
                   OPT_PRINTWARNING      => 1,
                   OPT_PRINTITERATION    => 3,
                   OPT_PRINTSOLUTION     => 2,
-                  OPT_PRINTIOWARN       => fRest,
-                  OPT_PRINTIOMON        => fRest,
-                  OPT_PRINTIOSOL        => fSol,
+                  OPT_PRINTIOWARN       => STDOUT,
+                  OPT_PRINTIOMON        => STDOUT,
+                  OPT_PRINTIOSOL        => STDOUT,
                   OPT_NITMAX            => 10,
                   OPT_RTOL              => 1e-5)
 
@@ -36,6 +36,8 @@ xScal = zeros(x0)
 #
 # println(f)
 # println(J)
+
+retCode = -1
 
 (sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt);
 

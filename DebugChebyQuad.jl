@@ -7,7 +7,8 @@ n1 = dim + 1;
 # Get the Cheby Quad function
 # (name,fcn,jac,x) = chebyquad(dim)
 
-
+fSol = open("solution.dat","w")
+fRest = open("solution.out","w")
 
 # Initialize the options
 opt = OptionsNLEQ(OPT_MODE              => 1,
@@ -15,7 +16,9 @@ opt = OptionsNLEQ(OPT_MODE              => 1,
                   OPT_JACFCN            => chebyQuadJac,
                   OPT_MSTOR             => 0,
                   OPT_NOROWSCAL         => 0,
-                  OPT_PRINTIO           => STDOUT,
+                  OPT_PRINTIOWARN       => fRest,
+                  OPT_PRINTIOMON        => fRest,
+                  OPT_PRINTSOLUTION     => fSol,
                   OPT_PRINTWARNING      => 1,
                   OPT_PRINTITERATION    => 3,
                   OPT_PRINTSOLUTION     => 2,

@@ -15,6 +15,7 @@
     dLevFn  = 1.0;
     fcNump  = 1.0;
     sumXa   = 1.0;
+    qGenJ   = true;
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(opt,"persistent_cLin0",0.0)
@@ -516,7 +517,7 @@
                         retCode = 4
                         break
                     else
-                        qmStop = true
+                        qMStop = true
                     end
                 end
             end
@@ -686,9 +687,9 @@
                     # ------------------------------------------------------
                     # 3.8 Output of iterate
                     if mPrMon >= 3
-                        n1prv2(dLevFn,sqrt(sumX/n),fc,niter,mPrMon,printIOmon,qMixIO,"*")
+                        n1prv2(dLevFn,sqrt(sumX/n),fc,nIter,mPrMon,printIOmon,qMixIO,"*")
                     end
-                    if qmStop
+                    if qMStop
                         retCode = 4
                         break
                     end
@@ -918,7 +919,7 @@
         end
         # TODO: write a wrapper for error(), warn(), info() such that it prints
         # either on STDOUT or in file
-        if qmStop
+        if qMStop
             write(printIOwarn,"\nWARNING: Monotonicity test failed after ",ctyp,
             " convergence was already checked\nrTol requirement may be too",
             " stringent\n")

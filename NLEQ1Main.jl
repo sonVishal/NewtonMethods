@@ -5,7 +5,7 @@
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
-    dLevF, mStor, printWarning, mPr, mPrSol, printIO,
+    dLevF, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon, printIOsol,
     nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp, stats)
 
     # --------------------------------------------------------------------------
@@ -38,7 +38,7 @@
     iScal       = getOption!(opt, OPT_ISCAL, 0)
     mode        = getOption!(opt, OPT_MODE,  0)
     jacGen      = opt.options[OPT_JACGEN]
-    qMixIO      = mPr != 0 && mPrSol != 0
+    qMixIO      = mPrMon != 0 && mPrSol != 0
     qLU         = !qSimpl
     # --------------------------------------------------------------------------
     # 1.2 Derived dimensional parameters
@@ -130,8 +130,8 @@
         qMStop  = false
         # ----------------------------------------------------------------------
         # 1.6 Print monitor header
-        if mPr >= 2 && !qMixIO
-            write(printIO,
+        if mPrMon >= 2 && !qMixIO
+            write(printIOwarn,
             "\n",
             "*******************************************************************",
             "\n",
@@ -200,8 +200,8 @@
                         end
                         fcA = max(min(fc,fcCor),fcMin)
 
-                        if mPr >= 5
-                            write(printIO,"\n",
+                        if mPrMon >= 5
+                            write(printIOwarn,"\n",
                             @sprintf("+++  aposteriori estimate  +++\n"),
                             @sprintf(" fcCor  = %18.10e\n",fcCor),
                             @sprintf(" fc     = %18.10e\n",fc),
@@ -374,9 +374,9 @@
         # evaluation of (scaled) standard level function dlevf
         # and computation of ordinary Newton corrections dx[n]
         if !qSimpl
-            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xw,f,mPr,newt == 0)
+            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xw,f,mPrMon,newt == 0)
         else
-            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,mPr,newt == 0)
+            (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,mPrMon,newt == 0)
         end
         stats[STATS_SUMX]   = sumX
         stats[STATS_DLEVF]  = dLevF
@@ -407,8 +407,8 @@
                 dMyPri = -1.0
             end
 
-            if mPr >= 5
-                write(printIO,"\n",
+            if mPrMon >= 5
+                write(printIOwarn,"\n",
                 @sprintf("+++++  apriori estimate  +++++\n"),
                 @sprintf(" fcPri  = %18.10e\n",fcPri),
                 @sprintf(" fc     = %18.10e\n",fc),
@@ -424,15 +424,15 @@
                 fcbh = fcA*fcBand
                 if fc > fcbh
                     fc = fcbh
-                    if mPr >= 4
-                        write(printIO, "*** Increase rest. act. (a priori)\n")
+                    if mPrMon >= 4
+                        write(printIOwarn, "*** Increase rest. act. (a priori)\n")
                     end
                 end
                 fcbh = fcA/fcBand
                 if fc < fcbh
                     fc = fcbh
-                    if mPr >= 4
-                        write(printIO, "*** Decrease rest. act. (a priori)\n")
+                    if mPrMon >= 4
+                        write(printIOwarn, "*** Decrease rest. act. (a priori)\n")
                     end
                 end
             end
@@ -485,8 +485,8 @@
                 if alphaA > 1.8
                     iConv = 3
                 end
-                if mPr >= 4
-                    write(printIO,"\n",
+                if mPrMon >= 4
+                    write(printIOwarn,"\n",
                     @sprintf(" ** iConv: %1i",iConv),
                     @sprintf("  alpha:       %9.2e",alphaE),
                     @sprintf("  const-alpha: %9.2e",cAlpha),
@@ -510,8 +510,8 @@
         # 3.4 Save natural level for later computations of corrector
         # and print iterate
         fcNumK = sumX
-        if mPr >= 2
-            n1prv1(dLevF,dLevXa,fcKeep,nIter,newt,mPr,printIO,qMixIO)
+        if mPrMon >= 2
+            n1prv1(dLevF,dLevXa,fcKeep,nIter,newt,mPrMon,printIOwarn,qMixIO)
         end
         nRed    = 0
         qNext   = false
@@ -561,8 +561,8 @@
                         break
                     end
                 end
-                if mPr >= 2
-                    write(printIO,
+                if mPrMon >= 2
+                    write(printIOwarn,
                     @sprintf("        %2i",nIter),
                     @sprintf(" %s could not be evaluated     %7.5f    %2i\n",fcn,fc,newt))
                 end
@@ -575,8 +575,8 @@
                     fcbh = fch/fcBand
                     if fc < fcbh
                         fc = fcbh
-                        if mPr >= 4
-                            write(printIO," *** Decrease rest. act. (fcn redu.) ***\n")
+                        if mPrMon >= 4
+                            write(printIOwarn," *** Decrease rest. act. (fcn redu.) ***\n")
                         end
                     end
                 end
@@ -620,10 +620,10 @@
                     #       of (scaled) standard level function dLevFn
                     if !qSimpl
                         (dxQ,conv,sumX,dLevFn) =
-                        n1lvls(n,dxQ,t1,xw,f,mPr,newt==0)
+                        n1lvls(n,dxQ,t1,xw,f,mPrMon,newt==0)
                     else
                         (dxQ,conv,sumX,dLevFn) =
-                        n1lvls(n,dxQ,t1,xwa,f,mPr,newt==0)
+                        n1lvls(n,dxQ,t1,xwa,f,mPrMon,newt==0)
                     end
                     push!(sumXQall,sqrt(sumX/n))
                     dxNrm = wnorm(n,dxQ,xw)
@@ -652,8 +652,8 @@
                         fcCor = min(1.0,0.5*dMyCor)
                     end
 
-                    if mPr >= 5
-                        write(printIO,
+                    if mPrMon >= 5
+                        write(printIOwarn,
                         @sprintf(" +++ corrector computation +++\n"),
                         @sprintf("  fcCor    = %18.10e\n",fcCor),
                         @sprintf("  fc       = %18.10e\n",fc),
@@ -669,8 +669,8 @@
                 if sumX > sumXa && !qOrdi
                     # ------------------------------------------------------
                     # 3.8 Output of iterate
-                    if mPr >= 3
-                        n1prv2(dLevFn,sqrt(sumX/n),fc,niter,mPr,printIO,qMixIO,"*")
+                    if mPrMon >= 3
+                        n1prv2(dLevFn,sqrt(sumX/n),fc,niter,mPrMon,printIOwarn,qMixIO,"*")
                     end
                     if qmStop
                         retCode = 4
@@ -686,16 +686,16 @@
                         fcbh = fcA/fcBand
                         if fc < fcbh
                             fc = fcbh
-                            if mPr >= 4
-                                write(printIO,
+                            if mPrMon >= 4
+                                write(printIOwarn,
                                 " *** Decrese rest. sct. (a posteriori) ***\n")
                             end
                         end
                     end
                     fcMon = fc
 
-                    if mPr >= 5
-                        write(printIO,
+                    if mPrMon >= 5
+                        write(printIOwarn,
                         " +++ corrector setting 1 +++\n",
                         @sprintf("fc    = %18.10e\n",fc),
                         " +++++++++++++++++++++++++++\n")
@@ -716,14 +716,14 @@
                     end
                 else
                     if !qOrdi && !qRep && fcCor > sigma2*fc
-                        if mPr >= 3
+                        if mPrMon >= 3
                             n1prv2(dLevFn,sqrt(sumX/n),fc,nIter,
-                            mPr,printIO,qMixIO,"+")
+                            mPrMon,printIOwarn,qMixIO,"+")
                         end
                         fc = fcCor
 
-                        if mPr >= 5
-                            write(printIO,
+                        if mPrMon >= 5
+                            write(printIOwarn,
                             " +++ corrector setting 2 +++\n",
                             @sprintf("fc    = %18.10e\n",fc),
                             " +++++++++++++++++++++++++++\n")
@@ -748,8 +748,8 @@
             nRejR1 += 1
             x[:] = xa
             f[:] = fa
-            if mPr >= 2
-                write(printIO,
+            if mPrMon >= 2
+                write(printIOwarn,
                 @sprintf("        %2i not accepted damping factor %7.5f",nIter,fc),
                 @sprintf("    %2i\n",newt))
             end
@@ -764,17 +764,17 @@
             # 4 Preparations to start the following iteration step
             # ------------------------------------------------------------------
             # Print values
-            if mPr >= 3 && !qOrdi
-                n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPr,printIO,qMixIO,"*")
+            if mPrMon >= 3 && !qOrdi
+                n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPrMon,printIOwarn,qMixIO,"*")
             end
             # Print the natural level of the current iterate and
             # return it in one-step mode
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                n1sout(n,xa,2,opt,stats,mPrSol,printIO)
+                n1sout(n,xa,2,opt,stats,mPrSol,printIOwarn)
             elseif mPrSol >= 1 && nIter == 0
-                n1sout(n,xa,1,opt,stats,mPrSol,printIO)
+                n1sout(n,xa,1,opt,stats,mPrSol,printIOwarn)
             end
             nIter += 1
             stats[STATS_NITER] = nIter
@@ -823,13 +823,13 @@
                     end
                 end
                 # Print final monitor output
-                if mPr >= 2
+                if mPrMon >= 2
                     if retCode == 0
                         n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
-                        mPr,printIO,qMixIO,"*")
+                        mPrMon,printIOwarn,qMixIO,"*")
                     elseif iOrMon == 3
                         n1prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
-                        mPr,printIO,qMixIO)
+                        mPrMon,printIOwarn,qMixIO)
                     end
                 end
                 if iOrMon >= 2
@@ -841,20 +841,20 @@
                 # if qOrdi is true
                 aprec = sqrt(sumXa/n)
             end
-            if mPr >= 1
+            if mPrMon >= 1
                 if qOrdi || retCode == 4
                     nOut = nIter
                 else
                     nOut = nIter + 1
                 end
-                write(printIO,"\n\n\n ",
+                write(printIOwarn,"\n\n\n ",
                 @sprintf("Solution of nonlinear system of equations obtained within "),
                 @sprintf("%3i iteration steps\n\n",nOut),
                 @sprintf("Achieved relative accuracy %10.3e\n",aprec))
             end
         else
-            if mPr >= 1
-                write(printIO,"\n\n\n ",
+            if mPrMon >= 1
+                write(printIOwarn,"\n\n\n ",
                 @sprintf("Solution of nonlinear system of equations obtained by NLEQ1\n"),
                 @sprintf("No estimate available for the achieved relative accuracy\n"))
             end
@@ -864,24 +864,24 @@
     # 9.2 Fail exit messages
     # --------------------------------------------------------------------------
     # 9.2.1 Termination, since Jacobian matrix became singular
-    if retCode == 1 && mPr >= 1
-        write(printIO,"\nIteration terminated due to singular Jacobian matrix\n")
+    if retCode == 1 && mPrMon >= 1
+        write(printIOwarn,"\nIteration terminated due to singular Jacobian matrix\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.2 Termination after more than nItmax iterations
-    if retCode == 2 && mPr >= 1
-        write(printIO,"\n",
+    if retCode == 2 && mPrMon >= 1
+        write(printIOwarn,"\n",
         @sprintf("Iteration terminates after nItmax %3i iteration steps\n",nItmax))
     end
     # --------------------------------------------------------------------------
     # 9.2.3 Damping factor fc became too small
-    if retCode == 3 && mPr >= 1
-        write(printIO,"\n",
+    if retCode == 3 && mPrMon >= 1
+        write(printIOwarn,"\n",
         @sprintf("Damping factor has become too small: lambda = %10.3e\n",fc))
     end
     # --------------------------------------------------------------------------
     # 9.2.4.1 Superlinear convergence slowed down
-    if retCode == 4 && mPr >= 1
+    if retCode == 4 && mPrMon >= 1
         if iConv == 2
             ctyp = "superlinear"
         end
@@ -891,11 +891,11 @@
         # TODO: write a wrapper for error(), warn(), info() such that it prints
         # either on STDOUT or in file
         if qmStop
-            write(printIO,"\nWARNING: Monotonicity test failed after ",ctyp,
+            write(printIOwarn,"\nWARNING: Monotonicity test failed after ",ctyp,
             " convergence was already checked\nrTol requirement may be too",
             " stringent\n")
         else
-            write(printIO,"\nWARNING: ",ctyp, " convergence slowed down\n",
+            write(printIOwarn,"\nWARNING: ",ctyp, " convergence slowed down\n",
             "rTol requirement may be too stringent\n")
         end
     end
@@ -905,46 +905,46 @@
     if retCode == 5 && dLevFn == 0.0
         retCode = 0
     end
-    if retCode == 5 && mPr >= 1
-        write(printIO,"\n",
+    if retCode == 5 && mPrMon >= 1
+        write(printIOwarn,"\n",
         "WARNING: No quadratic or superlinear convergence established yet\n",
         "         your solution may perhaps be less accurate\n",
         "         as indicated by the standard error estimate\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.5
-    if retCode == 22 && mPr >= 1
-        write(printIO,"ERROR: dimensions of startvector and problem function ",
+    if retCode == 22 && mPrMon >= 1
+        write(printIOwarn,"ERROR: dimensions of startvector and problem function ",
         "output differ:\n",
         @sprintf("      length(x0) = %5i,     length(fcn(x0)) = %5i\n",n,length(f)))
     end
     # --------------------------------------------------------------------------
     # 9.2.6 Error exit due to linear solver routine n1fact
-    if retCode == 80 && mPr >= 1
-        write(printIO,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n1fact\n")
+    if retCode == 80 && mPrMon >= 1
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n1fact\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.7 Error exit due to linear solver routine n1solv
-    if retCode == 81 && mPr >= 1
-        write(printIO,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n1solv\n")
+    if retCode == 81 && mPrMon >= 1
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n1solv\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.8 Error exit due to fail of user function fcn
-    if retCode == 82 && mPr >= 1
-        write(printIO,@sprintf("ERROR: %5i",iFail)," signalled by user function fcn\n")
+    if retCode == 82 && mPrMon >= 1
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by user function fcn\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.9 Error exit due to fail of user function Jacobian
-    if retCode == 83 && mPr >= 1
-        write(printIO,@sprintf("ERROR: %5i",iFail)," signalled by user function jac\n")
+    if retCode == 83 && mPrMon >= 1
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by user function jac\n")
     end
-    if (retCode == 82 || retCode == 83) && nIter <= 1 && mPr >= 1
-        write(printIO,"Try to find a better initial guess for the solution\n")
+    if (retCode == 82 || retCode == 83) && nIter <= 1 && mPrMon >= 1
+        write(printIOwarn,"Try to find a better initial guess for the solution\n")
     end
     # --------------------------------------------------------------------------
     # 9.3 Common exit
-    if mPr >= 3 && retCode != 0 && retCode != 4 && nonLin != 1
-        write(printIO,"\n",@sprintf("Achieved relative accuracy %10.3e\n",conva))
+    if mPrMon >= 3 && retCode != 0 && retCode != 4 && nonLin != 1
+        write(printIOwarn,"\n",@sprintf("Achieved relative accuracy %10.3e\n",conva))
         aprec = conva
     end
     rTol = aprec
@@ -954,9 +954,9 @@
         if qOrdi
             mode = 3
         end
-        n1sout(n,xa,mode,opt,stats,mPrSol,printIO)
+        n1sout(n,xa,mode,opt,stats,mPrSol,printIOwarn)
     elseif mPrSol >= 1 && nIter == 0
-        n1sout(n,xa,1,opt,stats,mPrSol,printIO)
+        n1sout(n,xa,1,opt,stats,mPrSol,printIOwarn)
     end
     if !qOrdi
         if retCode != 4
@@ -970,7 +970,7 @@
             else
                 modefi = 4
             end
-            n1sout(n,x,modefi,opt,stats,mPrSol,printIO)
+            n1sout(n,x,modefi,opt,stats,mPrSol,printIOwarn)
         end
     end
     # End of exits

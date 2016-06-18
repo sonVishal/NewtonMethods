@@ -40,16 +40,16 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 # Printing related stuff
 #-------------------------------------------------------------------------------
     # Print warning messages?
-    printFlag   = getOption(opt,OPT_PRINTWARNING,0)
+    printWarn   = getOption(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
-    printIt     = getOption!(opt,OPT_PRINTITERATION,0)
+    printMon     = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
     # Defaults to STDOUT
     printIOwarn = getOption(opt,OPT_PRINTIOWARN,STDOUT)
-    printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
     printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
+    printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
     # if printIO == "FILE"
     #     # If not STDOUT then print to file
     #     # Default file name is log.txt and the file is opened for writing
@@ -64,7 +64,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # First call or successive call
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
-    qIniMon = (printIt >= 1 && qSucc == 0)
+    qIniMon = (printMon >= 1 && qSucc == 0)
 
     # Check input parameters and options
     n = length(x)
@@ -318,7 +318,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     setOption!(opt,OPT_FCSTART,fc)
 
-    if printIt >= 2 && !qSucc
+    if printMon >= 2 && !qSucc
         write(printIOmon,"\nINFO: ","Internal parameters:",
         "\n\tStarting value for damping factor ",
         @sprintf("OPT_FCSTART\t= %1.2e",opt.options[OPT_FCSTART]),
@@ -346,8 +346,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
     opt.options[OPT_SIGMA2], wk.options[WK_FCA], wk.options[WK_FCKEEP],
     wk.options[WK_FCPRI], wk.options[WK_DMYCOR], stats[STATS_CONV],
-    wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printFlag,
-    printIt, printSol, printIO, stats[STATS_NITER],
+    wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printWarn,
+    printMon, printSol, printIOwarn, printIOmon, printIOsol, stats[STATS_NITER],
     stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NFCNJ], stats[STATS_NJAC], stats[STATS_NREJR1],
     stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
 
@@ -366,8 +366,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     stats[STATS_DAMPINGFC]      = fcAll
 
     # Print statistics
-    if printIt >= 2 && retCode != -1 && retCode != 10
-        write(printIO,"\n",
+    if printMon >= 2 && retCode != -1 && retCode != 10
+        write(printIOmon,"\n",
         @sprintf("*************   Statistics   ************\n"),
         @sprintf("***  Newton-iterations     : %7i  ***\n", (stats[STATS_NITER])),
         @sprintf("***  Corrector steps       : %7i  ***\n", (stats[STATS_NCORR])),

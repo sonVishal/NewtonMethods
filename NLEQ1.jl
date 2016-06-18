@@ -166,8 +166,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     stats[STATS_RTOL]   = 0.0
 
     if qIniMon
-        write(printIO,"INFO: ","N = $n\n")
-        write(printIO,"INFO: ","Prescribed relative precision ",
+        write(printIO,"\nINFO: ","N = $n\n")
+        write(printIO,"\nINFO: ","Prescribed relative precision ",
         "$(opt.options[OPT_RTOL])\n")
         if jacGen == 1
             message = "a user function"
@@ -176,7 +176,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         elseif jacGen == 3
             message = "numerical differentation (feedback strategy included)"
         end
-        write(printIO,"INFO: ","The Jacobian is supplied by $message\n")
+        write(printIO,"\nINFO: ","The Jacobian is supplied by $message\n")
         if mStor == 0
             message = "full"
         elseif mStor == 1
@@ -222,7 +222,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         else
             message = "inhibited"
         end
-        write(printIO,"INFO: ","Rank-1 updates are $message\n")
+        write(printIO,"\nINFO: ","Rank-1 updates are $message\n")
         if nonLin == 1
             message = "linear"
         elseif nonLin == 2
@@ -319,12 +319,12 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     setOption!(opt,OPT_FCSTART,fc)
 
     if printIt >= 2 && !qSucc
-        write(printIO,"INFO: ","Internal parameters:",
+        write(printIO,"\nINFO: ","Internal parameters:",
         "\n\tStarting value for damping factor ",
-        "OPT_FCSTART = $(opt.options[OPT_FCSTART])",
-        "\n\tMinimum allowed damping factor OPT_FCMIN = $fcMin",
+        @sprintf("OPT_FCSTART\t= %1.2e",opt.options[OPT_FCSTART]),
+        @sprintf("\n\tMinimum allowed damping factor OPT_FCMIN\t= %1.2e",fcMin),
         "\n\tRank-1 updates decision parameter ",
-        "OPT_SIGMA = $(opt.options[OPT_SIGMA])\n")
+        @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]))
     end
 
     retCode = -1

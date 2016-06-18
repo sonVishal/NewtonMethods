@@ -1,12 +1,8 @@
 function chebyQuad(x,f)
     n = length(x)
+    f[:] = zeros(n);
     for i = 2:2:n
-        i1 = i - 1
-        f[i1] = 0.0
-        f[i]  = n/(i^2-1)
-    end
-    if n%2 == 1
-        f[n] = 0.0
+        f[i] = n/(i*i-1)
     end
     for l = 1:n
         factt = 4.0*x[l] - 2.0
@@ -29,8 +25,8 @@ function chebyQuadJac(x,J)
         factt = 4.0*x[j] - 2.0
         ti2 = 1.0
         ti1 = 0.5*factt
-        tabli1 = 0.0
-        tabli2 = 2.0
+        tabli2 = 0.0
+        tabli1 = 2.0
         J[1,j] = tabli1
         for i = 2:n
             ti = factt*ti1-ti2

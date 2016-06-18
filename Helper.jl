@@ -94,7 +94,6 @@ end
 
 function n1fact(n,lda,ml,mu,a,opt)
     # Begin
-    println(a)
     mStor = opt.options[OPT_MSTOR]
     if mStor == 0
         try

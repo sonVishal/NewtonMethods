@@ -38,7 +38,11 @@
     iScal       = getOption!(opt, OPT_ISCAL, 0)
     mode        = getOption!(opt, OPT_MODE,  0)
     jacGen      = opt.options[OPT_JACGEN]
-    qMixIO      = mPrMon != 0 && mPrSol != 0
+    qMixIO      = typeof(printIOmon) == typeof(printIOsol)
+    if qMixIO && typeof(printIOmon) == IOStream && printIOmon.name != printIOsol.name
+        qMixIO = false
+    end
+    qMixIO      &= mPrMon != 0 && mPrSol != 0
     qLU         = !qSimpl
     # --------------------------------------------------------------------------
     # 1.2 Derived dimensional parameters
@@ -131,7 +135,7 @@
         # ----------------------------------------------------------------------
         # 1.6 Print monitor header
         if mPrMon >= 2 && !qMixIO
-            write(printIOwarn,
+            write(printIOmon,
             "\n",
             "*******************************************************************",
             "\n",

@@ -40,24 +40,26 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 # Printing related stuff
 #-------------------------------------------------------------------------------
     # Print warning messages?
-    printFlag   = getOption!(opt,OPT_PRINTWARNING,0)
+    printFlag   = getOption(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
     printIt     = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
     # Defaults to STDOUT
-    printIO     = getOption!(opt,OPT_PRINTIO,STDOUT)
-    if printIO == "FILE"
-        # If not STDOUT then print to file
-        # Default file name is log.txt and the file is opened for writing
-        printFileName   = getOption!(opt,OPT_PRINTFILENAME,"log.txt")
-        printFileMode   = getOption!(opt,OPT_PRINTFILEMODE,"w")
-        if printFileMode != "w" || printFileMode != "a"
-            throw(InvalidOption("OPT_PRINTFILEMODE",printFileMode))
-        end
-        f = open(printFileName,printFileMode)
-    end
+    printIOwarn = getOption(opt,OPT_PRINTIOWARN,STDOUT)
+    printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
+    printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
+    # if printIO == "FILE"
+    #     # If not STDOUT then print to file
+    #     # Default file name is log.txt and the file is opened for writing
+    #     printFileName   = getOption!(opt,OPT_PRINTFILENAME,"log.txt")
+    #     printFileMode   = getOption!(opt,OPT_PRINTFILEMODE,"w")
+    #     if printFileMode != "w" || printFileMode != "a"
+    #         throw(InvalidOption("OPT_PRINTFILEMODE",printFileMode))
+    #     end
+    #     f = open(printFileName,printFileMode)
+    # end
 #-------------------------------------------------------------------------------
 
     # First call or successive call
@@ -67,8 +69,6 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # Check input parameters and options
     n = length(x)
     retCode = checkOptions(n,x,xScal,opt)
-
-    # return (stats,retCode)
 
     # Exit if any parameter error was detected
     if retCode != 0
@@ -166,8 +166,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     stats[STATS_RTOL]   = 0.0
 
     if qIniMon
-        write(printIO,"\nINFO: ","N = $n\n")
-        write(printIO,"\nINFO: ","Prescribed relative precision ",
+        write(printIOmon,"\nINFO: ","N = $n\n")
+        write(printIOmon,"\nINFO: ","Prescribed relative precision ",
         "$(opt.options[OPT_RTOL])\n")
         if jacGen == 1
             message = "a user function"
@@ -176,15 +176,15 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         elseif jacGen == 3
             message = "numerical differentation (feedback strategy included)"
         end
-        write(printIO,"\nINFO: ","The Jacobian is supplied by $message\n")
+        write(printIOmon,"\nINFO: ","The Jacobian is supplied by $message\n")
         if mStor == 0
             message = "full"
         elseif mStor == 1
             message = "banded"
         end
-        write(printIO,"INFO: ","The Jacobian will be stored in $message mode\n")
+        write(printIOmon,"INFO: ","The Jacobian will be stored in $message mode\n")
         if mStor == 1
-            write(printIO,"INFO: ","Lower bandwidth : $ml \t",
+            write(printIOmon,"INFO: ","Lower bandwidth : $ml \t",
             "Upper bandwidth : $mu\n")
         end
         if opt.options[OPT_NOROWSCAL] == 1
@@ -192,7 +192,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         else
             message = "allowed"
         end
-        write(printIO,"INFO: ",
+        write(printIOmon,"INFO: ",
         "Automatic row scaling of the jacobian is $message\n")
     end
 
@@ -222,7 +222,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         else
             message = "inhibited"
         end
-        write(printIO,"\nINFO: ","Rank-1 updates are $message\n")
+        write(printIOmon,"\nINFO: ","Rank-1 updates are $message\n")
         if nonLin == 1
             message = "linear"
         elseif nonLin == 2
@@ -232,19 +232,19 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         elseif nonLin == 4
             message = "extremely nonlinear"
         end
-        write(printIO,"INFO: ","Problem is specified as being $message\n")
+        write(printIOmon,"INFO: ","Problem is specified as being $message\n")
         if qBDamp
-            write(printIO,"INFO: ","Bounded damping strategy is active\n",
+            write(printIOmon,"INFO: ","Bounded damping strategy is active\n",
             "bounding factor is $(opt.options[OPT_FCBAND])\n")
         else
-            write(printIO,"INFO: ","Bounded damping strategy is off\n")
+            write(printIOmon,"INFO: ","Bounded damping strategy is off\n")
         end
         if qOrdi
-            write(printIO,"INFO: ","Special mode: ",
+            write(printIOmon,"INFO: ","Special mode: ",
             "Ordinary Newton iteration will be done\n")
         end
         if qSimpl
-            write(printIO,"INFO: ","Special mode: ",
+            write(printIOmon,"INFO: ","Special mode: ",
             "Simplified Newton iteration will be done\n")
         end
     end
@@ -257,7 +257,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     end
 
     if qIniMon
-        write(printIO,"INFO: ","Maximum permitted number of ",
+        write(printIOmon,"INFO: ","Maximum permitted number of ",
         "iteration steps : $nItmax\n")
     end
 
@@ -319,7 +319,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     setOption!(opt,OPT_FCSTART,fc)
 
     if printIt >= 2 && !qSucc
-        write(printIO,"\nINFO: ","Internal parameters:",
+        write(printIOmon,"\nINFO: ","Internal parameters:",
         "\n\tStarting value for damping factor ",
         @sprintf("OPT_FCSTART\t= %1.2e",opt.options[OPT_FCSTART]),
         @sprintf("\n\tMinimum allowed damping factor OPT_FCMIN\t= %1.2e",fcMin),

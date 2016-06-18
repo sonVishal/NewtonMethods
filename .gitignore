@@ -28,3 +28,10 @@ ReferenceBooks/
 
 # Atom ctags
 .tags*
+
+# Fuse
+.fuse*
+
+# Data and output 
+*.dat
+*.out

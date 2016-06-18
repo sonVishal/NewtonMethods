@@ -9,7 +9,8 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # TODO: Get the type of elements in x
 
     # Check whether warnings need to be printed
-    warnFlag = getOption(opt,OPT_PRINTWARNING,0)
+    warnFlag = getOption!(opt,OPT_PRINTWARNING,0)
+    warnPrintIO = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
 
     # Get the machine related constants
     epMach  = getMachineConstants(3)
@@ -22,7 +23,7 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     # Check dimensional parameter n
     if n <= 0
         retCode = 20
-        println("ERROR: Bad input to dimensional parameter n supplied","\n",
+        write(warnPrintIO,"ERROR: Bad input to dimensional parameter n supplied","\n",
             "Choose n positive, your input is: n = $n")
         return retCode
     end
@@ -39,7 +40,7 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
     rTol = getOption!(opt,OPT_RTOL,1e-6)
     if rTol <= 0.0
         retCode = 21
-        println("ERROR: Nonpositive $OPT_RTOL supplied")
+        write(warnPrintIO,"ERROR: Nonpositive $OPT_RTOL supplied")
         return retCode
     else
         tolMin = epMach*10.0*n
@@ -47,7 +48,7 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
             rTol = tolMin
             setOption!(opt,OPT_RTOL,rTol)
             if warnFlag == 1
-                warn("User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
+                write(warnPrintIO,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
             end
         end
 
@@ -56,7 +57,7 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
             rTol = tolMax
             setOption!(opt,OPT_RTOL,rTol)
             if warnFlag == 1
-                warn("User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
+                write(warnPrintIO,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
             end
         end
     end
@@ -73,7 +74,7 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         # Positive scaling values give scale invariance
         if xScal[i] < 0.0
             retCode = 22
-            println("ERROR: Negative value in xScal[$i] supplied")
+            write(warnPrintIO,"ERROR: Negative value in xScal[$i] supplied")
             return retCode
         end
 
@@ -83,14 +84,14 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         # Avoid overflow due to division by xScal[i]
         if xScal[i] > 0.0 && xScal[i] < small
             if warnFlag == 1
-                warn("xScal[$i] = $xScal[i] too small, increased to $small")
+                write(warnPrintIO,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small")
             end
             xScal[i] = small
         end
         # Avoid underflow due to division by xScal[i]
         if xScal[i] > great
             if warnFlag == 1
-                warn("xScal[$i] = $xScal[i] too big, increased to $great")
+                write(warnPrintIO,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great")
             end
             xScal[i] = great
         end
@@ -104,7 +105,7 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         jacFcn = getOption!(opt,OPT_JACFCN,0)
         if typeof(jacFcn) != Function
             retCode = 99
-            println("ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
+            write(warnPrintIO,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
             "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")
             return retCode
         end

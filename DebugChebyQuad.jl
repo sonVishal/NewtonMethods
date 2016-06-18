@@ -39,4 +39,7 @@ xScal = zeros(x0)
 
 (sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt);
 
+close(fSol)
+close(fRest)
+
 println("DONE")

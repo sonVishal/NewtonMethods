@@ -16,6 +16,7 @@
     fcNump  = 1.0;
     sumXa   = 1.0;
     qGenJ   = true;
+    conva   = 0.0;
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(opt,"persistent_cLin0",0.0)

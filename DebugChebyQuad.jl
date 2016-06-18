@@ -37,9 +37,12 @@ xScal = zeros(x0)
 # println(f)
 # println(J)
 
+stats = Dict{ASCIIString,Any}()
+wk = OptionsNLEQ()
+
 retCode = -1
 
-(sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt);
+(sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt,wk,stats);
 
 flush(fSol)
 flush(fRest)

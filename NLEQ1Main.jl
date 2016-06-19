@@ -8,6 +8,13 @@ using Debug
     dLevF, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon, printIOsol,
     nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp)
 
+
+    # TODO: Set all these variables before returning
+    # wk.a,wk.dxsave,wk.dx,wk.dxq,wk.xa,wk.xwa,wk.f,                                    ...
+	# 			wk.fa,wk.eta,wk.xw,wk.fw,wk.dxqa,wk.sumxa0,wk.sumxa1,wk.fcmon,wk.fcstart,         ...
+	# 			wk.fca,wk.fckeep,wk.fcpri,wk.dmycor,wk.conv,wk.sumx,wk.sumxs,wk.dlevf,            ...
+	# 			wk.niter,wk.ncorr,wk.nfcn,wk.njac,wk.nfcnj,wk.nrejr1,wk.new,wk.iconv,wk.qsucc
+
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.

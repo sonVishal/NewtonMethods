@@ -93,8 +93,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
         m1 = n
         m2 = n
     elseif mStor == 1
-        ml = getOption!(opt,"ML",0)
-        mu = getOption!(opt,"MU",0)
+        ml = getOption!(opt,"OPT_ML",0)
+        mu = getOption!(opt,"OPT_MU",0)
         m1 = 2*ml + mu + 1
         m2 = ml + mu + 1
     end

@@ -6,7 +6,7 @@
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
     dLevF, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon, printIOsol,
-    nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp, stats)
+    nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp)
 
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
@@ -19,17 +19,17 @@
     conva   = 0.0;
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
-    cLin0   = getOption!(opt,"persistent_cLin0",0.0)
-    cLin1   = getOption!(opt,"persistent_cLin1",0.0)
-    cAlpha  = getOption!(opt,"persistent_cAlpha",0.0)
-    alphaE  = getOption!(opt,"persistent_alphaE",0.0)
-    alphaK  = getOption!(opt,"persistent_alphaK",0.0)
-    alphaA  = getOption!(opt,"persistent_alphaA",0.0)
-    qMStop  = getOption!(opt,"persistent_qMStop",false)
-    sumxa2  = getOption!(opt,"persistent_qMStop",0.0)
-    l       = getOption!(opt,"persistent_l",Float64[])
-    u       = getOption!(opt,"persistent_u",Float64[])
-    p       = getOption!(opt,"persistent_p",Float64[])
+    cLin0   = getOption!(wk,"persistent_cLin0",0.0)
+    cLin1   = getOption!(wk,"persistent_cLin1",0.0)
+    cAlpha  = getOption!(wk,"persistent_cAlpha",0.0)
+    alphaE  = getOption!(wk,"persistent_alphaE",0.0)
+    alphaK  = getOption!(wk,"persistent_alphaK",0.0)
+    alphaA  = getOption!(wk,"persistent_alphaA",0.0)
+    qMStop  = getOption!(wk,"persistent_qMStop",false)
+    sumxa2  = getOption!(wk,"persistent_qMStop",0.0)
+    l       = getOption!(wk,"persistent_l",Float64[])
+    u       = getOption!(wk,"persistent_u",Float64[])
+    p       = getOption!(wk,"persistent_p",Float64[])
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
@@ -41,7 +41,7 @@
     # --------------------------------------------------------------------------
     # 1.1 Control variables
     qSucc       = Bool(opt.options[OPT_QSUCC])
-    qScale      = opt.options[OPT_NOROWSCAL]    != 1
+    qScale      = opt.options[OPT_NOROWSCAL] != 1
     qOrdi       = Bool(opt.options[OPT_QORDI])
     qSimpl      = Bool(opt.options[OPT_QSIMPL])
     qRank1      = Bool(opt.options[OPT_QRANK1])
@@ -116,7 +116,7 @@
         push!(xIter,x)
 
         nIter  = 0
-        stats[STATS_NITER] = nIter
+        wk.options[STATS_NITER] = nIter
         nCorr  = 0
         nRejR1 = 0
         nFcn   = 0
@@ -396,8 +396,8 @@
         else
             (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,mPrMon,newt == 0)
         end
-        stats[STATS_SUMX]   = sumX
-        stats[STATS_DLEVF]  = dLevF
+        wk.options[STATS_SUMX]   = sumX
+        wk.options[STATS_DLEVF]  = dLevF
         xa[:]    = x
         sumXa = sumX
         dLevXa   = sqrt(sumXa/n)
@@ -790,12 +790,12 @@
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                n1sout(n,xa,2,opt,stats,mPrSol,printIOsol)
+                n1sout(n,xa,2,opt,wk,mPrSol,printIOsol)
             elseif mPrSol >= 1 && nIter == 0
-                n1sout(n,xa,1,opt,stats,mPrSol,printIOsol)
+                n1sout(n,xa,1,opt,wk,mPrSol,printIOsol)
             end
             nIter += 1
-            stats[STATS_NITER] = nIter
+            wk.options[STATS_NITER] = nIter
             push!(xIter,x)
             dLevF = dLevFn
             # @bp
@@ -809,18 +809,18 @@
             if mode == 1
                 qSucc = true
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
-                setOption!(opt,"persistent_cLin0",cLin0)
-                setOption!(opt,"persistent_cLin1",cLin1)
-                setOption!(opt,"persistent_cAlpha",cAlpha)
-                setOption!(opt,"persistent_alphaE",alphaE)
-                setOption!(opt,"persistent_alphaK",alphaK)
-                setOption!(opt,"persistent_alphaA",alphaA)
-                setOption!(opt,"persistent_qMStop",qMStop)
-                setOption!(opt,"persistent_qMStop",sumxa2)
-                setOption!(opt,"persistent_l",l)
-                setOption!(opt,"persistent_u",u)
-                setOption!(opt,"persistent_p",p)
-                return (x, xScal, retCode, stats)
+                setOption!(wk,"persistent_cLin0",cLin0)
+                setOption!(wk,"persistent_cLin1",cLin1)
+                setOption!(wk,"persistent_cAlpha",cAlpha)
+                setOption!(wk,"persistent_alphaE",alphaE)
+                setOption!(wk,"persistent_alphaK",alphaK)
+                setOption!(wk,"persistent_alphaA",alphaA)
+                setOption!(wk,"persistent_qMStop",qMStop)
+                setOption!(wk,"persistent_sumxa2",sumxa2)
+                setOption!(wk,"persistent_l",l)
+                setOption!(wk,"persistent_u",u)
+                setOption!(wk,"persistent_p",p)
+                return (x, xScal, retCode, wk)
             end
         end
     end
@@ -984,9 +984,9 @@
         if qOrdi
             mode = 3
         end
-        n1sout(n,xa,mode,opt,stats,mPrSol,printIOsol)
+        n1sout(n,xa,mode,opt,wk,mPrSol,printIOsol)
     elseif mPrSol >= 1 && nIter == 0
-        n1sout(n,xa,1,opt,stats,mPrSol,printIOsol)
+        n1sout(n,xa,1,opt,wk,mPrSol,printIOsol)
     end
     if !qOrdi
         if retCode != 4
@@ -1000,7 +1000,7 @@
             else
                 modefi = 4
             end
-            n1sout(n,x,modefi,opt,stats,mPrSol,printIOsol)
+            n1sout(n,x,modefi,opt,wk,mPrSol,printIOsol)
         end
     end
     # End of exits
@@ -1011,15 +1011,15 @@
 
     opt.options[OPT_QSUCC]  = Int(qSucc)
 
-    stats[STATS_NITER]  = nIter
-    stats[STATS_NCORR]  = nCorr
-    stats[STATS_NFCN]   = nFcn
-    stats[STATS_NFCNJ]  = nFcnJ
-    stats[STATS_NJAC]   = nJac
-    stats[STATS_NREJR1] = nRejR1
-    stats[STATS_NEW]    = newt
-    stats[STATS_ICONV]  = iConv
+    wk.options[STATS_NITER]  = nIter
+    wk.options[STATS_NCORR]  = nCorr
+    wk.options[STATS_NFCN]   = nFcn
+    wk.options[STATS_NFCNJ]  = nFcnJ
+    wk.options[STATS_NJAC]   = nJac
+    wk.options[STATS_NREJR1] = nRejR1
+    wk.options[STATS_NEW]    = newt
+    wk.options[STATS_ICONV]  = iConv
 
-    return (x, xScal, retCode, stats)
+    return (x, xScal, retCode, wk)
     # End of function n1int
 end

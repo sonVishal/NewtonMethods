@@ -186,7 +186,7 @@ function n1prv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     return nothing
 end
 
-function n1sout(n,x,mode,opt,stats,mPr,printIO)
+function n1sout(n,x,mode,opt,wk,mPr,printIO)
     # Begin
     qNorm = true
     if qNorm
@@ -198,7 +198,7 @@ function n1sout(n,x,mode,opt,stats,mPr,printIO)
         elseif mode == 4
             write(printIO,@sprintf("%s\n","  Final data:"))
         end
-        write(printIO,@sprintf(" %5i\n",stats[STATS_NITER]))
+        write(printIO,@sprintf(" %5i\n",wk.options[STATS_NITER]))
         l2 = 0
         for l1 = 1:n
             write(printIO,@sprintf("%18.10e ",x[l1]))
@@ -208,7 +208,7 @@ function n1sout(n,x,mode,opt,stats,mPr,printIO)
                 l2 = 0
             end
         end
-        write(printIO,@sprintf("%18.10e %18.10e \n",stats[STATS_DLEVF],sqrt(stats[STATS_SUMX]/n)))
+        write(printIO,@sprintf("%18.10e %18.10e \n",wk.options[STATS_DLEVF],sqrt(wk.options[STATS_SUMX]/n)))
         if mode == 1 && mPr >= 2
             write(printIO,@sprintf("%s\n","  Intermediate data:"))
         elseif mode >= 3

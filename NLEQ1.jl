@@ -18,7 +18,7 @@
 #include("CheckOptionsNLEQ1.jl")
 #include("Error.jl")
 #include("NLEQ1Main.jl")
-function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::OptionsNLEQ,stats)
+function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::OptionsNLEQ)
 
     # TODO: persistent variables
     # Might be a good idea to store them inside opt
@@ -64,7 +64,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
 
     # First call or successive call
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
-    qIniMon = (printMon >= 1 && qSucc == 0)
+    qIniMon = (printMon >= 1 && !qSucc)
 
     # Check input parameters and options
     n = length(x)
@@ -79,12 +79,12 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     # to nleq1
     # if !qSucc
     # If this is the first call then assign memory to the variables
-    xIter       = getOption!(opt,"persistent_xIter",[])
-    sumXall     = getOption!(opt,"persistent_sumXall",[])
-    dLevFall    = getOption!(opt,"persistent_dLevFall",[])
-    sumXQall    = getOption!(opt,"persistent_sumXQall",[])
-    tolAll      = getOption!(opt,"persistent_tolAll",[])
-    fcAll       = getOption!(opt,"persistent_fcAll",[])
+    xIter    = getOption!(wk,"persistent_xIter",[])
+    sumXall  = getOption!(wk,"persistent_sumXall",[])
+    dLevFall = getOption!(wk,"persistent_dLevFall",[])
+    sumXQall = getOption!(wk,"persistent_sumXQall",[])
+    tolAll   = getOption!(wk,"persistent_tolAll",[])
+    fcAll    = getOption!(wk,"persistent_fcAll",[])
     # end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
@@ -99,17 +99,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
         m2 = ml + mu + 1
     end
 
-    jacGen = getOption(opt,OPT_JACGEN,2);
+    jacGen = getOption!(opt,OPT_JACGEN,2);
 
-    qRank1 = Bool(getOption!(opt, OPT_QRANK1,    0))
-    qOrdi  = Bool(getOption!(opt, OPT_QORDI,     0))
-    qSimpl = Bool(getOption!(opt, OPT_QSIMPL,    0))
+    qRank1 = Bool(getOption!(opt, OPT_QRANK1, 0))
+    qOrdi  = Bool(getOption!(opt, OPT_QORDI,  0))
+    qSimpl = Bool(getOption!(opt, OPT_QSIMPL, 0))
 
     if qRank1
         nBroy = getOption!(opt,OPT_NBROY,0)
         if nBroy == 0
             nBroy = max(m2,10)
-            opt.options[OPT_NBROY] = nBroy
+            setOption!(opt,OPT_NBROY, nBroy)
         end
     else
         nBroy = 0
@@ -122,12 +122,12 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     initOption!(opt, OPT_NOROWSCAL, 0)
 
     # Workspace: WK
-    initOption!(wk,WK_A,zeros(n,n))
+    initOption!(wk, WK_A, zeros(m1,n))
 
     if qRank1
-        initOption!(wk,WK_DXSAVE,zeros(n,nBroy))
+        initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
     else
-        initOption!(wk,WK_DXSAVE,0.0)
+        initOption!(wk, WK_DXSAVE, 0.0)
     end
 
     # Initialize temporary workspace
@@ -151,21 +151,18 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     initOption!(wk, WK_DMYCOR, 0.0)
     initOption!(wk, WK_SUMXS,  0.0)
 
-    # Initialize statistics
-    if !qSucc
-        stats[STATS_NITER]  = 0
-        stats[STATS_NCORR]  = 0
-        stats[STATS_NFCN]   = 0
-        stats[STATS_NFCNJ]  = 0
-        stats[STATS_NJAC]   = 0
-        stats[STATS_NREJR1] = 0
-        stats[STATS_NEW]    = 0
-        stats[STATS_ICONV]  = 0
-        stats[STATS_CONV]   = 0.0
-        stats[STATS_SUMX]   = 0.0
-        stats[STATS_DLEVF]  = 0.0
-        stats[STATS_RTOL]   = 0.0
-    end
+    initOption!(wk, STATS_NITER,  0)
+    initOption!(wk, STATS_NCORR,  0)
+    initOption!(wk, STATS_NFCN,   0)
+    initOption!(wk, STATS_NFCNJ,  0)
+    initOption!(wk, STATS_NJAC,   0)
+    initOption!(wk, STATS_NREJR1, 0)
+    initOption!(wk, STATS_NEW,    0)
+    initOption!(wk, STATS_ICONV,  0)
+    initOption!(wk, STATS_CONV,   0.0)
+    initOption!(wk, STATS_SUMX,   0.0)
+    initOption!(wk, STATS_DLEVF,  0.0)
+    initOption!(wk, STATS_RTOL,   0.0)
 
     if qIniMon
         write(printIOmon,"\nINFO: ","N = $n\n")
@@ -199,8 +196,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     end
 
     # Check for non linear option
-    nonLin = getOption!(opt,OPT_NONLIN,3)
-    initOption!(opt,OPT_BOUNDEDDAMP,0)
+    nonLin = getOption!(opt, OPT_NONLIN, 3)
+    initOption!(opt, OPT_BOUNDEDDAMP, 0)
 
     if opt.options[OPT_BOUNDEDDAMP] == 0
         qBDamp = nonLin == 4
@@ -211,10 +208,10 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     end
 
     # Initialize bounded damping strategy restriction factor
-    initOption!(opt,OPT_FCBAND,0.0)
+    initOption!(opt, OPT_FCBAND, 0.0)
     if qBDamp
         if opt.options[OPT_FCBAND] < 1.0
-            opt.options[OPT_FCBAND] = 10.0
+            setOption!(opt, OPT_FCBAND, 10.0)
         end
     end
 
@@ -252,10 +249,10 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     end
 
     # Maximum permitted number of iteration steps
-    nItmax = getOption!(opt,OPT_NITMAX,50)
+    nItmax = getOption!(opt, OPT_NITMAX, 50)
     if nItmax <= 0
         nItmax = 50
-        opt.options[OPT_NITMAX] = nItmax
+        setOption!(opt, OPT_NITMAX, nItmax)
     end
 
     if qIniMon
@@ -264,21 +261,21 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     end
 
     # Initial damping factor for highly nonlinear problems
-    initOption!(opt,OPT_FCSTART,0.0)
+    initOption!(opt, OPT_FCSTART, 0.0)
     qFcStart = opt.options[OPT_FCSTART] > 0.0
     if !qFcStart
-        opt.options[OPT_FCSTART] = 1.0e-2
+        setOption!(opt, OPT_FCSTART, 1.0e-2)
         if nonLin == 4
-            opt.options[OPT_FCSTART] = 1.0e-4
+            setOption!(opt, OPT_FCSTART, 1.0e-4)
         end
     end
 
     # Minimal permitted damping factor
     initOption!(opt,OPT_FCMIN,0.0)
     if opt.options[OPT_FCMIN] <= 0.0
-        opt.options[OPT_FCMIN] = 1.0e-4
+        setOption!(opt, OPT_FCMIN, 1.0e-4)
         if nonLin == 4
-            opt.options[OPT_FCMIN] = 1.0e-8
+            setOption!(opt, OPT_FCMIN, 1.0e-8)
         end
     end
     fcMin = getOption(opt,OPT_FCMIN,0.0)
@@ -286,17 +283,17 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     # Rank1 decision parameter SIGMA
     initOption!(opt,OPT_SIGMA,0.0)
     if opt.options[OPT_SIGMA] < 1.0
-        opt.options[OPT_SIGMA] = 3.0
+        setOption!(opt, OPT_SIGMA, 3.0)
     end
     if !qRank1
-        opt.options[OPT_SIGMA] = 10.0/fcMin
+        setOption!(opt, OPT_SIGMA, 10.0/fcMin)
     end
 
     # Decision parameter about increasing too small predictor
     # to greater corrector value
     initOption!(opt,OPT_SIGMA2,0.0)
     if opt.options[OPT_SIGMA2] < 1.0
-        opt.options[OPT_SIGMA2] = 10.0/fcMin
+        setOption!(opt, OPT_SIGMA2, 10.0/fcMin)
     end
 
     # Starting value of damping factor (fcMin <= fc <= 1.0)
@@ -305,20 +302,20 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
         fc = 1.0
     else
         # for highly or extremely nonlinear problems
-        fc = getOption!(opt,OPT_FCSTART)
+        fc = getOption(opt, OPT_FCSTART, 0.0)
     end
 
     # Simplified Newton iteration implies ordinary Newton iteration mode
-    if Bool(getOption!(opt,OPT_QSIMPL,0))
-        fc = 1.0
+    if qSimpl
+        setOption!(opt, OPT_QORDI, 1)
     end
 
     # If ordinary Newton iteration, damping factor is always 1
-    if Bool(getOption!(opt,OPT_QORDI,0))
+    if opt.options[OPT_QORDI] == 1
         fc = 1.0
     end
 
-    setOption!(opt,OPT_FCSTART,fc)
+    setOption!(opt, OPT_FCSTART, fc)
 
     if printMon >= 2 && !qSucc
         write(printIOmon,"\nINFO: ","Internal parameters:",
@@ -338,7 +335,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     end
 
     # Call to n1int
-    (x, xScal, retCode, stats) = n1int(n, fcn, x, xScal,
+    (x, xScal, retCode) = n1int(n, fcn, x, xScal,
     opt.options[OPT_RTOL], nItmax, nonLin, opt, retCode, wk, m1, m2, nBroy,
     xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, wk.options[WK_A],
     wk.options[WK_DXSAVE], wk.options[WK_DX], wk.options[WK_DXQ],
@@ -347,26 +344,32 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     wk.options[WK_SUMXA0],wk.options[WK_SUMXA1],wk.options[WK_FCMON],
     opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
     opt.options[OPT_SIGMA2], wk.options[WK_FCA], wk.options[WK_FCKEEP],
-    wk.options[WK_FCPRI], wk.options[WK_DMYCOR], stats[STATS_CONV],
-    wk.options[WK_SUMXS], stats[STATS_DLEVF], mStor, printWarn,
-    printMon, printSol, printIOwarn, printIOmon, printIOsol, stats[STATS_NITER],
-    stats[STATS_NCORR], stats[STATS_NFCN], stats[STATS_NFCNJ], stats[STATS_NJAC], stats[STATS_NREJR1],
-    stats[STATS_NEW],stats[STATS_ICONV], qBDamp, stats)
+    wk.options[WK_FCPRI], wk.options[WK_DMYCOR], wk.options[STATS_CONV],
+    wk.options[WK_SUMXS], wk.options[STATS_DLEVF], mStor, printWarn,
+    printMon, printSol, printIOwarn, printIOmon, printIOsol, wk.options[STATS_NITER],
+    wk.options[STATS_NCORR], wk.options[STATS_NFCN], wk.options[STATS_NFCNJ], wk.options[STATS_NJAC], wk.options[STATS_NREJR1],
+    wk.options[STATS_NEW],wk.options[STATS_ICONV], qBDamp)
 
     # set stats variable
+    stats = Dict{ASCIIString,Any}()
     stats[STATS_XSCAL] = xScal
     if retCode == -1
-        stats[STATS_RTOL] = tolAll[stats[STATS_NITER]]
+        stats[STATS_RTOL] = tolAll[wk.options[STATS_NITER]]
     else
         stats[STATS_RTOL] = opt.options[OPT_RTOL]
     end
-    stats[STATS_XITER]          = xIter
-    stats[STATS_NATLEVEL]       = sumXall
-    stats[STATS_SIMLEVEL]       = sumXQall
-    stats[STATS_STDLEVEL]       = dLevFall
-    stats[STATS_PRECISION]      = tolAll
-    stats[STATS_DAMPINGFC]      = fcAll
-
+    stats[STATS_XITER]      = xIter
+    stats[STATS_NATLEVEL]   = sumXall
+    stats[STATS_SIMLEVEL]   = sumXQall
+    stats[STATS_STDLEVEL]   = dLevFall
+    stats[STATS_PRECISION]  = tolAll
+    stats[STATS_DAMPINGFC]  = fcAll
+    stats[STATS_NITER]      = wk.options[STATS_NITER]
+    stats[STATS_NCORR]      = wk.options[STATS_NCORR]
+    stats[STATS_NREJR1]     = wk.options[STATS_NREJR1]
+    stats[STATS_NJAC]       = wk.options[STATS_NJAC]
+    stats[STATS_NFCN]       = wk.options[STATS_NFCN]
+    stats[STATS_NFCNJ]      = wk.options[STATS_NFCNJ]
     # Print statistics
     if printMon >= 2 && retCode != -1 && retCode != 10
         write(printIOmon,"\n",
@@ -379,6 +382,14 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
         @sprintf("***  ... for Jacobain eval : %7i  ***\n", (stats[STATS_NFCNJ])),
         @sprintf("*****************************************\n"))
     end
+
+    # Assign the persistent variables back
+    setOption!(wk, "persistent_xIter", xIter)
+    setOption!(wk, "persistent_sumXall", sumXall)
+    setOption!(wk, "persistent_dLevFall", dLevFall)
+    setOption!(wk, "persistent_sumXQall", sumXQall)
+    setOption!(wk, "persistent_tolAll", tolAll)
+    setOption!(wk, "persistent_fcAll", fcAll)
 
     return (x, stats, retCode);
 end

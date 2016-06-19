@@ -1024,6 +1024,6 @@ using Debug
     wk.options[STATS_NEW]    = newt
     wk.options[STATS_ICONV]  = iConv
 
-    return (x, xScal, retCode, wk)
+    return (x, xScal, retCode)
     # End of function n1int
 end

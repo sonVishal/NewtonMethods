@@ -20,13 +20,7 @@
 #include("NLEQ1Main.jl")
 function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::OptionsNLEQ)
 
-    # TODO: persistent variables
-    # Might be a good idea to store them inside opt
-    # so that they can be used again and again.
-
-    # Initialize output statistics
-    # stats = Dict{ASCIIString,Any}()
-
+    # TODO: use let-blocks to make wk persistent across function calls
     # Initialize workspace options
     # wk = OptionsNLEQ()
 

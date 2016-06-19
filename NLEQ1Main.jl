@@ -400,6 +400,7 @@ using Debug
         wk.options[STATS_SUMX]   = sumX
         wk.options[STATS_DLEVF]  = dLevF
         xa[:]    = x
+        @bp
         sumXa    = sumX
         dLevXa   = sqrt(sumXa/n)
         conva    = conv

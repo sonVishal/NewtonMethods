@@ -1,7 +1,7 @@
 #include("Helper.jl")
 #include("Jacobian.jl")
-# using Debug
-#=@debug=# function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+using Debug
+@debug function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
@@ -11,7 +11,7 @@
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    # dLevFn  = 1.0
+    dLevFn  = 1.0
     # fcNumP  = 1.0
     # sumXa   = 1.0
     # qGenJ   = true
@@ -858,7 +858,7 @@
     # --------------------------------------------------------------------------
 
     # TODO: Check which exit messages are not requried due to error()
-
+    @bp
     # --------------------------------------------------------------------------
     # 9 Exits
     # --------------------------------------------------------------------------

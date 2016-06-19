@@ -1023,7 +1023,7 @@ using Debug
     wk.options[STATS_NREJR1] = nRejR1
     wk.options[STATS_NEW]    = newt
     wk.options[STATS_ICONV]  = iConv
-
+    @bp
     return (x, xScal, retCode)
     # End of function n1int
 end

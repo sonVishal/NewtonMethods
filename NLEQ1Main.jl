@@ -1,7 +1,7 @@
 #include("Helper.jl")
 #include("Jacobian.jl")
-using Debug
-@debug function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+# using Debug
+#=@debug=# function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
@@ -11,7 +11,7 @@ using Debug
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    dLevFn  = 1.0
+    # dLevFn  = 1.0
     # fcNumP  = 1.0
     # sumXa   = 1.0
     # qGenJ   = true
@@ -39,7 +39,7 @@ using Debug
     # 1 Initialization
     # --------------------------------------------------------------------------
     # 1.1 Control variables
-    @bp
+    #@bp
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
     qOrdi       = Bool(opt.options[OPT_QORDI])
@@ -234,7 +234,7 @@ using Debug
                     # 2.2.1 Computation of the numerator of damping
                     # factor predictor
                     fcNmp2 = sum((dxQa./xw).^2)
-                    # @bp
+                    # #@bp
                     fcNumP = fcNumP*fcNmp2
                 end
             end
@@ -802,7 +802,7 @@ using Debug
             wk.options[STATS_NITER] = nIter
             push!(xIter,x)
             dLevF = dLevFn
-            # @bp
+            # #@bp
             if nIter >= nItmax
                 retCode = 2
                 break
@@ -847,7 +847,7 @@ using Debug
                 setOption!(wk, STATS_SUMX, sumX)
                 setOption!(wk, WK_SUMXS, sumXs)
                 setOption!(wk, STATS_DLEVF, dLevF)
-                @bp
+                #@bp
                 return (x, xScal, retCode, wk)
             end
         end
@@ -863,7 +863,7 @@ using Debug
     # 9 Exits
     # --------------------------------------------------------------------------
     # 9.1 Solution exit
-    # @bp
+    # #@bp
     aprec = -1.0
 
     if retCode == 0 || retCode == 4
@@ -1073,7 +1073,7 @@ using Debug
     setOption!(wk, WK_SUMXS, sumXs)
     setOption!(wk, STATS_DLEVF, dLevF)
 
-    @bp
+    #@bp
     return (x, xScal, retCode)
     # End of function n1int
 end

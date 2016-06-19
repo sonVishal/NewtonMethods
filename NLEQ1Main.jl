@@ -11,11 +11,11 @@ using Debug
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    dLevFn  = 1.0;
-    # fcNumP  = 1.0;
-    # sumXa   = 1.0;
-    # qGenJ   = true;
-    # conva   = 0.0;
+    dLevFn  = 1.0
+    # fcNumP  = 1.0
+    # sumXa   = 1.0
+    # qGenJ   = true
+    # conva   = 0.0
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wk,"persistent_cLin0",0.0)
@@ -813,25 +813,40 @@ using Debug
             if mode == 1
                 qSucc = true
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
-                setOption!(wk, "persistent_cLin0", cLin0)
-                setOption!(wk, "persistent_cLin1", cLin1)
-                setOption!(wk, "persistent_cAlpha", cAlpha)
-                setOption!(wk, "persistent_alphaE", alphaE)
-                setOption!(wk, "persistent_alphaK", alphaK)
-                setOption!(wk, "persistent_alphaA", alphaA)
-                setOption!(wk, "persistent_qMStop", qMStop)
-                setOption!(wk, "persistent_sumxa2", sumxa2)
-                setOption!(wk, "persistent_l", l)
-                setOption!(wk, "persistent_u", u)
-                setOption!(wk, "persistent_p", p)
-                setOption!(wk, STATS_NITER, nIter)
-                setOption!(wk, STATS_NCORR, nCorr)
-                setOption!(wk, STATS_NFCN, nFcn)
-                setOption!(wk, STATS_NFCNJ, nFcnJ)
-                setOption!(wk, STATS_NJAC, nJac)
+                setOption!(opt, OPT_FCSTART, fc)
+
+                setOption!(wk, STATS_NITER,  nIter)
+                setOption!(wk, STATS_NCORR,  nCorr)
+                setOption!(wk, STATS_NFCN,   nFcn)
+                setOption!(wk, STATS_NFCNJ,  nFcnJ)
+                setOption!(wk, STATS_NJAC,   nJac)
                 setOption!(wk, STATS_NREJR1, nRejR1)
-                setOption!(wk, STATS_NEW, newt)
-                setOption!(wk, STATS_ICONV, iConv)
+                setOption!(wk, STATS_NEW,    newt)
+                setOption!(wk, STATS_ICONV,  iConv)
+
+                setOption!(wk, WK_A, a)
+                setOption!(wk, WK_DXSAVE, dxSave)
+                setOption!(wk, WK_DX, dx)
+                setOption!(wk, WK_DXQ, dxQ)
+                setOption!(wk, WK_DXQA, dxQa)
+                setOption!(wk, WK_XA, xa)
+                setOption!(wk, WK_XW, xw)
+                setOption!(wk, WK_XWA, xwa)
+                setOption!(wk, WK_F, f)
+                setOption!(wk, WK_FA, fa)
+                setOption!(wk, WK_FW, fw)
+                setOption!(wk, WK_ETA, eta)
+                setOption!(wk, WK_SUMXA0, sumxa0)
+                setOption!(wk, WK_SUMXA1, sumxa1)
+                setOption!(wk, WK_FCMON, fcMon)
+                setOption!(wk, WK_FCA, fcA)
+                setOption!(wk, WK_FCKEEP, fcKeep)
+                setOption!(wk, WK_FCPRI, fcPri)
+                setOption!(wk, WK_DMYCOR, dMyCor)
+                setOption!(wk, STATS_CONV, conv)
+                setOption!(wk, STATS_SUMX, sumX)
+                setOption!(wk, WK_SUMXS, sumXs)
+                setOption!(wk, STATS_DLEVF, dLevF)
                 @bp
                 return (x, xScal, retCode, wk)
             end
@@ -1022,42 +1037,42 @@ using Debug
     # 10 Prepare all the variables for returning
     xScal = xw
 
-    opt.options[OPT_QSUCC]  = Int(qSucc)
+    setOption!(opt, OPT_QSUCC, Int(qSucc))
+    setOption!(opt, OPT_FCSTART, fc)
 
-    wk.options[STATS_NITER]  = nIter
-    wk.options[STATS_NCORR]  = nCorr
-    wk.options[STATS_NFCN]   = nFcn
-    wk.options[STATS_NFCNJ]  = nFcnJ
-    wk.options[STATS_NJAC]   = nJac
-    wk.options[STATS_NREJR1] = nRejR1
-    wk.options[STATS_NEW]    = newt
-    wk.options[STATS_ICONV]  = iConv
+    setOption!(wk, STATS_NITER,  nIter)
+    setOption!(wk, STATS_NCORR,  nCorr)
+    setOption!(wk, STATS_NFCN,   nFcn)
+    setOption!(wk, STATS_NFCNJ,  nFcnJ)
+    setOption!(wk, STATS_NJAC,   nJac)
+    setOption!(wk, STATS_NREJR1, nRejR1)
+    setOption!(wk, STATS_NEW,    newt)
+    setOption!(wk, STATS_ICONV,  iConv)
 
-    setOption!(wk, WK_A, a);
-    setOption!(wk, WK_DXSAVE, dxSave);
-    setOption!(wk, WK_DX, dx);
-    setOption!(wk, WK_DXQ, dxQ);
-    setOption!(wk, WK_DXQA, dxQa);
-    setOption!(wk, WK_XA, xa);
-    setOption!(wk, WK_XW, xw);
-    setOption!(wk, WK_XWA, xwa);
-    setOption!(wk, WK_F, f);
-    setOption!(wk, WK_FA, fa);
-    setOption!(wk, WK_FW, fw);
-    setOption!(wk, WK_ETA, eta);
-    setOption!(wk, WK_SUMXA0, sumxa0);
-    setOption!(wk, WK_SUMXA1, sumxa1);
-    setOption!(wk, WK_FCMON, fcMon);
-    setOption!(wk, WK_FCA, fcA);
-    setOption!(wk, WK_FCKEEP, fcKeep);
-    setOption!(wk, WK_FCPRI, fcPri);
-    setOption!(wk, WK_DMYCOR, dMyCor);
-    setOption!(wk, STATS_CONV, conv);
+    setOption!(wk, WK_A, a)
+    setOption!(wk, WK_DXSAVE, dxSave)
+    setOption!(wk, WK_DX, dx)
+    setOption!(wk, WK_DXQ, dxQ)
+    setOption!(wk, WK_DXQA, dxQa)
+    setOption!(wk, WK_XA, xa)
+    setOption!(wk, WK_XW, xw)
+    setOption!(wk, WK_XWA, xwa)
+    setOption!(wk, WK_F, f)
+    setOption!(wk, WK_FA, fa)
+    setOption!(wk, WK_FW, fw)
+    setOption!(wk, WK_ETA, eta)
+    setOption!(wk, WK_SUMXA0, sumxa0)
+    setOption!(wk, WK_SUMXA1, sumxa1)
+    setOption!(wk, WK_FCMON, fcMon)
+    setOption!(wk, WK_FCA, fcA)
+    setOption!(wk, WK_FCKEEP, fcKeep)
+    setOption!(wk, WK_FCPRI, fcPri)
+    setOption!(wk, WK_DMYCOR, dMyCor)
+    setOption!(wk, STATS_CONV, conv)
+    setOption!(wk, STATS_SUMX, sumX)
+    setOption!(wk, WK_SUMXS, sumXs)
+    setOption!(wk, STATS_DLEVF, dLevF)
 
-    setOption!(opt, OPT_FCSTART, fc);
-    # TODO: Set all these variables before returning
-	# 			wk.sumx,wk.sumxs,wk.dlevf,            ...
-	# 			wk.niter,wk.ncorr,wk.nfcn,wk.njac,wk.nfcnj,wk.nrejr1,wk.new,wk.iconv,wk.qsucc
     @bp
     return (x, xScal, retCode)
     # End of function n1int

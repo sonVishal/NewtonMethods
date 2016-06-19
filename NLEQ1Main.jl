@@ -13,10 +13,10 @@
     # scopes. The declaration and usage are in different scopes.
     # @bp
     dLevFn  = 1.0;
-    fcNump  = 1.0;
-    sumXa   = 1.0;
-    qGenJ   = true;
-    conva   = 0.0;
+    # fcNumP  = 1.0;
+    # sumXa   = 1.0;
+    # qGenJ   = true;
+    # conva   = 0.0;
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wk,"persistent_cLin0",0.0)
@@ -26,7 +26,7 @@
     alphaK  = getOption!(wk,"persistent_alphaK",0.0)
     alphaA  = getOption!(wk,"persistent_alphaA",0.0)
     qMStop  = getOption!(wk,"persistent_qMStop",false)
-    sumxa2  = getOption!(wk,"persistent_qMStop",0.0)
+    sumxa2  = getOption!(wk,"persistent_sumxa2",0.0)
     l       = getOption!(wk,"persistent_l",Float64[])
     u       = getOption!(wk,"persistent_u",Float64[])
     p       = getOption!(wk,"persistent_p",Float64[])
@@ -87,22 +87,22 @@
     iFail               = 0
     fcBand              = 0.0
     if qBDamp
-        fcBand = fcband
+        fcBand = opt.options[OPT_FCBAND]
     end
     # --------------------------------------------------------------------------
     # 1.5.1 Numerical differentiation related initializations
     if jacGen == 2
-        aJdel = getOption!(opt,OPT_AJDEL,0.0)
+        aJdel = getOption!(opt, OPT_AJDEL, 0.0)
         if aJdel <= small
             aJdel = sqrt(epMach*10.0)
         end
-        aJmin = getOption!(opt,OPT_AJMIN,0.0)
+        aJmin = getOption!(opt, OPT_AJMIN, 0.0)
     elseif jacGen == 3
-        etaDif = getOption!(opt,OPT_ETADIF,0.0)
+        etaDif = getOption!(opt, OPT_ETADIF, 0.0)
         if etaDif <= small
             etaDif = 1.0e-6
         end
-        etaIni = getOption!(opt,OPT_ETAINI,0.0)
+        etaIni = getOption!(opt, OPT_ETAINI, 0.0)
         if etaIni <= small
             etaIni = 1.0e-6
         end
@@ -142,10 +142,10 @@
 
         xa[:] = x[:]
 
-        alphaE  = 0.0
-        cAlpha  = 0.0
-        cLin0   = 0.0
-        qMStop  = false
+        # alphaE  = 0.0
+        # cAlpha  = 0.0
+        # cLin0   = 0.0
+        # qMStop  = false
         # ----------------------------------------------------------------------
         # 1.6 Print monitor header
         if mPrMon >= 2 && !qMixIO
@@ -210,7 +210,7 @@
 
                         fcA = fc
                     else
-                        dMyCor = fcA*fcA*0.5*sqrt(fcNump/fcDnm)
+                        dMyCor = fcA*fcA*0.5*sqrt(fcNumP/fcDnm)
                         if nonLin <= 3
                             fcCor = min(1.0,dMyCor)
                         else
@@ -235,7 +235,7 @@
                     # factor predictor
                     fcNmp2 = sum((dxQa./xw).^2)
                     # @bp
-                    fcNump = fcNump*fcNmp2
+                    fcNumP = fcNumP*fcNmp2
                 end
             end
         end
@@ -251,14 +251,14 @@
         if qGenJ && (!qSimpl || nIter == 0)
             newt = 0
             if jacGen == 1
-                jac = getOption(opt,OPT_JACFCN,0)
+                jac = getOption(opt, OPT_JACFCN, 0)
                 try
                     jac(x,a)
                     # iFail = 0
                 catch err
                     retCode = 82
                     iFail   = -1
-                    throw(err)
+                    # throw(err)
                 end
             else
                 if mStor == 0
@@ -299,6 +299,7 @@
             # ------------------------------------------------------------------
             # 2.3.2.1 Save scaling values
             xwa = xw[1:n]
+            # ------------------------------------------------------------------
             if issparse(a)
                 nza = nnz(a)
                 (row,col) = findn(a)
@@ -323,10 +324,10 @@
                     for k = 1:n
                         a[1:n,k] = -a[1:n,k]*xw[k]
                     end
-                elseif mStro == 1
+                elseif mStor == 1
                     for k = 1:n
                         l2 = max(1+m2-k,ml+1)
-                        l3 = max(n+m2-k,m1)
+                        l3 = min(n+m2-k,m1)
                         a[l2:l3,k] = -a[l2:l3,k]*xw[k]
                     end
                 end
@@ -336,7 +337,7 @@
             if qScale
                 if mStor == 0
                     (a,fw) = n1scrf(n,n,a)
-                elseif mStro == 1
+                elseif mStor == 1
                     (a,fw) = n1scrb(n,m1,ml,mu,a)
                 end
             else
@@ -378,7 +379,7 @@
             alfa2 = sum(dx.^2./xw.^2)
             alfa = alfa1/alfa2
             beta = 1.0 - alfa
-            t1 = (dxQ+(fca-one)*alfa*dx)/beta
+            t1 = (dxQ+(fcA-one)*alfa*dx)/beta
             if newt == 1
                 dxSave[1:n,1] = dx
             end
@@ -399,7 +400,7 @@
         wk.options[STATS_SUMX]   = sumX
         wk.options[STATS_DLEVF]  = dLevF
         xa[:]    = x
-        sumXa = sumX
+        sumXa    = sumX
         dLevXa   = sqrt(sumXa/n)
         conva    = conv
         dxANrm   = wnorm(n,dx,xw)
@@ -421,7 +422,6 @@
                 end
             else
                 fcPri = 1.0
-
                 dMyPri = -1.0
             end
 
@@ -564,6 +564,10 @@
             # TODO: Understand what is happening here
             # and handle the failure properly
             # What does iFail = 1 and iFail = 2 mean??
+            if iFail < 0
+                retCode = 82
+                break
+            end
             if iFail == 1 || iFail == 2
                 if qOrdi
                     retCode = 82
@@ -706,7 +710,7 @@
                             fc = fcbh
                             if mPrMon >= 4
                                 write(printIOmon,
-                                " *** Decrese rest. sct. (a posteriori) ***\n")
+                                " *** Decrease rest. act. (a posteriori) ***\n")
                             end
                         end
                     end

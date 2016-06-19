@@ -42,7 +42,9 @@ wk = OptionsNLEQ()
 
 retCode = -1
 
-(sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt,wk);
+while retCode == -1
+    (sol, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt,wk);
+end
 
 flush(fSol)
 flush(fRest)

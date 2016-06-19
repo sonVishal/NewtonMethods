@@ -99,7 +99,11 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
         m2 = ml + mu + 1
     end
 
-    jacGen = getOption!(opt,OPT_JACGEN,2);
+    jacGen = getOption!(opt,OPT_JACGEN,0)
+    if jacGen == 0
+        jacGen = 2
+    end
+    setOption!(opt, OPT_JACGEN, jacGen)
 
     qRank1 = Bool(getOption!(opt, OPT_QRANK1, 0))
     qOrdi  = Bool(getOption!(opt, OPT_QORDI,  0))

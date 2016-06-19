@@ -8,13 +8,6 @@ using Debug
     dLevF, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon, printIOsol,
     nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp)
 
-
-    # TODO: Set all these variables before returning
-    # wk.a,wk.dxsave,wk.dx,wk.dxq,wk.xa,wk.xwa,wk.f,                                    ...
-	# 			wk.fa,wk.eta,wk.xw,wk.fw,wk.dxqa,wk.sumxa0,wk.sumxa1,wk.fcmon,wk.fcstart,         ...
-	# 			wk.fca,wk.fckeep,wk.fcpri,wk.dmycor,wk.conv,wk.sumx,wk.sumxs,wk.dlevf,            ...
-	# 			wk.niter,wk.ncorr,wk.nfcn,wk.njac,wk.nfcnj,wk.nrejr1,wk.new,wk.iconv,wk.qsucc
-
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
@@ -1039,6 +1032,32 @@ using Debug
     wk.options[STATS_NREJR1] = nRejR1
     wk.options[STATS_NEW]    = newt
     wk.options[STATS_ICONV]  = iConv
+
+    setOption!(wk, WK_A, a);
+    setOption!(wk, WK_DXSAVE, dxSave);
+    setOption!(wk, WK_DX, dx);
+    setOption!(wk, WK_DXQ, dxQ);
+    setOption!(wk, WK_DXQA, dxQa);
+    setOption!(wk, WK_XA, xa);
+    setOption!(wk, WK_XW, xw);
+    setOption!(wk, WK_XWA, xwa);
+    setOption!(wk, WK_F, f);
+    setOption!(wk, WK_FA, fa);
+    setOption!(wk, WK_FW, fw);
+    setOption!(wk, WK_ETA, eta);
+    setOption!(wk, WK_SUMXA0, sumxa0);
+    setOption!(wk, WK_SUMXA1, sumxa1);
+    setOption!(wk, WK_FCMON, fcMon);
+    setOption!(wk, WK_FCA, fcA);
+    setOption!(wk, WK_FCKEEP, fcKeep);
+    setOption!(wk, WK_FCPRI, fcPri);
+    setOption!(wk, WK_DMYCOR, dMyCor);
+    setOption!(wk, STATS_CONV, conv);
+
+    setOption!(opt, OPT_FCSTART, fc);
+    # TODO: Set all these variables before returning
+	# 			wk.sumx,wk.sumxs,wk.dlevf,            ...
+	# 			wk.niter,wk.ncorr,wk.nfcn,wk.njac,wk.nfcnj,wk.nrejr1,wk.new,wk.iconv,wk.qsucc
     @bp
     return (x, xScal, retCode)
     # End of function n1int

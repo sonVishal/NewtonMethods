@@ -12,10 +12,8 @@
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
     dLevFn  = 1.0
-    # fcNumP  = 1.0
     sumXa   = 1.0
-    # qGenJ   = true
-    # conva   = 0.0
+
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wk,"persistent_cLin0",0.0)

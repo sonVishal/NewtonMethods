@@ -15,14 +15,15 @@
 #         retCode:    Return code signifying success or failure
 # This function does the bookkeeping. The actual computation are done in n1int
 
-#include("CheckOptionsNLEQ1.jl")
-#include("Error.jl")
-#include("NLEQ1Main.jl")
+include("Error.jl")
+include("Helper.jl")
+include("Jacobian.jl")
+include("Options.jl")
+include("Constants.jl")
+include("CheckOptionsNLEQ1.jl")
+include("Error.jl")
+include("NLEQ1Main.jl")
 function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::OptionsNLEQ)
-
-    # TODO: use let-blocks to make wk persistent across function calls
-    # Initialize workspace options
-    # wk = OptionsNLEQ()
 
     # Initialize a common message string variable
     message = ""

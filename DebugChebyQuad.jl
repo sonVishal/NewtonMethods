@@ -1,4 +1,3 @@
-include("NLEQ1.jl");
 include("ChebyQuad.jl");
 
 # Dimension of the problem 2 <= dim <= 9

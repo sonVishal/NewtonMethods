@@ -1,3 +1,4 @@
+__precompile__(false)
 module NewtonMethods
 # TODO: Make everything type independent
 # Currently everything is assumed to be Float64
@@ -394,4 +395,37 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     return (x, stats, retCode);
 end
 export nleq1,OptionsNLEQ;
+export OPT_RTOL,
+OPT_QSUCC,
+OPT_MODE,
+OPT_JACGEN,
+OPT_JACFCN,
+OPT_MSTOR,
+OPT_ML,
+OPT_MU,
+OPT_ISCAL,
+OPT_PRINTWARNING,
+OPT_PRINTITERATION,
+OPT_PRINTIOWARN,
+OPT_PRINTIOMON,
+OPT_PRINTIOSOL,
+OPT_PRINTSOLUTION,
+OPT_NONLIN,
+OPT_QRANK1,
+OPT_QORDI,
+OPT_QSIMPL,
+OPT_NOROWSCAL,
+OPT_BOUNDEDDAMP,
+OPT_IORMON,
+OPT_NITMAX,
+OPT_FCBAND,
+OPT_SIGMA,
+OPT_SIGMA2,
+OPT_AJDEL,
+OPT_AJMIN,
+OPT_ETADIF,
+OPT_ETAINI,
+OPT_NBROY,
+OPT_FCSTART,
+OPT_FCMIN;
 end

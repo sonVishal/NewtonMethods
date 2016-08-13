@@ -38,14 +38,15 @@ xScal = zeros(x0)
 # println(J)
 
 # stats = Dict{ASCIIString,Any}()
-wk = OptionsNLEQ()
+# wk = OptionsNLEQ()
 
 retCode = -1
 
+println("Calling the while loop for solving the Cheby Quad equation of dimension $dim");
 while retCode == -1
-    (x0, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt,wk);
+    (x0, stats, retCode) = nleq1(chebyQuad,x0,xScal,opt);
 end
-
+println("Solution = $x0")
 flush(fSol)
 flush(fRest)
 close(fSol)

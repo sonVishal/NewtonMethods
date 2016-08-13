@@ -1,5 +1,3 @@
-__precompile__(false)
-module NewtonMethods
 # TODO: Make everything type independent
 # Currently everything is assumed to be Float64
 
@@ -9,23 +7,18 @@ module NewtonMethods
 #         x:          Initial guess
 #         xScal:      Scaling vector
 #         opt:        Options for the solver
-#         wk:         Structured workspace TODO: get rid of this
 #     Output parameters:
 #         x:          Solution if found
-#         xScal:      Lat internal scaling vector if successful solve
 #         stats:      Statistics of the solution
 #         retCode:    Return code signifying success or failure
-# This function does the bookkeeping. The actual computation are done in n1int
 
-include("Error.jl")
-include("Helper.jl")
-include("Jacobian.jl")
-include("Options.jl")
-include("Constants.jl")
-include("CheckOptionsNLEQ1.jl")
-include("Error.jl")
+# This function does the bookkeeping. The actual computation are done in n1int
 include("NLEQ1Main.jl")
-function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::OptionsNLEQ)
+
+function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
+
+    # Get the workspace variable from global
+    wk = OptionsNLEQ();
 
     # Initialize a common message string variable
     message = ""
@@ -39,7 +32,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     # Print warning messages?
     printWarn   = getOption(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
-    printMon     = getOption!(opt,OPT_PRINTITERATION,0)
+    printMon    = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
@@ -47,6 +40,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     printIOwarn = getOption(opt,OPT_PRINTIOWARN,STDOUT)
     printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
     printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
+
+    # TODO: Remove this. The user has to be sensible enough. Only give ERROR
     # if printIO == "FILE"
     #     # If not STDOUT then print to file
     #     # Default file name is log.txt and the file is opened for writing
@@ -62,6 +57,8 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     # First call or successive call
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
     qIniMon = (printMon >= 1 && !qSucc)
+
+    # TODO: Improve checkOptions and handle the errors properly!!
 
     # Check input parameters and options
     n = length(x)
@@ -392,40 +389,9 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ,wk::Option
     setOption!(wk, "persistent_tolAll", tolAll)
     setOption!(wk, "persistent_fcAll", fcAll)
 
+    # Copy the current workspace variable to the global container only if it was a success
+    # TODO: Find the correct way to handle this. That is, find the correct values of retCode.
+    commonWk["NLEQ1"] = wk;
+
     return (x, stats, retCode);
-end
-export nleq1,OptionsNLEQ;
-export OPT_RTOL,
-OPT_QSUCC,
-OPT_MODE,
-OPT_JACGEN,
-OPT_JACFCN,
-OPT_MSTOR,
-OPT_ML,
-OPT_MU,
-OPT_ISCAL,
-OPT_PRINTWARNING,
-OPT_PRINTITERATION,
-OPT_PRINTIOWARN,
-OPT_PRINTIOMON,
-OPT_PRINTIOSOL,
-OPT_PRINTSOLUTION,
-OPT_NONLIN,
-OPT_QRANK1,
-OPT_QORDI,
-OPT_QSIMPL,
-OPT_NOROWSCAL,
-OPT_BOUNDEDDAMP,
-OPT_IORMON,
-OPT_NITMAX,
-OPT_FCBAND,
-OPT_SIGMA,
-OPT_SIGMA2,
-OPT_AJDEL,
-OPT_AJMIN,
-OPT_ETADIF,
-OPT_ETAINI,
-OPT_NBROY,
-OPT_FCSTART,
-OPT_FCMIN;
 end

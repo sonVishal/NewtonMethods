@@ -2,6 +2,7 @@ __precompile__(true)
 
 module NewtonMethods
 
+# Include common files
 include("Jacobian.jl")
 include("Options.jl")
 include("Constants.jl")
@@ -9,11 +10,15 @@ include("Error.jl")
 include("Helper.jl")
 include("CheckOptionsNLEQ1.jl")
 
+# Create a global container for the options since they need to be stored for
+# further use
 commonWk = Dict{ASCIIString,OptionsNLEQ}();
 commonWk["NLEQ1"] = OptionsNLEQ();
 
+# Include the solver specific files
 include("NLEQ1.jl");
 
+# Export the required methods
 export nleq1,OptionsNLEQ;
 export OPT_RTOL,
 OPT_QSUCC,

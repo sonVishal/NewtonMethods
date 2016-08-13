@@ -1,3 +1,4 @@
+# Precompile the module
 __precompile__(true)
 
 module NewtonMethods

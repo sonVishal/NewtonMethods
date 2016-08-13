@@ -23,24 +23,13 @@ opt = OptionsNLEQ(OPT_MODE              => 1,
                   OPT_PRINTIOMON        => fRest,
                   OPT_PRINTIOSOL        => fSol,
                   OPT_NITMAX            => 10,
-                  OPT_RTOL              => 1e-5)
+                  OPT_RTOL              => 1e-8)
 
 x0    = collect(1:dim)./n1
 xScal = zeros(x0)
 
-# f = zeros(x0)
-# J = zeros(length(x0),length(x0))
-#
-# chebyQuad(x0,f)
-# chebyQuadJac(x0,J)
-#
-# println(f)
-# println(J)
-
-# stats = Dict{ASCIIString,Any}()
-# wk = OptionsNLEQ()
-
 retCode = -1
+stats   = []
 
 println("Calling the while loop for solving the Cheby Quad equation of dimension $dim");
 while retCode == -1

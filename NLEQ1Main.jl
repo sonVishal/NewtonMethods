@@ -134,11 +134,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             eta = etaIni*ones(n)
         end
 
-        if n == 1
-            xa = x
-        else
-            xa[:] = x[:]
-        end
+        xa[:] = x[:]
 
         # alphaE  = 0.0
         # cAlpha  = 0.0
@@ -343,11 +339,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         end
         # ----------------------------------------------------------------------
         # 2.4.3 Save and scale values of F(n)
-        if n == 1
-            fa = f
-        else
-            fa[:] = f
-        end
+        fa[:] = f
         t1 = f.*fw
         # ----------------------------------------------------------------------
         # 3 Central part of iteration step
@@ -400,11 +392,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         end
         wk.options[STATS_SUMX]   = sumX
         wk.options[STATS_DLEVF]  = dLevF
-        if n == 1
-            xa = x
-        else
-            xa[:] = x
-        end
+        xa[:] = x
         sumXa    = sumX
         dLevXa   = sqrt(sumXa/n)
         conva    = conv
@@ -773,13 +761,8 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             # ------------------------------------------------------------------
             # 3.11 Restore former values for repeating iteration step
             nRejR1 += 1
-            if n == 1
-                x = xa
-                f = fa
-            else
-                x[:] = xa
-                f[:] = fa
-            end
+            x[:] = xa
+            f[:] = fa
             if mPrMon >= 2
                 write(printIOmon,
                 @sprintf("        %2i not accepted damping factor %7.5f",nIter,fc),

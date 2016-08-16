@@ -1,9 +1,9 @@
 function f(x,y)
-    y = x^2-2*x+1;
+    y[1] = x[1]^2-2*x[1]+1;
 end
 
 function Df(x,J)
-    J = 2*x-2;
+    J[1,1] = 2*x[1]-2;
 end
 
 opt = OptionsNLEQ(OPT_MODE              => 1,
@@ -12,10 +12,10 @@ opt = OptionsNLEQ(OPT_MODE              => 1,
                   OPT_MSTOR             => 0,
                   OPT_NOROWSCAL         => 0,
                   OPT_NITMAX            => 10,
-                  OPT_RTOL              => 1e-3);
+                  OPT_RTOL              => 1e-8);
 
-x0    = 0.0
-xScal = 0.0
+x0    = zeros(1)
+xScal = zeros(1)
 
 retCode = -1
 stats   = []

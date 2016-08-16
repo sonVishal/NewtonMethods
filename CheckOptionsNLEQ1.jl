@@ -4,7 +4,7 @@
 # Summary :
 # checkOptions : Checking of input parameters and options for NLEQ1.
 
-function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
+function checkOptions(n, x, xScal, opt)
 
     # TODO: Get the type of elements in x
 
@@ -69,31 +69,59 @@ function checkOptions(n::Number,x::Vector,xScal::Vector,opt::OptionsNLEQ)
         defScal = 1.0
     end
 
-    for i = 1:n
+    if n == 1
         # Scaling Values cannot be negative
         # Positive scaling values give scale invariance
-        if xScal[i] < 0.0
+        if xScal < 0.0
             retCode = 22
-            write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied")
+            write(printIOwarn,"ERROR: Negative value in xScal supplied")
             return retCode
         end
 
-        if xScal[i] == 0.0
-            xScal[i] = defScal
+        if xScal == 0.0
+            xScal = defScal
         end
-        # Avoid overflow due to division by xScal[i]
-        if xScal[i] > 0.0 && xScal[i] < small
+        # Avoid overflow due to division by xScal
+        if xScal > 0.0 && xScal < small
             if printWarn == 1
-                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small")
+                write(printIOwarn,"WARNING: xScal = $xScal too small, increased to $small")
             end
-            xScal[i] = small
+            xScal = small
         end
-        # Avoid underflow due to division by xScal[i]
-        if xScal[i] > great
+        # Avoid underflow due to division by xScal
+        if xScal > great
             if printWarn == 1
-                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great")
+                write(printIOwarn,"WARNING: xScal = $xScal too big, increased to $great")
             end
-            xScal[i] = great
+            xScal = great
+        end
+    else
+        for i = 1:n
+            # Scaling Values cannot be negative
+            # Positive scaling values give scale invariance
+            if xScal[i] < 0.0
+                retCode = 22
+                write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied")
+                return retCode
+            end
+
+            if xScal[i] == 0.0
+                xScal[i] = defScal
+            end
+            # Avoid overflow due to division by xScal[i]
+            if xScal[i] > 0.0 && xScal[i] < small
+                if printWarn == 1
+                    write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small")
+                end
+                xScal[i] = small
+            end
+            # Avoid underflow due to division by xScal[i]
+            if xScal[i] > great
+                if printWarn == 1
+                    write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great")
+                end
+                xScal[i] = great
+            end
         end
     end
 

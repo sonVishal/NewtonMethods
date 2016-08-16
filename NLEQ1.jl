@@ -1,4 +1,4 @@
-# TODO: Make everything type independent
+# TODO: Make everything work with Float64 as well as BigFloat
 # Currently everything is assumed to be Float64
 
 # function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
@@ -15,10 +15,10 @@
 # This function does the bookkeeping. The actual computation are done in n1int
 include("NLEQ1Main.jl")
 
-function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
-
+function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
+    assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)
     # Get the workspace variable from global
-    wk = OptionsNLEQ();
+    #wk = OptionsNLEQ();
 
     # Initialize a common message string variable
     message = ""
@@ -71,7 +71,10 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # Check if this is a first call or successive call
     # to nleq1
-    # if !qSucc
+    # If first call then reset the workspace
+    if !qSucc
+        empty!(wk.options)
+    end
     # If this is the first call then assign memory to the variables
     xIter    = getOption!(wk,"persistent_xIter",[])
     sumXall  = getOption!(wk,"persistent_sumXall",[])
@@ -391,7 +394,7 @@ function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
 
     # Copy the current workspace variable to the global container only if it was a success
     # TODO: Find the correct way to handle this. That is, find the correct values of retCode.
-    commonWk["NLEQ1"] = wk;
+    #commonWk["NLEQ1"] = wk;
 
     return (x, stats, retCode);
 end

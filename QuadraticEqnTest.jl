@@ -1,16 +1,9 @@
-# Initialize the options
 function f(x,y)
-    y[1] = sum(x.^4) - 32;
-    y[2] = sum(x.^5) - 186;
-    y[3] = sum(x.^6) - 803;
-    return nothing;
+    y = x^2-2*x+1;
 end
 
 function Df(x,J)
-    J[1,1:3] = 4*x.^3;
-    J[2,1:3] = 5*x.^4;
-    J[3,1:3] = 6*x.^5;
-    return nothing
+    J = 2*x-2;
 end
 
 opt = OptionsNLEQ(OPT_MODE              => 1,
@@ -21,8 +14,8 @@ opt = OptionsNLEQ(OPT_MODE              => 1,
                   OPT_NITMAX            => 10,
                   OPT_RTOL              => 1e-3);
 
-x0    = ones(3);
-xScal = zeros(x0)
+x0    = 0.0
+xScal = 0.0
 
 retCode = -1
 stats   = []

@@ -1,7 +1,7 @@
 #include("Helper.jl")
 #include("Jacobian.jl")
-# using Debug
-#=@debug=# function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+using Debug
+@debug function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
     fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,

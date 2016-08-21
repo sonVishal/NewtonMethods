@@ -1,7 +1,7 @@
 include("ChebyQuad.jl");
 
 # Dimension of the problem 2 <= dim <= 9
-dim = 2
+dim = 8
 n1 = dim + 1;
 
 # Get the Cheby Quad function

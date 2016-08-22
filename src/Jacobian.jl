@@ -2,10 +2,19 @@
 # TODO: Multiple dispatch between banded and dense for each => only 2 functions
 # TODO: Wrap user given function to give iFail using try catch mechanism
 
+using ForwardDiff
+
+# Evaluation of Jacobian using Automatic differentiation
+function n1jacFAD(fcn,x,chunkSize)
+    y = zeros(x)
+    fcn(y,x)
+    a = ForwardDiff.jacobian(fcn,y,x,chunk;usecache=true)
+    return a
+end
+
 # function numDiffJac(x,J)
 #     Evaluation of a dense Jacobian matrix using finite difference
 #     approximation adapted for use in nonlinear systems solver NLEQ1
-
 function n1jac(fcn,n,lda,x,fx,yscal,ajdel,ajmin,nFcn)
     # Begin
     iFail = 0
@@ -83,7 +92,6 @@ end
 # function numDiffJacFB(x,J)
 #     Approximation of dense Jacobian matrix for nonlinear systems solver
 #     NLEQ1 with feed-back control of discretization and rounding errors
-
 function n1jcf(fcn,n,lda,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
     # Constant
     small2 = 0.1
@@ -370,6 +378,7 @@ function dscal(n,da,dx,incx)
     return dxout
 end
 
+# TODO: remove this function since Julia has its own version
 # find the index of element having max abs value
 function idamax(n,dx,incx)
     if n < 1

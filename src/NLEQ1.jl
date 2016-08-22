@@ -16,9 +16,11 @@
 include("NLEQ1Main.jl")
 
 function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
+
+    # TODO: Get rid of this assertion.
     assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)
-    # Get the workspace variable from global
-    #wk = OptionsNLEQ();
+
+    # TODO: Get the workspace variable from global
 
     # Initialize a common message string variable
     message = ""
@@ -69,20 +71,18 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
         error("Exit with return code $retCode")
     end
 
-    # Check if this is a first call or successive call
-    # to nleq1
+    # Check if this is a first call or successive call to nleq1
     # If first call then reset the workspace
     if !qSucc
         empty!(wk.options)
     end
     # If this is the first call then assign memory to the variables
-    xIter    = getOption!(wk,"persistent_xIter",[])
-    sumXall  = getOption!(wk,"persistent_sumXall",[])
-    dLevFall = getOption!(wk,"persistent_dLevFall",[])
-    sumXQall = getOption!(wk,"persistent_sumXQall",[])
-    tolAll   = getOption!(wk,"persistent_tolAll",[])
-    fcAll    = getOption!(wk,"persistent_fcAll",[])
-    # end
+    xIter    = getOption!(wk,P_XITER,[])
+    sumXall  = getOption!(wk,P_SUMXALL,[])
+    dLevFall = getOption!(wk,P_DLEVFALL,[])
+    sumXQall = getOption!(wk,P_SUMXQALL,[])
+    tolAll   = getOption!(wk,P_TOLALL,[])
+    fcAll    = getOption!(wk,P_FCALL,[])
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
     mStor = getOption!(opt,OPT_MSTOR,0)
@@ -216,6 +216,7 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
         end
     end
 
+    # Print Initialization stuff if asked for
     if qIniMon
         if qRank1
             message = "allowed"
@@ -316,6 +317,7 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
         fc = 1.0
     end
 
+    # Set starting damping factor
     setOption!(opt, OPT_FCSTART, fc)
 
     if printMon >= 2 && !qSucc
@@ -327,10 +329,10 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
         @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]))
     end
 
-    retCode = -1
-
     # If retCode is unmodified on exit, successive steps are required
     # to complete the Newton iterations
+    retCode = -1
+
     if nBroy == 0
         nBroy = 1
     end
@@ -371,6 +373,7 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
     stats[STATS_NJAC]       = wk.options[STATS_NJAC]
     stats[STATS_NFCN]       = wk.options[STATS_NFCN]
     stats[STATS_NFCNJ]      = wk.options[STATS_NFCNJ]
+
     # Print statistics
     if printMon >= 2 && retCode != -1 && retCode != 10
         write(printIOmon,"\n",
@@ -385,12 +388,12 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
     end
 
     # Assign the persistent variables back
-    setOption!(wk, "persistent_xIter", xIter)
-    setOption!(wk, "persistent_sumXall", sumXall)
-    setOption!(wk, "persistent_dLevFall", dLevFall)
-    setOption!(wk, "persistent_sumXQall", sumXQall)
-    setOption!(wk, "persistent_tolAll", tolAll)
-    setOption!(wk, "persistent_fcAll", fcAll)
+    setOption!(wk, P_XITER, xIter)
+    setOption!(wk, P_SUMXALL, sumXall)
+    setOption!(wk, P_DLEVFALL, dLevFall)
+    setOption!(wk, P_SUMXQALL, sumXQall)
+    setOption!(wk, P_TOLALL, tolAll)
+    setOption!(wk, P_FCALL, fcAll)
 
     # Copy the current workspace variable to the global container only if it was a success
     # TODO: Find the correct way to handle this. That is, find the correct values of retCode.

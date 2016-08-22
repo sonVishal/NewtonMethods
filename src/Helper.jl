@@ -106,7 +106,7 @@ function n1fact(n,lda,ml,mu,a,opt)
         # Band mode: l holds the complete lu-factorization of p*a
         l = a[:,:]
         # Use LINPACK function to compute the LU in place
-        # p stores the pivot vectors and not the
+        # p stores the pivot vectors and not the permuted identity
         (l,p,iFail) = dgbfa(a,lda,n,ml,mu)
         u = []
     end

@@ -1,5 +1,4 @@
 # String constants for NLEQ options
-
 const OPT_RTOL                  = "relativeTolerance"
 const OPT_QSUCC                 = "successiveCall"
 const OPT_MODE                  = "mode"
@@ -76,6 +75,12 @@ const WK_FCKEEP                 = "fckeep"
 const WK_FCPRI                  = "fcpri"
 const WK_DMYCOR                 = "dmycor"
 const WK_SUMXS                  = "sumxs"
+const P_XITER                   = "persistent_xIter"
+const P_SUMXALL                 = "persistent_sumXall"
+const P_DLEVFALL                = "persistent_dLevFall"
+const P_SUMXQALL                = "persistent_sumXQall"
+const P_TOLALL                  = "persistent_tolAll"
+const P_FCALL                   = "persistent_fcAll"
 
 function getMachineConstants(i)
 # 1 = realmin
@@ -99,6 +104,6 @@ function getMachineConstants(i)
     elseif i == 5
         return log10(2.0);
     elseif i == 6
-        return sqrt(getMachineConstants(1)/getMachineConstants(3));
+        return sqrt(realmin(Float64)/eps(Float64));
     end
 end

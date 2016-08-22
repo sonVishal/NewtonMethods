@@ -17,8 +17,8 @@
 *.nrm
 
 # Folders
-docs/build
-docs/site
+docs/build/
+docs/site/
 
 # IPython notebook files
 .ipynb_checkpoints

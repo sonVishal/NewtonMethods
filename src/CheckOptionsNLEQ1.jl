@@ -1,9 +1,7 @@
-#include("Options.jl")
-#include("Constants.jl")
-
-# Summary :
-# checkOptions : Checking of input parameters and options for NLEQ1.
-
+"""
+# Summary:
+checkOptions : Checking of input parameters and options for NLEQ1.
+"""
 function checkOptions(n, x, xScal, opt)
 
     # TODO: Get the type of elements in x

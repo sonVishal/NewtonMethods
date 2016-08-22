@@ -1,18 +1,70 @@
 # TODO: Make everything work with Float64 as well as BigFloat
 # Currently everything is assumed to be Float64
+"""
+# Title
+Numerical solution of nonlinear (NL) equations (EQ)
+especially designed for numerically sensitive problems.
 
-# function nleq1(fcn::Function,x::Vector,xScal::Vector,opt::OptionsNLEQ)
-#     Input parameters:
-#         fcn:        Function of the type fcn(x,f,retCode) -> nothing
-#         x:          Initial guess
-#         xScal:      Scaling vector
-#         opt:        Options for the solver
-#     Output parameters:
-#         x:          Solution if found
-#         stats:      Statistics of the solution
-#         retCode:    Return code signifying success or failure
+## References:
+ /1/ P. Deuflhard:
+     Newton Methods for Nonlinear Problems. -
+     Affine Invariance and Adaptive Algorithms.
+     Series Computational Mathematics 35, Springer (2004)
+ /2/ U. Nowak, L. Weimann:
+     A Family of Newton Codes for Systems of Highly Nonlinear
+     Equations - Algorithm, Implementation, Application.
+     ZIB, Technical Report TR 90-10 (December 1990)
 
-# This function does the bookkeeping. The actual computation are done in n1int
+## Summary:
+   ========
+    Damped Newton-algorithm for systems of highly nonlinear
+    equations - damping strategy due to Ref. (1).
+
+    (The iteration is done by function N1INT currently. NLEQ1
+    itself does some house keeping and builds up workspace.)
+
+    Jacobian approximation by numerical differences or user
+    supplied function FCN.
+
+    The numerical solution of the arising linear equations is
+    done by means of MatLab builtin lu-factorization routine in the
+    dense or sparse matrix case; or by the functions DGBFA and DGBSL,
+    which have been converted from the equal named Fortran LINPACK
+    subroutines into MatLab code, in the band matrix case.
+    For special purposes these routines may be substituted.
+
+    This is a driver routine for the core solver N1INT.
+
+## Input parameters of NLEQ1
+   =========================
+
+ FCN            String          Name of problem
+ X(1:N)         Float64         Initial estimate of the solution
+ XSCAL(1:N)     Float64         User scaling (lower threshold) of the
+                                iteration vector X(N)
+ OPT            OptionsNLEQ     Options for solving. Look below for
+                                valid options
+
+## Output parameters of NLEQ1
+   ==========================
+X(N)    Float64     Solution values ( or final values,
+                    respectively )
+
+STATS   Dict        A dictionary variable of additional output values.
+                    It has the following fields:
+
+RETCODE Int64       An integer value signifying the exit code.
+                    The meaning of the exit codes are as follows:
+
+Note 1.
+    The machine dependent values SMALL, GREAT and EPMACH are
+    gained from calls of the machine constants function
+    getMachineConstants. As delivered, this function is adapted
+    to use constants suitable for all machines with IEEE arithmetic.
+    If you use another type of machine, you have to change the DATA state-
+    ments for IEEE arithmetic in getMachineConstants
+    suitable for your machine.
+"""
 include("NLEQ1Main.jl")
 
 function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)

@@ -1,5 +1,6 @@
 # TODO: Make everything work with Float64 as well as BigFloat
 # Currently everything is assumed to be Float64
+include("NLEQ1Main.jl")
 """
 # Title
 Numerical solution of nonlinear (NL) equations (EQ)
@@ -65,8 +66,6 @@ Note 1.
     ments for IEEE arithmetic in getMachineConstants
     suitable for your machine.
 """
-include("NLEQ1Main.jl")
-
 function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.

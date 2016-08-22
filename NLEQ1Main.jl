@@ -10,6 +10,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     # scopes. The declaration and usage are in different scopes.
     dLevFn  = 1.0
     sumXa   = 1.0
+    conva   = 0.0
 
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables

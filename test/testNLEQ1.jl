@@ -1,4 +1,4 @@
-function chebyQuad(x,f)
+function chebyQuad(f,x)
     n = length(x)
     f[:] = zeros(n);
     for i = 2:2:n

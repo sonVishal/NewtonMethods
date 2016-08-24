@@ -155,7 +155,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         # ----------------------------------------------------------------------
         # 1.7.1 Computation of residual vector
         try
-            fcn(x,f)
+            fcn(f,x)
             # iFail = 0
         catch
             iFail = -1
@@ -547,7 +547,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             #-------------------------------------------------------------------
             # 3.6.1 Computation of the residual vector
             try
-                fcn(x,f)
+                fcn(f,x)
                 # iFail = 0
             catch
                 iFail = -1

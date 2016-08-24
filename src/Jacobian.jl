@@ -30,7 +30,7 @@ function n1jac(fcn,n,lda,x,fx,yscal,ajdel,ajmin,nFcn)
         u = max(max(abs(x[k]),ajmin),yscal[k])*ajdel*su;
         x[k] = w + u
         try
-            fcn(x,fu)
+            fcn(fu,x)
             iFail = 0
         catch
             iFail = -1
@@ -69,7 +69,7 @@ function n1jacb(fcn,n,lda,ml,x,fx,yscal,ajdel,ajmin,nFcn)
             x[k] = w[k] + u[k]
         end
         try
-            fcn(x,fu)
+            fcn(fu,x)
             iFail = 0
         catch
             iFail = -1
@@ -112,7 +112,7 @@ function n1jcf(fcn,n,lda,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
             u = eta[k]*yscal[k]*su
             x[k] = w + u
             try
-                fcn(x,fu)
+                fcn(fu,x)
                 iFail = 0
             catch
                 iFail = -1
@@ -177,7 +177,7 @@ function n1jcfb(fcn,n,lda,ml,x,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
             end
 
             try
-                fcn(x,fu)
+                fcn(fu,x)
                 iFail = 0
             catch
                 iFail = -1

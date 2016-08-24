@@ -7,64 +7,59 @@ Numerical solution of nonlinear (NL) equations (EQ)
 especially designed for numerically sensitive problems.
 
 ## References:
- /1/ P. Deuflhard:
+ 1. P. Deuflhard:
      Newton Methods for Nonlinear Problems. -
      Affine Invariance and Adaptive Algorithms.
      Series Computational Mathematics 35, Springer (2004)
- /2/ U. Nowak, L. Weimann:
+ 2. U. Nowak, L. Weimann:
      A Family of Newton Codes for Systems of Highly Nonlinear
      Equations - Algorithm, Implementation, Application.
      ZIB, Technical Report TR 90-10 (December 1990)
 
 ## Summary:
-   ========
-    Damped Newton-algorithm for systems of highly nonlinear
-    equations - damping strategy due to Ref. (1).
+Damped Newton-algorithm for systems of highly nonlinear
+equations - damping strategy due to Ref. (1).
 
-    (The iteration is done by function N1INT currently. NLEQ1
-    itself does some house keeping and builds up workspace.)
+(The iteration is done by function N1INT currently. NLEQ1
+itself does some house keeping and builds up workspace.)
 
-    Jacobian approximation by numerical differences or user
-    supplied function FCN.
+Jacobian approximation by numerical differences or user
+supplied function FCN.
 
-    The numerical solution of the arising linear equations is
-    done by means of MatLab builtin lu-factorization routine in the
-    dense or sparse matrix case; or by the functions DGBFA and DGBSL,
-    which have been converted from the equal named Fortran LINPACK
-    subroutines into MatLab code, in the band matrix case.
-    For special purposes these routines may be substituted.
+The numerical solution of the arising linear equations is
+done by means of MatLab builtin lu-factorization routine in the
+dense or sparse matrix case; or by the functions DGBFA and DGBSL,
+which have been converted from the equal named Fortran LINPACK
+subroutines into MatLab code, in the band matrix case.
+For special purposes these routines may be substituted.
 
-    This is a driver routine for the core solver N1INT.
+This is a driver routine for the core solver N1INT.
 
-## Input parameters of NLEQ1
-   =========================
+Input parameters of NLEQ1
+=========================
+| Name | Type | Description |
+|:----------:|:---------------:|:-----------------------------------------------------------------------------:|
+| fcn | Function | Function for which zero is to be found in the form of fcn(y,x) with y = f(x). |
+| x(1:n) | Vector{Float64} | Initial estimate of the solution. |
+| xScal(1:n) | Vector{Float64} | User scaling (lower threshold) of the iteration vector x(n). |
+| opt | OptionsNLEQ | Options for solving the nonlinear system. Look below for valid options. |
 
- FCN            String          Name of problem
- X(1:N)         Float64         Initial estimate of the solution
- XSCAL(1:N)     Float64         User scaling (lower threshold) of the
-                                iteration vector X(N)
- OPT            OptionsNLEQ     Options for solving. Look below for
-                                valid options
+Output parameters of NLEQ1
+==========================
+| Name | Type | Description |
+|:-------:|:---------------------:|:---------------------------------------------------------------------------------------------:|
+| x(n) | Vector{Float64} | Solution values (or final values if exit before solution is reached). |
+| stats | Dict{ASCIIString,Any} | A dictionary variable of additional output values. The fields are discussed below. |
+| retCode | Int64 | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 
-## Output parameters of NLEQ1
-   ==========================
-X(N)    Float64     Solution values ( or final values,
-                    respectively )
-
-STATS   Dict        A dictionary variable of additional output values.
-                    It has the following fields:
-
-RETCODE Int64       An integer value signifying the exit code.
-                    The meaning of the exit codes are as follows:
-
-Note 1.
-    The machine dependent values SMALL, GREAT and EPMACH are
-    gained from calls of the machine constants function
-    getMachineConstants. As delivered, this function is adapted
-    to use constants suitable for all machines with IEEE arithmetic.
-    If you use another type of machine, you have to change the DATA state-
-    ments for IEEE arithmetic in getMachineConstants
-    suitable for your machine.
+**Note 1.**,
+The machine dependent values SMALL, GREAT and EPMACH are
+gained from calls of the machine constants function
+getMachineConstants. As delivered, this function is adapted
+to use constants suitable for all machines with IEEE arithmetic.
+If you use another type of machine, you have to change the DATA state-
+ments for IEEE arithmetic in getMachineConstants
+suitable for your machine.
 """
 function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
 

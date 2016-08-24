@@ -32,6 +32,9 @@ doc/site/
 # Fuse
 .fuse*
 
-# Data and output 
+# Data and output
 *.dat
 *.out
+
+# Scripts
+compile

@@ -5,11 +5,24 @@
 using ForwardDiff
 
 # Evaluation of Jacobian using Automatic differentiation
-function n1jacFAD(fcn,x,chunkSize)
+# TODO: this is not working
+function n1jacFAD(fcn,x,chunkSize = ForwardDiff.pickchunk(x))
     y = zeros(x)
-    fcn(y,x)
-    a = ForwardDiff.jacobian(fcn,y,x,chunk;usecache=true)
-    return a
+    a = []
+    iFail = 0
+    try
+        fcn(y,x)
+    catch
+        iFail = -1
+    end
+    if iFail == 0
+        try
+            a = ForwardDiff.jacobian(fcn,y,x,chunk;usecache=true)
+        catch
+            iFail = -1
+        end
+    end
+    return (a,iFail)
 end
 
 # function numDiffJac(x,J)

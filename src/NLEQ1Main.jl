@@ -262,12 +262,18 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                     if jacGen == 2
                         (a,nFcnJ,iFail) = n1jac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ)
                     end
+                    if jacGen == 4
+                        (a,iFail) = n1jacFAD(fcn,x)
+                    end
                 elseif mStor == 1
                     if jacGen == 3
                         (a,eta,nFcnJ,iFail) = n1jcfb(fcn,n,m1,ml,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
                     end
                     if jacGen == 2
                         (a,nFcnJ,iFail) = n1jacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ)
+                    end
+                    if jacGen == 4
+                        (a,iFail) = n1jacFAD(fcn,x)
                     end
                 end
             end

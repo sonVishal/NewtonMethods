@@ -1,16 +1,10 @@
 include("ChebyQuad.jl");
 
 function solveChebyQuad()
-    # Dimension of the problem 2 <= dim <= 9
-    # assert(dim >= 2 && dim <= 9)
     fSol = open("solution.dat","w")
     fRest = open("solution.out","w")
     for dim = 2:9
         n1 = dim + 1
-
-        # Get the Cheby Quad function
-        # (name,fcn,jac,x) = chebyquad(dim)
-
 
         # Initialize the options
         opt = OptionsNLEQ(OPT_MODE              => 1,

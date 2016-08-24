@@ -1,29 +1,16 @@
-#Documentation Title
+#Affine invariant Newton methods for nonlinear problems
 
-Some text describing the package.
+Implementation of the Newton Methods from "Newton Methods for Nonlinear Problems -- Affine Invariance and Adaptive Algorithms" by P. Deufelhard
 
-## Subtitle
-
-More text
-
-## Tutorials
-
-```@contents
-Pages = [
-    "tutorials/page1.md",
-    ]
-Depth = 2
-```
-
-## Another Section
-```@contents
-Pages = [
-    "sec2/page1.md",
-    ]
-Depth = 2
-```
-
-## Index
+## Index of functions
 
 ```@index
+```
+
+## Tutorials
+```@contents
+Pages = [
+    "tutorials/nleq1.md",
+    ]
+Depth = 2
 ```

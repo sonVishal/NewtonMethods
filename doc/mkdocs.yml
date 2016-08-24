@@ -22,6 +22,7 @@ docs_dir: 'build'
 pages:
 - Introduction: index.md
 - Tutorial:
-  - Title 1: tutorial/page1.md
-- Another Section:
-  - Title 1: sec2/page1.md
+  - NELQ1: tutorial/nleq1.md
+- Functions:
+  - NLEQ1: functions/nleq1.md
+  - Common: functions/common.md

@@ -23,36 +23,19 @@ equations - damping strategy due to Ref. (1).
 (The iteration is done by function N1INT currently. NLEQ1
 itself does some house keeping and builds up workspace.)
 
-Jacobian approximation by numerical differences or user
-supplied function FCN.
+Jacobian approximation by numerical differences, user
+supplied function JAC or forward mode automatic differentation.
 
 The numerical solution of the arising linear equations is
-done by means of MatLab builtin lu-factorization routine in the
+done by means of Julia builtin lu-factorization routine in the
 dense or sparse matrix case; or by the functions DGBFA and DGBSL,
 which have been converted from the equal named Fortran LINPACK
-subroutines into MatLab code, in the band matrix case.
+subroutines into Julia code, in the band matrix case.
 For special purposes these routines may be substituted.
 
 This is a driver routine for the core solver N1INT.
 
-Input parameters of NLEQ1
-=========================
-| Name | Type | Description |
-|:----------:|:---------------:|:-----------------------------------------------------------------------------:|
-| fcn | Function | Function for which zero is to be found in the form of fcn(y,x) with y = f(x). |
-| x(1:n) | Vector{Float64} | Initial estimate of the solution. |
-| xScal(1:n) | Vector{Float64} | User scaling (lower threshold) of the iteration vector x(n). |
-| opt | OptionsNLEQ | Options for solving the nonlinear system. Look below for valid options. |
-
-Output parameters of NLEQ1
-==========================
-| Name | Type | Description |
-|:-------:|:---------------------:|:---------------------------------------------------------------------------------------------:|
-| x(n) | Vector{Float64} | Solution values (or final values if exit before solution is reached). |
-| stats | Dict{ASCIIString,Any} | A dictionary variable of additional output values. The fields are discussed below. |
-| retCode | Int64 | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
-
-**Note 1.**,
+### Note 1.
 The machine dependent values SMALL, GREAT and EPMACH are
 gained from calls of the machine constants function
 getMachineConstants. As delivered, this function is adapted
@@ -60,6 +43,8 @@ to use constants suitable for all machines with IEEE arithmetic.
 If you use another type of machine, you have to change the DATA state-
 ments for IEEE arithmetic in getMachineConstants
 suitable for your machine.
+
+Please generate the documentation using the following steps
 """
 function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
 

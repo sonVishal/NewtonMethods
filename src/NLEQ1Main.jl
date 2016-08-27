@@ -168,10 +168,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
 
         xa[:] = x[:]
 
-        # alphaE  = 0.0
-        # cAlpha  = 0.0
-        # cLin0   = 0.0
-        # qMStop  = false
         # ----------------------------------------------------------------------
         # 1.6 Print monitor header
         if mPrMon >= 2 && !qMixIO
@@ -204,7 +200,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     else
         qIniSc = false
     end
-    # --------------------------------------------------------------------------
     # --------------------------------------------------------------------------
     # Main iteration loop
 

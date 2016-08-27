@@ -42,18 +42,6 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
         error("Exit with return code $retCode")
     end
 
-    # Check if this is a first call or successive call to nleq1
-    # If first call then reset the workspace and persistent variables
-    if !qSucc
-        empty!(wkNLEQ2.options)
-        empty!(xIter)
-        empty!(sumXall)
-        empty!(dLevFall)
-        empty!(sumXQall)
-        empty!(tolAll)
-        empty!(fcAll)
-    end
-
     # Check if the Jacobian is Dense/Sparse or Banded matrix
     mStor = getOption!(opt,OPT_MSTOR,0)
     if mStor == 0
@@ -84,7 +72,16 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
         nBroy = 0
     end
 
+    # Check if this is a first call or successive call to nleq1
+    # If first call then reset the workspace and persistent variables
     if !qSucc
+        empty!(wkNLEQ2.options)
+        empty!(xIter)
+        empty!(sumXall)
+        empty!(dLevFall)
+        empty!(sumXQall)
+        empty!(tolAll)
+        empty!(fcAll)
         initializeOptions(opt, wkNLEQ2, n, m1, qRank1)
     end
 
@@ -195,14 +192,45 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
 
     # If retCode is unmodified on exit, successive steps are required
     # to complete the Newton iterations
-    retCode = 0
+    retCode = -1
 
     if nBroy == 0
         nBroy = 1
     end
 
+    # Call to n2int
+    (x, xScal, retCode) = n2int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
+    nonLin, iRank, cond, opt, retCode, m1, m2, nBroy,
+    xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
+    opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
+    opt.options[OPT_SIGMA2], mStor, printWarn,
+    printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
+
     # set stats variable
     stats = Dict{ASCIIString,Any}()
+    stats[STATS_XSCAL] = xScal
+    if retCode == -1
+        stats[STATS_RTOL] = tolAll[wkNLEQ2.options[STATS_NITER]]
+    else
+        stats[STATS_RTOL] = opt.options[OPT_RTOL]
+    end
+    stats[STATS_XITER]      = xIter
+    stats[STATS_NATLEVEL]   = sumXall
+    stats[STATS_SIMLEVEL]   = sumXQall
+    stats[STATS_STDLEVEL]   = dLevFall
+    stats[STATS_PRECISION]  = tolAll
+    stats[STATS_DAMPINGFC]  = fcAll
+    stats[STATS_NITER]      = wkNLEQ2.options[STATS_NITER]
+    stats[STATS_NCORR]      = wkNLEQ2.options[STATS_NCORR]
+    stats[STATS_NREJR1]     = wkNLEQ2.options[STATS_NREJR1]
+    stats[STATS_NJAC]       = wkNLEQ2.options[STATS_NJAC]
+    stats[STATS_NFCN]       = wkNLEQ2.options[STATS_NFCN]
+    stats[STATS_NFCNJ]      = wkNLEQ2.options[STATS_NFCNJ]
+
+    # Print statistics
+    if printMon >= 2 && retCode != -1 && retCode != 10
+        printStats(stats, printIOmon)
+    end
 
     return (x, stats, retCode);
 end

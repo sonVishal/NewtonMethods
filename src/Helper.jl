@@ -1,4 +1,4 @@
-function initializeOptions(opt,wk,n,m1,qRank1)
+function initializeOptions(opt, wk, n, m1, qRank1)
     # Initialize options
     initOption!(opt, OPT_FCMIN,     0.0)
     initOption!(opt, OPT_SIGMA,     0.0)
@@ -25,6 +25,9 @@ function initializeOptions(opt,wk,n,m1,qRank1)
     initOption!(wk, WK_XW  , zeros(n))
     initOption!(wk, WK_FW  , zeros(n))
     initOption!(wk, WK_DXQA, zeros(n))
+    initOption!(wk, WK_QU, zeros(n))
+    initOption!(wk, WK_T1, zeros(n))
+    initOption!(wk, WK_T2, zeros(n))
 
     initOption!(wk, WK_SUMXA0, 0.0)
     initOption!(wk, WK_SUMXA1, 0.0)
@@ -47,6 +50,7 @@ function initializeOptions(opt,wk,n,m1,qRank1)
     initOption!(wk, STATS_SUMX,   0.0)
     initOption!(wk, STATS_DLEVF,  0.0)
     initOption!(wk, STATS_RTOL,   0.0)
+
     return nothing
 end
 

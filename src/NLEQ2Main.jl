@@ -340,11 +340,24 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        while
+        # TODO: find the condition for while loop
+        while true
             # ----------------------------------------------------------------------
             # 3.1 Solution of the linear system
             # ----------------------------------------------------------------------
             # 3.1.1 Decomposition of (n,n) matrix A
+            if !qLInit
+                # TODO: Do Something
+            end
+            if newt == 0
+                cond1 = cond
+                if qRepeat
+                    # TODO: Do Something
+                else
+                    # TODO: Do Something
+                end
+                (iFail) = n2fact(n,m1,n,ml,mu,a,qa,cond1,iRank,opt,)
+            end
         end
     end
 

@@ -35,6 +35,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     nRejR1  = wkNLEQ2.options[STATS_NREJR1]
     newt    = wkNLEQ2.options[STATS_NEW]
 
+    
+
     # TODO: Remove this. For testing only
     retCode = 1
     return (x, xScal, retCode)

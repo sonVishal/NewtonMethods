@@ -72,16 +72,16 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
         nBroy = 0
     end
 
+    xIter    = getOption!(wkNLEQ2, "P_XITER", [])
+    sumXall  = getOption!(wkNLEQ2, "P_SUMXALL", [])
+    dLevFall = getOption!(wkNLEQ2, "P_DLEVFALL", [])
+    sumXQall = getOption!(wkNLEQ2, "P_SUMXQALL", [])
+    tolAll   = getOption!(wkNLEQ2, "P_TOLALL", [])
+    fcAll    = getOption!(wkNLEQ2, "P_FCALL", [])
     # Check if this is a first call or successive call to nleq1
     # If first call then reset the workspace and persistent variables
     if !qSucc
         empty!(wkNLEQ2.options)
-        empty!(xIter)
-        empty!(sumXall)
-        empty!(dLevFall)
-        empty!(sumXQall)
-        empty!(tolAll)
-        empty!(fcAll)
         initializeOptions(opt, wkNLEQ2, n, m1, qRank1)
     end
 
@@ -231,6 +231,14 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     if printMon >= 2 && retCode != -1 && retCode != 10
         printStats(stats, printIOmon)
     end
+
+    # Assign the persistent variables back
+    setOption!(wkNLEQ2, "P_XITER", xIter)
+    setOption!(wkNLEQ2, "P_SUMXALL", sumXall)
+    setOption!(wkNLEQ2, "P_DLEVFALL", dLevFall)
+    setOption!(wkNLEQ2, "P_SUMXQALL", sumXQall)
+    setOption!(wkNLEQ2, "P_TOLALL", tolAll)
+    setOption!(wkNLEQ2, "P_FCALL", fcAll)
 
     return (x, stats, retCode);
 end

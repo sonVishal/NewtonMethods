@@ -129,16 +129,16 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
         nBroy = 0
     end
 
+    xIter    = getOption!(wkNLEQ1, "P_XITER", [])
+    sumXall  = getOption!(wkNLEQ1, "P_SUMXALL", [])
+    dLevFall = getOption!(wkNLEQ1, "P_DLEVFALL", [])
+    sumXQall = getOption!(wkNLEQ1, "P_SUMXQALL", [])
+    tolAll   = getOption!(wkNLEQ1, "P_TOLALL", [])
+    fcAll    = getOption!(wkNLEQ1, "P_FCALL", [])
     # Check if this is a first call or successive call to nleq1
     # If first call then reset the workspace and persistent variables
     if !qSucc
         empty!(wkNLEQ1.options)
-        empty!(xIter)
-        empty!(sumXall)
-        empty!(dLevFall)
-        empty!(sumXQall)
-        empty!(tolAll)
-        empty!(fcAll)
         initializeOptions(opt, wkNLEQ1, n, m1, qRank1)
     end
 
@@ -287,6 +287,14 @@ function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
     # Copy the current workspace variable to the global container only if it was a success
     # TODO: Find the correct way to handle this. That is, find the correct values of retCode.
     #commonWk["NLEQ1"] = wkNLEQ1;
+
+    # Assign the persistent variables back
+    setOption!(wkNLEQ1, "P_XITER", xIter)
+    setOption!(wkNLEQ1, "P_SUMXALL", sumXall)
+    setOption!(wkNLEQ1, "P_DLEVFALL", dLevFall)
+    setOption!(wkNLEQ1, "P_SUMXQALL", sumXQall)
+    setOption!(wkNLEQ1, "P_TOLALL", tolAll)
+    setOption!(wkNLEQ1, "P_FCALL", fcAll)
 
     return (x, stats, retCode);
 end

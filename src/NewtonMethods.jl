@@ -4,7 +4,7 @@ __precompile__(true)
 module NewtonMethods
 
 # Export the required methods
-export nleq1, nleq2, OptionsNLEQ
+export nleq1, nleq2, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
 export OPT_RTOL, OPT_QSUCC, OPT_MODE, OPT_JACGEN, OPT_JACFCN, OPT_MSTOR, OPT_ML,
         OPT_MU, OPT_ISCAL, OPT_PRINTWARNING, OPT_PRINTITERATION,
         OPT_PRINTIOWARN, OPT_PRINTIOMON, OPT_PRINTIOSOL, OPT_PRINTSOLUTION,
@@ -25,21 +25,25 @@ include("Error.jl")
 include("Helper.jl")
 include("CheckOptionsNLEQ1.jl")
 
-# Create a global container for the options since they need to be stored for
-# further use
-#commonWk = Dict{ASCIIString,OptionsNLEQ}()
-#commonWk["NLEQ1"] = OptionsNLEQ()
-
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()
 
-# Persistent variables
-global xIter    = []
-global sumXall  = []
-global dLevFall = []
-global sumXQall = []
-global tolAll   = []
-global fcAll    = []
+function clearWorkspace(name::ASCIIString)
+    if name == "NLEQ1" || name == "nleq1" || name == 1
+        empty!(wkNLEQ1.options)
+    elseif name == "NLEQ2" || name == "nleq2" || name == 2
+        empty!(wkNLEQ2.options)
+    else
+        println("Invalid option. Please specify the correct argument.")
+        println("1 or \"NLEQ1\" or \"nleq1\" - to clear the workspace for nleq1 function")
+        println("2 or \"NLEQ2\" or \"nleq2\" - to clear the workspace for nleq2 function")
+    end
+end
+
+function clearAllWorkspaces()
+    empty!(wkNLEQ1.options)
+    empty!(wkNLEQ2.options)
+end
 
 # Include the solver specific files
 include("NLEQ1.jl")

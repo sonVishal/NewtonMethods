@@ -54,7 +54,7 @@ function testNLEQ1()
                 0.80050932769225;
                 0.955794653864221]
 
-    testResult = true;
+    testResult = false;
     for dim = 2:9
         n1 = dim + 1
 
@@ -79,7 +79,11 @@ function testNLEQ1()
 
         relNormDiff = norm(x0-refSol[dim])/norm(refSol[dim])
 
-        testResult &= relNormDiff <= 1e-12
+        if dim > 2
+            testResult &= relNormDiff <= 1e-12
+        else
+            testResult = relNormDiff <= 1e-12
+        end
     end
     return testResult
 end

@@ -45,17 +45,17 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
 
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
-    cLin0   = getOption!(wkNLEQ1,"persistent_cLin0",0.0)
-    cLin1   = getOption!(wkNLEQ1,"persistent_cLin1",0.0)
-    cAlpha  = getOption!(wkNLEQ1,"persistent_cAlpha",0.0)
-    alphaE  = getOption!(wkNLEQ1,"persistent_alphaE",0.0)
-    alphaK  = getOption!(wkNLEQ1,"persistent_alphaK",0.0)
-    alphaA  = getOption!(wkNLEQ1,"persistent_alphaA",0.0)
-    qMStop  = getOption!(wkNLEQ1,"persistent_qMStop",false)
-    sumxa2  = getOption!(wkNLEQ1,"persistent_sumxa2",0.0)
-    l       = getOption!(wkNLEQ1,"persistent_l",Float64[])
-    u       = getOption!(wkNLEQ1,"persistent_u",Float64[])
-    p       = getOption!(wkNLEQ1,"persistent_p",Float64[])
+    cLin0   = getOption!(wkNLEQ1,"P_CLIN0",0.0)
+    cLin1   = getOption!(wkNLEQ1,"P_CLIN1",0.0)
+    cAlpha  = getOption!(wkNLEQ1,"P_CALPHA",0.0)
+    alphaE  = getOption!(wkNLEQ1,"P_ALPHAE",0.0)
+    alphaK  = getOption!(wkNLEQ1,"P_ALPHAK",0.0)
+    alphaA  = getOption!(wkNLEQ1,"P_ALPHAA",0.0)
+    qMStop  = getOption!(wkNLEQ1,"P_QMSTOP",false)
+    sumxa2  = getOption!(wkNLEQ1,"P_SUMXA2",0.0)
+    l       = getOption!(wkNLEQ1,"P_L",Float64[])
+    u       = getOption!(wkNLEQ1,"P_U",Float64[])
+    p       = getOption!(wkNLEQ1,"P_P",Float64[])
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)

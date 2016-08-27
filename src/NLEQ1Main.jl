@@ -1,10 +1,41 @@
-function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
+function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
-    a, dxSave, dx, dxQ, xa, xwa, f, fa, eta, xw, fw, dxQa, sumxa0, sumxa1, fcMon,
-    fc, fcMin, sigma, sigma2, fcA, fcKeep, fcPri, dMyCor, conv, sumXs,
-    dLevF, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon, printIOsol,
-    nIter, nCorr, nFcn, nFcnJ, nJac, nRejR1, newt, iConv, qBDamp)
+    fc, fcMin, sigma, sigma2, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn,
+    printIOmon, printIOsol, qBDamp)
 
+    # --------------------------------------------------------------------------
+    # Since wkNLEQ1 is module global
+    # Create the local variables here rather than taking them as arguments
+    a       = wkNLEQ1.options[WK_A]
+    dxSave  = wkNLEQ1.options[WK_DXSAVE]
+    dx      = wkNLEQ1.options[WK_DX]
+    dxQ     = wkNLEQ1.options[WK_DXQ]
+    xa      = wkNLEQ1.options[WK_XA]
+    xwa     = wkNLEQ1.options[WK_XWA]
+    f       = wkNLEQ1.options[WK_F]
+    fa      = wkNLEQ1.options[WK_FA]
+    eta     = wkNLEQ1.options[WK_ETA]
+    xw      = wkNLEQ1.options[WK_XW]
+    fw      = wkNLEQ1.options[WK_FW]
+    dxQa    = wkNLEQ1.options[WK_DXQA]
+    sumxa0  = wkNLEQ1.options[WK_SUMXA0]
+    sumxa1  = wkNLEQ1.options[WK_SUMXA1]
+    fcMon   = wkNLEQ1.options[WK_FCMON]
+    fcA     = wkNLEQ1.options[WK_FCA]
+    fcKeep  = wkNLEQ1.options[WK_FCKEEP]
+    fcPri   = wkNLEQ1.options[WK_FCPRI]
+    dMyCor  = wkNLEQ1.options[WK_DMYCOR]
+    conv    = wkNLEQ1.options[STATS_CONV]
+    sumXs   = wkNLEQ1.options[WK_SUMXS]
+    dLevF   = wkNLEQ1.options[STATS_DLEVF]
+    nIter   = wkNLEQ1.options[STATS_NITER]
+    nCorr   = wkNLEQ1.options[STATS_NCORR]
+    nFcn    = wkNLEQ1.options[STATS_NFCN]
+    nFcnJ   = wkNLEQ1.options[STATS_NFCNJ]
+    nJac    = wkNLEQ1.options[STATS_NJAC]
+    nRejR1  = wkNLEQ1.options[STATS_NREJR1]
+    newt    = wkNLEQ1.options[STATS_NEW]
+    iConv   = wkNLEQ1.options[STATS_ICONV]
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
@@ -14,17 +45,17 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
 
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
-    cLin0   = getOption!(wk,"persistent_cLin0",0.0)
-    cLin1   = getOption!(wk,"persistent_cLin1",0.0)
-    cAlpha  = getOption!(wk,"persistent_cAlpha",0.0)
-    alphaE  = getOption!(wk,"persistent_alphaE",0.0)
-    alphaK  = getOption!(wk,"persistent_alphaK",0.0)
-    alphaA  = getOption!(wk,"persistent_alphaA",0.0)
-    qMStop  = getOption!(wk,"persistent_qMStop",false)
-    sumxa2  = getOption!(wk,"persistent_sumxa2",0.0)
-    l       = getOption!(wk,"persistent_l",Float64[])
-    u       = getOption!(wk,"persistent_u",Float64[])
-    p       = getOption!(wk,"persistent_p",Float64[])
+    cLin0   = getOption!(wkNLEQ1,"persistent_cLin0",0.0)
+    cLin1   = getOption!(wkNLEQ1,"persistent_cLin1",0.0)
+    cAlpha  = getOption!(wkNLEQ1,"persistent_cAlpha",0.0)
+    alphaE  = getOption!(wkNLEQ1,"persistent_alphaE",0.0)
+    alphaK  = getOption!(wkNLEQ1,"persistent_alphaK",0.0)
+    alphaA  = getOption!(wkNLEQ1,"persistent_alphaA",0.0)
+    qMStop  = getOption!(wkNLEQ1,"persistent_qMStop",false)
+    sumxa2  = getOption!(wkNLEQ1,"persistent_sumxa2",0.0)
+    l       = getOption!(wkNLEQ1,"persistent_l",Float64[])
+    u       = getOption!(wkNLEQ1,"persistent_u",Float64[])
+    p       = getOption!(wkNLEQ1,"persistent_p",Float64[])
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
@@ -111,7 +142,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         push!(xIter,x)
 
         nIter  = 0
-        wk.options[STATS_NITER] = nIter
+        wkNLEQ1.options[STATS_NITER] = nIter
         nCorr  = 0
         nRejR1 = 0
         nFcn   = 0
@@ -247,7 +278,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             if jacGen == 1
                 jac = getOption(opt, OPT_JACFCN, 0)
                 try
-                    jac(x,a)
+                    jac(a,x)
                     # iFail = 0
                 catch err
                     retCode = 82
@@ -397,8 +428,8 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         else
             (dx,conv,sumX,dLevF) = n1lvls(n,dx,t1,xwa,f,mPrMon,newt == 0)
         end
-        wk.options[STATS_SUMX]   = sumX
-        wk.options[STATS_DLEVF]  = dLevF
+        wkNLEQ1.options[STATS_SUMX]   = sumX
+        wkNLEQ1.options[STATS_DLEVF]  = dLevF
         xa[:] = x
         sumXa    = sumX
         dLevXa   = sqrt(sumXa/n)
@@ -794,12 +825,12 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                n1sout(n,xa,2,opt,wk,mPrSol,printIOsol)
+                n1sout(n,xa,2,opt,wkNLEQ1,mPrSol,printIOsol)
             elseif mPrSol >= 1 && nIter == 0
-                n1sout(n,xa,1,opt,wk,mPrSol,printIOsol)
+                n1sout(n,xa,1,opt,wkNLEQ1,mPrSol,printIOsol)
             end
             nIter += 1
-            wk.options[STATS_NITER] = nIter
+            wkNLEQ1.options[STATS_NITER] = nIter
             push!(xIter,x)
             dLevF = dLevFn
             if nIter >= nItmax
@@ -814,39 +845,39 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
                 setOption!(opt, OPT_FCSTART, fc)
 
-                setOption!(wk, STATS_NITER,  nIter)
-                setOption!(wk, STATS_NCORR,  nCorr)
-                setOption!(wk, STATS_NFCN,   nFcn)
-                setOption!(wk, STATS_NFCNJ,  nFcnJ)
-                setOption!(wk, STATS_NJAC,   nJac)
-                setOption!(wk, STATS_NREJR1, nRejR1)
-                setOption!(wk, STATS_NEW,    newt)
-                setOption!(wk, STATS_ICONV,  iConv)
+                setOption!(wkNLEQ1, STATS_NITER,  nIter)
+                setOption!(wkNLEQ1, STATS_NCORR,  nCorr)
+                setOption!(wkNLEQ1, STATS_NFCN,   nFcn)
+                setOption!(wkNLEQ1, STATS_NFCNJ,  nFcnJ)
+                setOption!(wkNLEQ1, STATS_NJAC,   nJac)
+                setOption!(wkNLEQ1, STATS_NREJR1, nRejR1)
+                setOption!(wkNLEQ1, STATS_NEW,    newt)
+                setOption!(wkNLEQ1, STATS_ICONV,  iConv)
 
-                setOption!(wk, WK_A, a)
-                setOption!(wk, WK_DXSAVE, dxSave)
-                setOption!(wk, WK_DX, dx)
-                setOption!(wk, WK_DXQ, dxQ)
-                setOption!(wk, WK_DXQA, dxQa)
-                setOption!(wk, WK_XA, xa)
-                setOption!(wk, WK_XW, xw)
-                setOption!(wk, WK_XWA, xwa)
-                setOption!(wk, WK_F, f)
-                setOption!(wk, WK_FA, fa)
-                setOption!(wk, WK_FW, fw)
-                setOption!(wk, WK_ETA, eta)
-                setOption!(wk, WK_SUMXA0, sumxa0)
-                setOption!(wk, WK_SUMXA1, sumxa1)
-                setOption!(wk, WK_FCMON, fcMon)
-                setOption!(wk, WK_FCA, fcA)
-                setOption!(wk, WK_FCKEEP, fcKeep)
-                setOption!(wk, WK_FCPRI, fcPri)
-                setOption!(wk, WK_DMYCOR, dMyCor)
-                setOption!(wk, STATS_CONV, conv)
-                setOption!(wk, STATS_SUMX, sumX)
-                setOption!(wk, WK_SUMXS, sumXs)
-                setOption!(wk, STATS_DLEVF, dLevF)
-                return (x, xScal, retCode, wk)
+                setOption!(wkNLEQ1, WK_A, a)
+                setOption!(wkNLEQ1, WK_DXSAVE, dxSave)
+                setOption!(wkNLEQ1, WK_DX, dx)
+                setOption!(wkNLEQ1, WK_DXQ, dxQ)
+                setOption!(wkNLEQ1, WK_DXQA, dxQa)
+                setOption!(wkNLEQ1, WK_XA, xa)
+                setOption!(wkNLEQ1, WK_XW, xw)
+                setOption!(wkNLEQ1, WK_XWA, xwa)
+                setOption!(wkNLEQ1, WK_F, f)
+                setOption!(wkNLEQ1, WK_FA, fa)
+                setOption!(wkNLEQ1, WK_FW, fw)
+                setOption!(wkNLEQ1, WK_ETA, eta)
+                setOption!(wkNLEQ1, WK_SUMXA0, sumxa0)
+                setOption!(wkNLEQ1, WK_SUMXA1, sumxa1)
+                setOption!(wkNLEQ1, WK_FCMON, fcMon)
+                setOption!(wkNLEQ1, WK_FCA, fcA)
+                setOption!(wkNLEQ1, WK_FCKEEP, fcKeep)
+                setOption!(wkNLEQ1, WK_FCPRI, fcPri)
+                setOption!(wkNLEQ1, WK_DMYCOR, dMyCor)
+                setOption!(wkNLEQ1, STATS_CONV, conv)
+                setOption!(wkNLEQ1, STATS_SUMX, sumX)
+                setOption!(wkNLEQ1, WK_SUMXS, sumXs)
+                setOption!(wkNLEQ1, STATS_DLEVF, dLevF)
+                return (x, xScal, retCode, wkNLEQ1)
             end
         end
     end
@@ -1008,9 +1039,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
         if qOrdi
             mode = 3
         end
-        n1sout(n,xa,mode,opt,wk,mPrSol,printIOsol)
+        n1sout(n,xa,mode,opt,wkNLEQ1,mPrSol,printIOsol)
     elseif mPrSol >= 1 && nIter == 0
-        n1sout(n,xa,1,opt,wk,mPrSol,printIOsol)
+        n1sout(n,xa,1,opt,wkNLEQ1,mPrSol,printIOsol)
     end
     if !qOrdi
         if retCode != 4
@@ -1024,7 +1055,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
             else
                 modefi = 4
             end
-            n1sout(n,x,modefi,opt,wk,mPrSol,printIOsol)
+            n1sout(n,x,modefi,opt,wkNLEQ1,mPrSol,printIOsol)
         end
     end
     # End of exits
@@ -1036,38 +1067,38 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode, wk,
     setOption!(opt, OPT_QSUCC, Int(qSucc))
     setOption!(opt, OPT_FCSTART, fc)
 
-    setOption!(wk, STATS_NITER,  nIter)
-    setOption!(wk, STATS_NCORR,  nCorr)
-    setOption!(wk, STATS_NFCN,   nFcn)
-    setOption!(wk, STATS_NFCNJ,  nFcnJ)
-    setOption!(wk, STATS_NJAC,   nJac)
-    setOption!(wk, STATS_NREJR1, nRejR1)
-    setOption!(wk, STATS_NEW,    newt)
-    setOption!(wk, STATS_ICONV,  iConv)
+    setOption!(wkNLEQ1, STATS_NITER,  nIter)
+    setOption!(wkNLEQ1, STATS_NCORR,  nCorr)
+    setOption!(wkNLEQ1, STATS_NFCN,   nFcn)
+    setOption!(wkNLEQ1, STATS_NFCNJ,  nFcnJ)
+    setOption!(wkNLEQ1, STATS_NJAC,   nJac)
+    setOption!(wkNLEQ1, STATS_NREJR1, nRejR1)
+    setOption!(wkNLEQ1, STATS_NEW,    newt)
+    setOption!(wkNLEQ1, STATS_ICONV,  iConv)
 
-    setOption!(wk, WK_A, a)
-    setOption!(wk, WK_DXSAVE, dxSave)
-    setOption!(wk, WK_DX, dx)
-    setOption!(wk, WK_DXQ, dxQ)
-    setOption!(wk, WK_DXQA, dxQa)
-    setOption!(wk, WK_XA, xa)
-    setOption!(wk, WK_XW, xw)
-    setOption!(wk, WK_XWA, xwa)
-    setOption!(wk, WK_F, f)
-    setOption!(wk, WK_FA, fa)
-    setOption!(wk, WK_FW, fw)
-    setOption!(wk, WK_ETA, eta)
-    setOption!(wk, WK_SUMXA0, sumxa0)
-    setOption!(wk, WK_SUMXA1, sumxa1)
-    setOption!(wk, WK_FCMON, fcMon)
-    setOption!(wk, WK_FCA, fcA)
-    setOption!(wk, WK_FCKEEP, fcKeep)
-    setOption!(wk, WK_FCPRI, fcPri)
-    setOption!(wk, WK_DMYCOR, dMyCor)
-    setOption!(wk, STATS_CONV, conv)
-    setOption!(wk, STATS_SUMX, sumX)
-    setOption!(wk, WK_SUMXS, sumXs)
-    setOption!(wk, STATS_DLEVF, dLevF)
+    setOption!(wkNLEQ1, WK_A, a)
+    setOption!(wkNLEQ1, WK_DXSAVE, dxSave)
+    setOption!(wkNLEQ1, WK_DX, dx)
+    setOption!(wkNLEQ1, WK_DXQ, dxQ)
+    setOption!(wkNLEQ1, WK_DXQA, dxQa)
+    setOption!(wkNLEQ1, WK_XA, xa)
+    setOption!(wkNLEQ1, WK_XW, xw)
+    setOption!(wkNLEQ1, WK_XWA, xwa)
+    setOption!(wkNLEQ1, WK_F, f)
+    setOption!(wkNLEQ1, WK_FA, fa)
+    setOption!(wkNLEQ1, WK_FW, fw)
+    setOption!(wkNLEQ1, WK_ETA, eta)
+    setOption!(wkNLEQ1, WK_SUMXA0, sumxa0)
+    setOption!(wkNLEQ1, WK_SUMXA1, sumxa1)
+    setOption!(wkNLEQ1, WK_FCMON, fcMon)
+    setOption!(wkNLEQ1, WK_FCA, fcA)
+    setOption!(wkNLEQ1, WK_FCKEEP, fcKeep)
+    setOption!(wkNLEQ1, WK_FCPRI, fcPri)
+    setOption!(wkNLEQ1, WK_DMYCOR, dMyCor)
+    setOption!(wkNLEQ1, STATS_CONV, conv)
+    setOption!(wkNLEQ1, STATS_SUMX, sumX)
+    setOption!(wkNLEQ1, WK_SUMXS, sumXs)
+    setOption!(wkNLEQ1, STATS_DLEVF, dLevF)
 
     return (x, xScal, retCode)
     # End of function n1int

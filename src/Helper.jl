@@ -1,3 +1,134 @@
+function initializeOptions(opt,wk,n,m1,qRank1)
+    # Initialize options
+    initOption!(opt, OPT_FCMIN,     0.0)
+    initOption!(opt, OPT_SIGMA,     0.0)
+    initOption!(opt, OPT_SIGMA2,    0.0)
+    initOption!(opt, OPT_NOROWSCAL, 0)
+
+    # Workspace: WK
+    initOption!(wk, WK_A, zeros(m1,n))
+
+    if qRank1
+        initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
+    else
+        initOption!(wk, WK_DXSAVE, 0.0)
+    end
+
+    # Initialize temporary workspace
+    initOption!(wk, WK_DX  , zeros(n))
+    initOption!(wk, WK_DXQ , zeros(n))
+    initOption!(wk, WK_XA  , zeros(n))
+    initOption!(wk, WK_XWA , zeros(n))
+    initOption!(wk, WK_F   , zeros(n))
+    initOption!(wk, WK_FA  , zeros(n))
+    initOption!(wk, WK_ETA , zeros(n))
+    initOption!(wk, WK_XW  , zeros(n))
+    initOption!(wk, WK_FW  , zeros(n))
+    initOption!(wk, WK_DXQA, zeros(n))
+
+    initOption!(wk, WK_SUMXA0, 0.0)
+    initOption!(wk, WK_SUMXA1, 0.0)
+    initOption!(wk, WK_FCMON,  0.0)
+    initOption!(wk, WK_FCA,    0.0)
+    initOption!(wk, WK_FCKEEP, 0.0)
+    initOption!(wk, WK_FCPRI,  0.0)
+    initOption!(wk, WK_DMYCOR, 0.0)
+    initOption!(wk, WK_SUMXS,  0.0)
+
+    initOption!(wk, STATS_NITER,  0)
+    initOption!(wk, STATS_NCORR,  0)
+    initOption!(wk, STATS_NFCN,   0)
+    initOption!(wk, STATS_NFCNJ,  0)
+    initOption!(wk, STATS_NJAC,   0)
+    initOption!(wk, STATS_NREJR1, 0)
+    initOption!(wk, STATS_NEW,    0)
+    initOption!(wk, STATS_ICONV,  0)
+    initOption!(wk, STATS_CONV,   0.0)
+    initOption!(wk, STATS_SUMX,   0.0)
+    initOption!(wk, STATS_DLEVF,  0.0)
+    initOption!(wk, STATS_RTOL,   0.0)
+    return nothing
+end
+
+function printInitialization(n, printIOmon, rTol, jacGen, mStor, ml, mu,
+    qNoRowScal, qRank1, nonLin, qBDamp, fcBand, qOrdi, qSimpl, nItmax)
+    message = ""
+    write(printIOmon,"\nINFO: ","N = $n\n")
+    write(printIOmon,"\nINFO: ","Prescribed relative precision ",
+    "$rTol\n")
+    if jacGen == 1
+        message = "a user function"
+    elseif jacGen == 2
+        message = "numerical differentation (without feedback strategy)"
+    elseif jacGen == 3
+        message = "numerical differentation (feedback strategy included)"
+    end
+    write(printIOmon,"\nINFO: ","The Jacobian is supplied by $message\n")
+    if mStor == 0
+        message = "full"
+    elseif mStor == 1
+        message = "banded"
+    end
+    write(printIOmon,"INFO: ","The Jacobian will be stored in $message mode\n")
+    if mStor == 1
+        write(printIOmon,"INFO: ","Lower bandwidth : $ml \t",
+        "Upper bandwidth : $mu\n")
+    end
+    if qNoRowScal == 1
+        message = "inhibited"
+    else
+        message = "allowed"
+    end
+    write(printIOmon,"INFO: ",
+    "Automatic row scaling of the jacobian is $message\n")
+
+    if qRank1
+        message = "allowed"
+    else
+        message = "inhibited"
+    end
+    write(printIOmon,"\nINFO: ","Rank-1 updates are $message\n")
+    if nonLin == 1
+        message = "linear"
+    elseif nonLin == 2
+        message = "mildly nonlinear"
+    elseif nonLin == 3
+        message = "highly nonlinear"
+    elseif nonLin == 4
+        message = "extremely nonlinear"
+    end
+    write(printIOmon,"INFO: ","Problem is specified as being $message\n")
+    if qBDamp
+        write(printIOmon,"INFO: ","Bounded damping strategy is active\n",
+        "bounding factor is $fcBand\n")
+    else
+        write(printIOmon,"INFO: ","Bounded damping strategy is off\n")
+    end
+    if qOrdi
+        write(printIOmon,"INFO: ","Special mode: ",
+        "Ordinary Newton iteration will be done\n")
+    end
+    if qSimpl
+        write(printIOmon,"INFO: ","Special mode: ",
+        "Simplified Newton iteration will be done\n")
+    end
+
+    write(printIOmon,"INFO: ","Maximum permitted number of ",
+    "iteration steps : $nItmax\n")
+end
+
+function printStats(stats, printIOmon)
+    write(printIOmon,"\n",
+    @sprintf("*************   Statistics   ************\n"),
+    @sprintf("***  Newton-iterations     : %7i  ***\n", (stats[STATS_NITER])),
+    @sprintf("***  Corrector steps       : %7i  ***\n", (stats[STATS_NCORR])),
+    @sprintf("***  Rejected Rank-1 steps : %7i  ***\n", (stats[STATS_NREJR1])),
+    @sprintf("***  Jacobian evaluations  : %7i  ***\n", (stats[STATS_NJAC])),
+    @sprintf("***  Function evaluations  : %7i  ***\n", (stats[STATS_NFCN])),
+    @sprintf("***  ... for Jacobain eval : %7i  ***\n", (stats[STATS_NFCNJ])),
+    @sprintf("*****************************************\n"))
+end
+
 function n1scal(n,x,xa,xScal,iScal,qIniSc,opt)
     small = getMachineConstants(6)
     # Begin
@@ -186,7 +317,7 @@ function n1prv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     return nothing
 end
 
-function n1sout(n,x,mode,opt,wk,mPr,printIO)
+function n1sout(n,x,mode,opt,wkNLEQ1,mPr,printIO)
     # Begin
     qNorm = true
     if qNorm
@@ -198,7 +329,7 @@ function n1sout(n,x,mode,opt,wk,mPr,printIO)
         elseif mode == 4
             write(printIO,@sprintf("%s\n","  Final data:"))
         end
-        write(printIO,@sprintf(" %5i\n",wk.options[STATS_NITER]))
+        write(printIO,@sprintf(" %5i\n",wkNLEQ1.options[STATS_NITER]))
         l2 = 0
         for l1 = 1:n
             write(printIO,@sprintf("%18.10e ",x[l1]))
@@ -208,7 +339,7 @@ function n1sout(n,x,mode,opt,wk,mPr,printIO)
                 l2 = 0
             end
         end
-        write(printIO,@sprintf("%18.10e %18.10e \n",wk.options[STATS_DLEVF],sqrt(wk.options[STATS_SUMX]/n)))
+        write(printIO,@sprintf("%18.10e %18.10e \n",wkNLEQ1.options[STATS_DLEVF],sqrt(wkNLEQ1.options[STATS_SUMX]/n)))
         if mode == 1 && mPr >= 2
             write(printIO,@sprintf("%s\n","  Intermediate data:"))
         elseif mode >= 3

@@ -32,6 +32,8 @@ const OPT_ETAINI                = "initialDenominatorDifference"
 const OPT_NBROY                 = "maxBroydenSteps"
 const OPT_FCSTART               = "initialDampingFactor"
 const OPT_FCMIN                 = "minimumDampingFactor"
+const OPT_IRANK                 = "initialRank"
+const OPT_COND                  = "subConditionNumber"
 
 # Statistics
 const STATS_NITER               = "numberOfNewtonIterations"
@@ -75,12 +77,6 @@ const WK_FCKEEP                 = "fckeep"
 const WK_FCPRI                  = "fcpri"
 const WK_DMYCOR                 = "dmycor"
 const WK_SUMXS                  = "sumxs"
-const P_XITER                   = "persistent_xIter"
-const P_SUMXALL                 = "persistent_sumXall"
-const P_DLEVFALL                = "persistent_dLevFall"
-const P_SUMXQALL                = "persistent_sumXQall"
-const P_TOLALL                  = "persistent_tolAll"
-const P_FCALL                   = "persistent_fcAll"
 
 function getMachineConstants(i)
 # 1 = realmin

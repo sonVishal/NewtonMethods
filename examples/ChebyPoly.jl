@@ -19,7 +19,7 @@ function chebyQuad(f,x)
     return nothing
 end
 
-function chebyQuadJac(x,J)
+function chebyQuadJac(J,x)
     n = length(x)
     for j = 1:n
         factt = 4.0*x[j] - 2.0

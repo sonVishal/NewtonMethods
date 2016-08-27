@@ -184,8 +184,169 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
 
     # Repeat
     while qIter
-    end
+        # ----------------------------------------------------------------------
+        # 2 Startup of iteration step
+        if !qJcRfr
+            # ------------------------------------------------------------------
+            # 2.1 Scaling of variables x(n)
+            xw = n1scal(n , x, xa, xScal, iScal, qIniSc, opt)
+            qIniSc = false
+            if nIter != 0
+                # Preliminary psuedo-rank
+                iRankA = iRank
+                # --------------------------------------------------------------
+                # 2.2 Aposteriori estimate of damping factor
+                dxQa = dxQ
+                fcNumP = sum((dx./xw).^2)
+                th = fc - 1.0
+                fcDnm = sum(((dxQa+th*dx)./xw).^2)
+                # ----------------------------------------------------------
+                # 2.2.2 Decision criterion for Jacobian update technique
+                # qGenJ == true   numerical differentation,
+                # qGenJ == false  rank1 updating
+                qGenJ = true
+                if fc == fcPri
+                    qGenJ = fc < 1.0 || fcA < 1.0 || dMyCor <= fc*sigma ||
+                    !qRank1 || newt + 2 > nBroy
 
+                    fcA = fc
+                else
+                    dMyCor = fcA*fcA*0.5*sqrt(fcNumP/fcDnm)
+                    if nonLin <= 3
+                        fcCor = min(1.0,dMyCor)
+                    else
+                        fcCor = min(1.0,0.5*dMyCor)
+                    end
+                    fcA = max(min(fc,fcCor),fcMin)
+
+                    if mPrMon >= 5
+                        write(printIOmon,"\n",
+                        @sprintf("+++  aposteriori estimate  +++\n"),
+                        @sprintf(" fcCor  = %18.10e\n",fcCor),
+                        @sprintf(" fc     = %18.10e\n",fc),
+                        @sprintf(" dMyCor = %18.10e\n",dMyCor),
+                        @sprintf(" fcNumP = %18.10e\n",fcNumP),
+                        @sprintf(" fcDnm  = %18.10e\n",fcDnm),
+                        @sprintf("++++++++++++++++++++++++++++++\n"))
+                    end
+                end
+                fck2 = fcA
+                # ----------------------------------------------------------
+                # 2.2.1 Computation of the numerator of damping
+                # factor predictor
+                fcNmp2 = sum((dxQa./xw).^2)
+                fcNumP = fcNumP*fcNmp2
+            end
+        end
+        qJcRfr = false
+        # ----------------------------------------------------------------------
+        # 2.3 Jacobian matrix
+        # TODO: Multiple dispatch for the Jacobian evaluation
+        # ----------------------------------------------------------------------
+        # 2.3.1 Jacobian generation by routine jac or difference approximation
+        # if qGenJ == true
+        # - or -
+        # Rank-1 update of Jacobian if qGenJ == false
+        if qGenJ && (!qSimpl || nIter == 0)
+            newt = 0
+            if jacGen == 1
+                jac = getOption(opt, OPT_JACFCN, 0)
+                try
+                    jac(a,x)
+                    # iFail = 0
+                catch err
+                    retCode = 82
+                    iFail   = -1
+                    # throw(err)
+                end
+            else
+                if mStor == 0
+                    if jacGen == 3
+                        (a,eta,nFcnJ,iFail) = n1jcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
+                    end
+                    if jacGen == 2
+                        (a,nFcnJ,iFail) = n1jac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ)
+                    end
+                    if jacGen == 4
+                        (a,iFail) = n1jacFAD(fcn,x)
+                    end
+                elseif mStor == 1
+                    if jacGen == 3
+                        (a,eta,nFcnJ,iFail) = n1jcfb(fcn,n,m1,ml,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
+                    end
+                    if jacGen == 2
+                        (a,nFcnJ,iFail) = n1jacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ)
+                    end
+                    if jacGen == 4
+                        (a,iFail) = n1jacFAD(fcn,x)
+                    end
+                end
+            end
+            nJac += 1
+            if jacGen == 1 && iFail < 0
+                retCode = 83
+                break
+            end
+
+            if jacGen != 1 && iFail != 0
+                retCode = 82
+                break
+            end
+        else
+            newt += 1
+        end
+
+        if newt == 0
+            # ------------------------------------------------------------------
+            # 2.3.2 Save scaling values
+            xwa = xw[1:n]
+            # ------------------------------------------------------------------
+            # 2.4 Prepare solution of the linear system
+            # --------------------------------------------------------------
+            # 2.4.1 Internal column scaling of matrix A
+            if mStor == 0
+                for k = 1:n
+                    a[1:n,k] = -a[1:n,k]*xw[k]
+                end
+            elseif mStor == 1
+                for k = 1:n
+                    l2 = max(1+m2-k,ml+1)
+                    l3 = min(n+m2-k,m1)
+                    a[l2:l3,k] = -a[l2:l3,k]*xw[k]
+                end
+            end
+            # ------------------------------------------------------------------
+            # 2.4.2 Row scaling of matrix A
+            if qScale
+                if mStor == 0
+                    (a,fw) = n1scrf(n,n,a)
+                elseif mStor == 1
+                    (a,fw) = n1scrb(n,m1,ml,mu,a)
+                end
+            else
+                fw = ones(n)
+            end
+        end
+        # ----------------------------------------------------------------------
+        # 2.4.3 Save and scale values of F(n)
+        fa[:] = f
+        t1 = f.*fw
+        iRankA = iRank
+        if nIter != 0
+            iRank = n
+        end
+        qNext = false
+        # ----------------------------------------------------------------------
+        # 3 Central part of iteration step
+        # Pseudo-rank reduction loop
+        # ==========================
+        while
+            # ----------------------------------------------------------------------
+            # 3.1 Solution of the linear system
+            # ----------------------------------------------------------------------
+            # 3.1.1 Decomposition of (n,n) matrix A
+        end
+    end
 
 
 

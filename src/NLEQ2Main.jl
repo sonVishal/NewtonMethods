@@ -550,7 +550,66 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 # Damping-factor reduction loop
                 # =============================
                 while !(qNext || qRedu)
-                    
+                    # ----------------------------------------------------------
+                    # 3.5 Preliminary new iterate
+                    x = xa + dx*fc
+                    push!(fcAll,fc)
+                    # ----------------------------------------------------------
+                    # 3.5.2 Exit, if problem is specified as being linear
+                    if nonLin == 1
+                        retCode = 0
+                        break
+                    end
+                    #-----------------------------------------------------------
+                    # 3.6.1 Computation of the residual vector
+                    try
+                        fcn(f,x)
+                        iFail = 0
+                    catch
+                        iFail = -1
+                        retCode = 82
+                    end
+                    nFcn += 1
+                    if iFail < 0
+                        retCode = 82
+                        break
+                    end
+                    if iFail == 1 || iFail == 2
+                        if iFail == 1
+                            fcRedu = 0.5
+                        else
+                            fcRedu = f[1]
+                            if fcRedu <= 0.0 || fcRedu >= 1.0
+                                retCode = 83
+                                break
+                            end
+                        end
+                        if mPrMon >= 2
+                            write(printIOmon,
+                            @sprintf("        %2i",nIter),
+                            @sprintf(" %s could not be evaluated     %7.5f    %2i\n",fcn,fc,newt))
+                        end
+                        fch = fc
+                        fc  = fcRedu*fc
+                        if fch > fcMin
+                            fc = max(fc,fcMin)
+                        end
+                        if qBDamp
+                            fcbh = fch/fcBand
+                            if fc < fcbh
+                                fc = fcbh
+                                if mPrMon >= 4
+                                    write(printIOmon," *** Decrease rest. act. (fcn redu.) ***\n")
+                                end
+                            end
+                        end
+                        if fc < fcMin
+                            retCode = 3
+                            break
+                        end
+                    else
+                        
+                    end
                 end
                 # end of damping-factor reduction loop
                 # ====================================

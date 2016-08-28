@@ -336,19 +336,16 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             iRank = n
         end
         qNext = false
+        qRedu = true
         # ----------------------------------------------------------------------
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        # TODO: find the condition for while loop
-        while true
-            # ----------------------------------------------------------------------
+        while qRedu
+            # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
-            # ----------------------------------------------------------------------
+            # ------------------------------------------------------------------
             # 3.1.1 Decomposition of (n,n) matrix A
-            if !qLInit
-                # TODO: Do Something
-            end
             if newt == 0
                 cond1 = cond
                 if qRepeat
@@ -356,22 +353,228 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 else
                     # TODO: Do Something
                 end
-                (iFail) = n2fact(n,m1,n,ml,mu,a,qa,cond1,iRank,opt,)
+                iFail = n2fact(n,m1,n,ml,mu,a,qa,cond1,iRank,opt)
+                if iFail != 0
+                    retCode = 80
+                    break
+                end
+                # TODO: Find out what this is now
+                sens1 = sqrt(2.0)
+            end
+            # ------------------------------------------------------------------
+            # 3.1.2 Solution of linear (n,n) system
+            if newt == 0
+                iFail = n2solv(n, m1, n, ml, mu, a, qa, t1, t2, iRank, opt)
+                if iFail != 0
+                    retCode = 81
+                    break
+                end
+                if !qRepeat && iRank != 0
+                    qu[:] = t1[:]
+                end
+            else
+                alfa1 = sum((dx.*dxQ)./(xw.^2))
+                alfa2 = sum((dx.^2)./(xw.^2))
+                alfa  = alfa1/alfa2
+                beta  = 1-alfa
+                t2 = (dxQ+(fcA-1.0)*alfa*dx)/beta
+                if newt == 1
+                    dxSave[:,1] = dx[:]
+                end
+                dxSave[:, newt+1] = t2[:]
+                dx[:] = t2[:]
+                t2[:] = t2[:]./xw[:]
+            end
+            # ------------------------------------------------------------------
+            # 3.2 Evaluation of scaled natural level function sumX
+            # scaled maximum error norm conv
+            # evaluation of (scaled) standard level function dlevf
+            # and computation of ordinary Newton corrections dx[n]
+            (dx,conv,sumX,dLevF) = n2lvls(n,t2,xw,f,mPrMon,newt == 0)
+            wkNLEQ1.options[STATS_SUMX]   = sumX
+            wkNLEQ1.options[STATS_DLEVF]  = dLevF
+            xa[:] = x
+            sumXa    = sumX
+            dLevXa   = sqrt(sumXa/n)
+            conva    = conv
+            dxANrm   = wnorm(n,dx,xw)
+            push!(sumXall,dLevXa)
+            push!(dLevFall,dLevF)
+            # ------------------------------------------------------------------
+            # 3.3 A-priori estimate of damping factor FC
+            qRedu = false
+            if nIter != 0 && nonLin != 1
+                if newt == 0 || qRepeat
+                    # ----------------------------------------------------------
+                    # 3.3.1 Computation of the denominator of A-priori estimate
+                    fcDnm = sum(((dx-dxQ)./xw).^2)
+                    if iRank != n
+                        # ------------------------------------------------------
+                        # 3.3.2 Rank-deficient case (if previous rank was full)
+                        # computation of the projected denominator of a-priori
+                        # estimate
+                        t1 = dxQ./xw
+                        del = n2prjn(n, iRank, t1, t2, qa)
+                        fcDnm -= del
+                    end
+                    # ----------------------------------------------------------
+                    # 3.3.3 New damping factor
+                    if fcDnm > fcNumP*fcMin2 || (nonLin == 4 && fcA^2*fcNumP < 4.0*fcDnm)
+                        dMyPri = fcA*sqrt(fcNumP/fcDnm)
+                        fcPri  = min(dMyPri,1.0)
+                        if nonLin == 4
+                            fcPri = min(0.5*dMyPri,1.0)
+                        end
+                    else
+                        fcPri = 1.0
+                        dMyPri = -1.0
+                    end
+
+                    if mPrMon >= 5
+                        write(printIOmon,"\n",
+                        @sprintf("+++++  apriori estimate  +++++\n"),
+                        @sprintf(" fcPri  = %18.10e\n",fcPri),
+                        @sprintf(" fc     = %18.10e\n",fc),
+                        @sprintf(" fcA    = %18.10e\n",fcA),
+                        @sprintf(" dMyPri = %18.10e\n",dMyPri),
+                        @sprintf(" fcNumP = %18.10e\n",fcNumP),
+                        @sprintf(" fcDnm  = %18.10e\n",fcDnm),
+                        @sprintf("++++++++++++++++++++++++++++++\n"))
+                    end
+
+                    fc = fcPri
+                    if iRank == n || iRank <= minRnk
+                        fc = max(fc,fcMin)
+                    end
+                    if qBDamp
+                        fcbh = fcA*fcBand
+                        if fc > fcbh
+                            fc = fcbh
+                            if mPrMon >= 4
+                                write(printIOmon, "*** Increase rest. act. (a priori)\n")
+                            end
+                        end
+                        fcbh = fcA/fcBand
+                        if fc < fcbh
+                            fc = fcbh
+                            if mPrMon >= 4
+                                write(printIOmon, "*** Decrease rest. act. (a priori)\n")
+                            end
+                        end
+                    end
+                end
+                qRedu = fc < fcMin
+            end
+            qRepeat = false
+            if iOrMon >= 2
+                sumxa2 = sumxa1
+                sumxa1 = sumxa0
+                sumxa0 = dLevXa
+                if sumxa0 == 0.0
+                    sumxa0 = small
+                end
+                # Check convergence rate (linear or superlinear)
+                # iconv : Convergence idicator
+                #           = 0: No convergence indicated yet
+                #           = 1: Damping factor is 1.0e0
+                #           = 2: Superlinear convergence detected (alpha >=1.2)
+                #           = 3: Quadratic convergence detected (alpha > 1.8)
+                fcMon = min(fc,fcMon)
+                if fcMon < 1.0
+                    iConv  = 0
+                    alphaE = 0.0
+                end
+                if fcMon == 1.0 && iConv == 0
+                    iConv = 1
+                end
+                if nIter >= 1
+                    cLin1 = cLin0
+                    cLin0 = sumxa0/sumxa1
+                end
+                if iConv >= 1 && nIter >= 2
+                    alphaK = alphaE
+                    alphaE = 0.0
+                    if cLin1 <= 0.95
+                        alphaE = log(cLin0)/log(cLin1)
+                    end
+                    if alphaK != 0.0
+                        alphaK = 0.5*(alphaE+alphaK)
+                    end
+                    alphaA = min(alphaK,alphaE)
+                    cAlphaK = cAlpha
+                    cAlpha = 0.0
+                    if alphaE != 0.0
+                        cAlpha = sumxa1/sumxa2^alphaE
+                    end
+                    sumXte = sqrt(cAlpha*cAlphaK)*sumxa1^alphaK-sumxa0
+                    if alphaA >= 1.2 && iConv == 1
+                        iConv = 2
+                    end
+                    if alphaA > 1.8
+                        iConv = 3
+                    end
+                    if mPrMon >= 4
+                        write(printIOmon,"\n",
+                        @sprintf(" ** iConv: %1i",iConv),
+                        @sprintf("  alpha:       %9.2e",alphaE),
+                        @sprintf("  const-alpha: %9.2e",cAlpha),
+                        @sprintf("  const-lin:   %9.2e **\n",cLin0),
+                        @sprintf(" ** alpha-post: %9.2e",alphaK),
+                        @sprintf("  check:       %9.2e",sumXte),
+                        @sprintf("                    **\n"))
+                    end
+                    if iConv >= 2 && alphaA < 0.9
+                        if iOrMon == 3
+                            retCode = 4
+                            break
+                        else
+                            qMStop = true
+                        end
+                    end
+                end
+            end
+            fcMon = fc
+
+            if mPrMon >= 2
+                n2prv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
+                    printIOmon, qMixIO, cond1)
+            end
+
+            if !qRedu
+                # --------------------------------------------------------------
+                # 3.4 Save natural level for later computations of corrector
+                # and print iterate
+                fcNumK = sumX
+                nRed = 0
+                qRep = false
+                # Damping-factor reduction loop
+                # =============================
+                while !(qNext || qRedu)
+                    
+                end
+                # end of damping-factor reduction loop
+                # ====================================
+            end
+
+        end
+        # end of psuedo-rank reduction loop
+        # =================================
+        if qNext
+            # ------------------------------------------------------------------
+            # 4 Preparations to start the following iteration step
+            # ------------------------------------------------------------------
+            # Print values
+            if mPrMon >= 3 && !qOrdi
+                n1prv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPrMon,printIOmon,qMixIO,"*")
             end
         end
+
     end
-
-
-
-
-
-
-
-
-
-
-
-
+    # end of main iteration loop
+    # ==========================
+    # --------------------------------------------------------------------------
+    # 9 Exits
+    # --------------------------------------------------------------------------
 
     # TODO: Remove this. For testing only
     retCode = 1

@@ -28,7 +28,7 @@ end
 # function numDiffJac(x,J)
 #     Evaluation of a dense Jacobian matrix using finite difference
 #     approximation adapted for use in nonlinear systems solver NLEQ1
-function n1jac(fcn,n,lda,x,fx,yscal,ajdel,ajmin,nFcn)
+function nJac(fcn,n,lda,x,fx,yscal,ajdel,ajmin,nFcn)
     # Begin
     iFail = 0
     nFcnNew = nFcn
@@ -61,7 +61,7 @@ end
 # function numDiffJacBanded(x,J)
 #     Evaluation of a banded Jacobian matrix using finite difference
 #     approximation adapted for use in nonlinear systems solver NLEQ1
-function n1jacb(fcn,n,lda,ml,x,fx,yscal,ajdel,ajmin,nFcn)
+function nJacb(fcn,n,lda,ml,x,fx,yscal,ajdel,ajmin,nFcn)
     # Begin
     nFcnNew = nFcn
     iFail = 0
@@ -105,7 +105,7 @@ end
 # function numDiffJacFB(x,J)
 #     Approximation of dense Jacobian matrix for nonlinear systems solver
 #     NLEQ1 with feed-back control of discretization and rounding errors
-function n1jcf(fcn,n,lda,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
+function nJcf(fcn,n,lda,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
     # Constant
     small2 = 0.1
     # Begin
@@ -163,7 +163,7 @@ end
 # function numDiffJac(x,J)
 #     Approximation of dense Jacobian matrix for nonlinear systems solver
 #     NLEQ1 with feed-back control of discretization and rounding errors
-function n1jcfb(fcn,n,lda,ml,x,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
+function nJcfb(fcn,n,lda,ml,x,fx,yscal,eta,etamin,etamax,etadif,conv,nFcn)
     # Constants
     small2 = 0.1
     # Begin

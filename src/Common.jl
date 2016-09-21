@@ -133,7 +133,7 @@ function printStats(stats, printIOmon)
     @sprintf("*****************************************\n"))
 end
 
-function scal(n,x,xa,xScal,iScal,qIniSc,opt)
+function nScal(n,x,xa,xScal,iScal,qIniSc,opt)
     small = getMachineConstants(6)
     # Begin
     xw = zeros(n)
@@ -159,9 +159,7 @@ function scal(n,x,xa,xScal,iScal,qIniSc,opt)
     return xw
 end
 
-# TODO: There is a smarter way to write scaling using in built scale!(A,b) (col)
-# and scale!(b,A) (row) functions
-function n1scrf(m,n,a)
+function nScrf(m,n,a)
     # Begin
     fw = zeros(n)
     if issparse(a)
@@ -200,11 +198,10 @@ function n1scrf(m,n,a)
     return (aout,fw)
 end
 
-function n1scrb(n,lda,ml,mu,a)
+function nScrb(n,lda,ml,mu,a)
     # Begin
     fw = zeros(n)
-    # TODO: zeros(a) or zeros(size(a)). The former creates a sparse if a is sparse
-    aout = zeros(size(a))
+    aout = zeros(a)
     m2 = ml + mu + 1
     for k = 1:n
         s1 = 0.0
@@ -227,45 +224,7 @@ function n1scrb(n,lda,ml,mu,a)
     return (aout,fw)
 end
 
-function n1fact(n,lda,ml,mu,a,opt)
-    # Begin
-    mStor = opt.options[OPT_MSTOR]
-    if mStor == 0
-        try
-            (l,u,p) = lu(a)
-            iFail = 0
-        catch
-            iFail = 1
-        end
-    elseif mStor == 1
-        # Band mode: l holds the complete lu-factorization of p*a
-        l = a[:,:]
-        # Use LINPACK function to compute the LU in place
-        # p stores the pivot vectors and not the permuted identity
-        (l,p,iFail) = dgbfa(a,lda,n,ml,mu)
-        u = []
-    end
-    if iFail != 0
-        iFail = 1
-    end
-    return (l,u,p,iFail)
-end
-
-function n1solv(n,lda,ml,mu,l,u,p,b,opt)
-    # Begin
-    mStor = opt.options[OPT_MSTOR]
-    if mStor == 0
-        x = b[p]
-        x = l\x
-        x = u\x
-    elseif mStor == 1
-        x = dgbsl(l,lda,n,ml,mu,p,b,0)
-    end
-    iFail = 0
-    return (x,iFail)
-end
-
-function n1lvls(n,dxq,dx1,xw,f,mPr,qdscal)
+function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
     # Begin
     if qdscal
         # ----------------------------------------------------------------------
@@ -283,31 +242,8 @@ function n1lvls(n,dxq,dx1,xw,f,mPr,qdscal)
     return (dxq,conv,sumx,dlevf)
 end
 
-function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
-    if qMixIO
-        write(printIO,"  ******************************************************************",
-        "\n");
-        if mPr >= 3
-            write(printIO,"        It       Normf           Normx                     New\n")
-        end
-        if mPr == 2
-            write(printIO,"        It       Normf           Normx         Damp.Fct.   New\n")
-        end
-    end
-    if mPr >= 3 || niter == 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e                 %2i\n",niter,dlevf,dlevx,newt))
-    end
-    if mPr == 2 && niter != 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e      %7.5f    %2i\n",niter,dlevf,dlevx,fc,newt))
-    end
-    if qMixIO
-        write(printIO,"  ******************************************************************",
-        "\n");
-    end
-    return nothing
-end
 
-function n1prv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
+function nPrv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     if qMixIO
         write(printIO,"  ******************************************************************",
         "\n");
@@ -321,7 +257,7 @@ function n1prv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     return nothing
 end
 
-function n1sout(n,x,mode,opt,wkNLEQ1,mPr,printIO)
+function nSout(n,x,mode,opt,wkNLEQ1,mPr,printIO)
     # Begin
     qNorm = true
     if qNorm

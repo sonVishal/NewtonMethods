@@ -22,21 +22,22 @@ include("Jacobian.jl")
 include("Options.jl")
 include("Constants.jl")
 include("Error.jl")
-include("Helper.jl")
+include("SolverSpecific.jl")
+include("Common.jl")
 include("CheckOptionsNLEQ1.jl")
 
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()
 
 function clearWorkspace(name::ASCIIString)
-    if name == "NLEQ1" || name == "nleq1" || name == 1
+    if name == "NLEQ1" || name == "nleq1" || name == "Nleq1"
         empty!(wkNLEQ1.options)
-    elseif name == "NLEQ2" || name == "nleq2" || name == 2
+    elseif name == "NLEQ2" || name == "nleq2" || name == "Nleq2"
         empty!(wkNLEQ2.options)
     else
         println("Invalid option. Please specify the correct argument.")
-        println("1 or \"NLEQ1\" or \"nleq1\" - to clear the workspace for nleq1 function")
-        println("2 or \"NLEQ2\" or \"nleq2\" - to clear the workspace for nleq2 function")
+        println("\"Nleq1\" or \"NLEQ1\" or \"nleq1\" - to clear the workspace for nleq1 function")
+        println("\"Nleq2\" or \"NLEQ2\" or \"nleq2\" - to clear the workspace for nleq2 function")
     end
 end
 

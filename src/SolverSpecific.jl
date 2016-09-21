@@ -1,3 +1,22 @@
+function n2prjn(n, iRank, u, d, qe, p)
+    v = u[p]
+    iRk1 = iRank + 1
+    del = 0.0
+    for i = iRk1:n
+        sh = sum(qe[1:i-1,i].*v[1:i-1])
+        s = (v[i] - sh)/d[i]
+        del += s*s
+        v[i] = s
+    end
+    return del
+end
+
+function deccon()
+end
+
+function solcon()
+end
+
 function n1fact(n,lda,ml,mu,a,opt)
     # Begin
     mStor = opt.options[OPT_MSTOR]
@@ -22,6 +41,10 @@ function n1fact(n,lda,ml,mu,a,opt)
     return (l,u,p,iFail)
 end
 
+function n2fact(n,lda,ldaInv,ml,mu,a,cond,iRank,opt)
+    
+end
+
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     # Begin
     mStor = opt.options[OPT_MSTOR]
@@ -34,6 +57,9 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     end
     iFail = 0
     return (x,iFail)
+end
+
+function n2solv()
 end
 
 function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
@@ -82,20 +108,4 @@ function n2prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO,cond1,iRank)
         "\n");
     end
     return nothing
-end
-
-function n2prjn()
-end
-
-function n2fact()
-end
-
-function n2solv()
-end
-
-
-function deccon()
-end
-
-function solcon()
 end

@@ -638,7 +638,10 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         # estimate
                         t1 = dxQ./xw
                         # Norm of projection of reduced component t1[n]
-                        del = n2prjn(n, iRank, t1, t2, qa)
+                        # TODO: Get "p" and "t2" from n2fact and n2solv
+                        # "p" is the pivot vector
+                        # "t2" is the diagonal returned by deccon
+                        del = n2prjn(n, iRank, t1, d, qa, p)
                         fcDnm -= del
                     end
                     fcDnm *= sumX

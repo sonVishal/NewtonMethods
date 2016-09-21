@@ -16,6 +16,7 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     # Begin
     # --------------------------------------------------------------------------
     # 1 Initialization
+    v = zeros(n)
     epMach  = getMachineConstants(3)
     small   = getMachineConstants(6)
     if iRank > n
@@ -222,7 +223,72 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     return (iRankC, iRank, cond, v[1], iFail)
 end
 
-function solcon()
+function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
+    kRed, ah)
+    # Begin
+    v = zeros(n)
+    # --------------------------------------------------------------------------
+    # 1 Solution for pseudo-rank zero
+    if iRank == 0
+        x[1:n] = zeros(n)
+        return (iRankC, iRank)
+    end
+    if iRank <= iRankC && iRank != n
+        iRanC1 = iRankC + 1
+    end
+    if kRed > 0 && (m != 1 || n != 1)
+        # ----------------------------------------------------------------------
+        # 2 Constrained householder transformations of right-hand side
+        mh = mCon
+        if iRankC == 0
+            mh = m
+        end
+        for j = 1:iRank
+            s = sum(a[j:mh,j].*b[j:mh])
+            s = s/(d[j]*a[j,j])
+            b[j:m] += a[j:m,j]*s
+            if j == iRankC
+                mh = m
+            end
+        end
+    end
+    # --------------------------------------------------------------------------
+    # 3 Solution of upper triangular system
+    iRk1 = iRank + 1
+    for ii = 1:iRank
+        i = iRk1 - ii
+        i1 = i + 1
+        s = b[i]
+        if ii != 1
+            sh = sum(a[i,i1:iRank]'.*v[i1:iRank])
+            s = s-sh
+        end
+        v[i] = s/d[i]
+    end
+    if iRank != n && iRank != iRankC
+        # ----------------------------------------------------------------------
+        # 3.2 Computation of the best constrained least squares-solution
+        for j = iRk1:n
+            s = sum(ah[1:j-1].*v[1:j-1])
+            v[j] = -s/d[j]
+        end
+        for jj = 1:n
+            j = n-jj+1
+            if jj != 1
+                s = sum(ah[j,j1:n]'.*v[j1:n])
+            end
+            if jj != 1 && j <= iRank
+                v[j] -= s
+            else
+                j1 = j
+                v[j] = -(s+v[j])/d[j]
+            end
+        end
+    end
+    # --------------------------------------------------------------------------
+    # 4 Back-permutation of solution components
+    x[:] = x[pivot]
+    return (iRankC, iRank)
 end
 
 function n1fact(n,lda,ml,mu,a,opt)
@@ -250,8 +316,6 @@ function n1fact(n,lda,ml,mu,a,opt)
 end
 
 function n2fact(n,lda,ldaInv,ml,mu,a,cond,iRank,opt)
-
-    return ()
 end
 
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)

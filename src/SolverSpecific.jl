@@ -11,7 +11,215 @@ function n2prjn(n, iRank, u, d, qe, p)
     return del
 end
 
-function deccon()
+function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
+    kRed, ah)
+    # Begin
+    # --------------------------------------------------------------------------
+    # 1 Initialization
+    epMach  = getMachineConstants(3)
+    small   = getMachineConstants(6)
+    if iRank > n
+        iRank = n
+    end
+    if iRank > m
+        iRank = m
+    end
+    iFail = 0
+    # --------------------------------------------------------------------------
+    # 1.1 Special case m = 1 and n = 1
+    if m == 1 && n == 1
+        pivot[1] = 1
+        d[1] = a[1,1]
+        cond = 1.0
+        return (iRankC, iRank, cond, cond, iFail)
+    end
+    if kRed >= 0
+        # ----------------------------------------------------------------------
+        # 1.2 Initialize pivot-array
+        pivot[1:n] = collect(1:n)
+        # ----------------------------------------------------------------------
+        jd = 1
+        iRanC1 = iRankC + 1
+        mh = mCon
+        iRankH = iRankC
+        iData = 0
+        if mh == 0
+            iRankH = iRank
+            mh = m
+            iData = 1
+        end
+        iRk1 = iRank
+        for k = 1:iRk1
+            level = 1
+            if k != n
+                k1 = k+1
+                qLoop = true
+                while qLoop
+                    if jd != 0
+                        for j = k:n
+                            d[j] = sum(a[k:mh,j].^2)
+                        end
+                    end
+                    # ----------------------------------------------------------
+                    # 2.1 Column pivoting
+                    s1 = d[k]
+                    jj = k
+                    for l1 = k:n
+                        if d[l1] > s1
+                            s1 = d[l1]
+                            jj = l1
+                        end
+                    end
+                    h = d[jj]
+                    if jd == 1
+                        hMax = h/max(1.0e1,cond*0.05)
+                    end
+                    jd = 0
+                    if h < hMax
+                        jd = 1
+                    end
+                    qLoop = !(h >= hMax)
+                end
+                if jj != k
+                    # ----------------------------------------------------------
+                    # Column interchange
+                    i = pivot[k]
+                    pivot[k] = pivot[jj]
+                    pivot[jj] = i
+                    d[jj] = d[k]
+                    for l1 = 1:m
+                        s1 = a[l1,jj]
+                        a[l1,jj] = a[l1,k]
+                        a[l1,k] = s1
+                    end
+                end
+            end
+            # end for k != n case
+            h = sum(a[k:mh,k].^2)
+            t = sqrt(h)
+            # ------------------------------------------------------------------
+            # 2.3.0 A-priori test on pseudo-rank
+            if k == 1 || k == iRanC1
+                dd = t/cond
+            end
+            if t <= dd || k > iRankH
+                # --------------------------------------------------------------
+                # Rank reduction
+                iRankH = k-1
+                if mh != mCon || iData == 1
+                    iRank = iRankH
+                    if iRankC == iRank
+                        level = 4
+                    else
+                        level = 3
+                    end
+                else
+                    iRankC = iRankH
+                    if iRankC != mCon
+                        mh = m
+                        iRankH = iRank
+                        jd = 1
+                        iData = 1
+                        continue
+                    else
+                        error("Internal Error of deccon")
+                    end
+                end
+            end
+            if level == 1
+                # --------------------------------------------------------------
+                # 2.4 Householder step
+                s = a[k,k]
+                t = -sign(s)*abs(t)
+                d[k] = t
+                a[k,k] = s-t
+                if k != n
+                    t = 1.0/(h-s*t)
+                    for j = k1:n
+                        s = sum(a[k:mh,k].*a[k:mh,j])
+                        s *= t
+                        s1 = -s
+                        if s != 0.0
+                            # Update the sub columns
+                            a[k:m,j] = a[k:m,j]+a[k:m,k]*s1
+                        end
+                        # update sub column norms
+                        d[j] = d[j]-a[k,j]^2
+                    end
+                    if k == iRankC
+                        mh = m
+                        jd = 1
+                        iRankH = iRank
+                    end
+                    if k == iRk1
+                        level = 3
+                    end
+                else
+                    level = 4
+                end
+                # end for Householder step
+            end
+            if level > 1
+                break
+            end
+        end
+    else
+        k = -1
+        level = 3
+    end
+    # --------------------------------------------------------------------------
+    # 3 Rank-deficient psuedo-inverse
+    if level == 3
+        iRk1 = iRank+1
+        for j = iRk1:n
+            for ii = 1:iRank
+                i = iRk1 - ii
+                s = a[i,j]
+                if ii != 1
+                    sh = sum(a[i,i1:iRank]'.*v[i1:iRank])
+                    s -= sh
+                end
+                i1 = i
+                v[i] = s/d[i]
+                ah[i,j] = v[i]
+            end
+            for i = iRk1:j
+                s = sum(ah[1:i-1,i].*v[1:i-1])
+                if i != j
+                    v[i] = -s/d[i]
+                    ah[i,j] = -v[i]
+                end
+            end
+            if s > -1.0
+                d[j] = sqrt(s+1.0)
+            else
+                iFail = -2
+                break
+            end
+        end
+    end
+    # --------------------------------------------------------------------------
+    # 9 Exit
+    if iRankC != 0
+        sh = d[iRankC]
+        if sh != 0.0
+            sh = abs(d[1]/sh)
+        end
+    else
+        sh = 0.0
+    end
+    v[1] = sh
+    if k == iRank
+        t = d[iRank]
+    end
+    if iRankC+1 <= iRank && t != 0.0
+        s = abs(d[iRankC+1]/t)
+    else
+        s = 0.0
+    end
+    cond = s
+    iFail = 0
+    return (iRankC, iRank, cond, v[1], iFail)
 end
 
 function solcon()
@@ -42,7 +250,8 @@ function n1fact(n,lda,ml,mu,a,opt)
 end
 
 function n2fact(n,lda,ldaInv,ml,mu,a,cond,iRank,opt)
-    
+
+    return ()
 end
 
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)

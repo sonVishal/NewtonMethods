@@ -133,7 +133,7 @@ function printStats(stats, printIOmon)
     @sprintf("*****************************************\n"))
 end
 
-function n1scal(n,x,xa,xScal,iScal,qIniSc,opt)
+function scal(n,x,xa,xScal,iScal,qIniSc,opt)
     small = getMachineConstants(6)
     # Begin
     xw = zeros(n)
@@ -249,111 +249,6 @@ function n1fact(n,lda,ml,mu,a,opt)
         iFail = 1
     end
     return (l,u,p,iFail)
-end
-
-function n2fact(n, lda, ldaInv, ml, mu, a, aInv, cond, iRank, opt)
-    # Begin
-
-end
-
-
-# d, a, ah, v are arrays
-function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
-    kRed, ah, v, iFail)
-    # Begin
-    # --------------------------------------------------------------------------
-    # 1. Initialization
-    epMach = getMachineConstants(3)
-    small = getMachineConstants(6)
-    if iRank > n
-        iRank = n
-    end
-    if iRank > m
-        iRank = m
-    end
-    # --------------------------------------------------------------------------
-    # 1.1 Special case m = 1 and n = 1
-    if m == 1 && n == 1
-        pivot[1] = 1
-        d[1] = a[1,1]
-        cond = 1.0
-        return
-    end
-    if kRed >= 0.0
-        # ----------------------------------------------------------------------
-        # 1.1 Initialize pivot-array
-        pivot = collect(1:n)
-        # ----------------------------------------------------------------------
-        # 2. Constrained householder triangularization
-        jd = 1
-        iRanC1 = iRankC + 1
-        mH = mCon
-        iRankH = iRankC
-        iData = 0
-        if mH == 0
-            iRankH = iRank
-            mH = m
-            iData = 1
-        end
-        iRk1 = iRank
-        for k = 1:iRk1
-            level = 1
-            if k != n
-                k1 = k+1
-            end
-        end
-    end
-    # --------------------------------------------------------------------------
-end
-
-function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot, kRed, ah, v)
-    # Begin
-    # --------------------------------------------------------------------------
-    # 1. Solution for pseudo-rank zero
-    if iRank == 0
-        x = zeros(n)
-        return
-    end
-    if iRank <= iRankC && iRank != n
-        iRanC1 = iRankC + 1
-        v(iRanC1:n) = 0.0
-    end
-    if kRed >= 0 && ( m != 1 || n!= 1)
-        # ----------------------------------------------------------------------
-        # 2. Constrained householder transformations of right-hand side
-        mH = mCon
-        if iRankC == 0
-            mH = m
-        end
-        for j = 1:iRank
-            s = sum(a[j:mH,j].*b[j_mH])
-            s = s/(d[j]*a[j,j])
-            b[j:m] += a[j:m,j]*s
-            if j == iRankC
-                mH = m
-            end
-        end
-    end
-    # --------------------------------------------------------------------------
-    # 3. Solution of upper triangular system
-    iRk1 = iRank + 1
-    for ii = 1:iRank
-        i = iRk1-ii
-        i1 = i+1
-        s = b[i]
-        if ii != 1
-            sh = sum(a[i,i1:iRank1].*v[i1:iRank1])
-            s = s-sh
-        end
-        v[i] = s/d[i]
-    end
-    if iRank != n && iRank != iRankC
-        # ----------------------------------------------------------------------
-        # 3.2 Computation of the best constrained least squares solution
-        for j = iRk1:n
-            
-        end
-    end
 end
 
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)

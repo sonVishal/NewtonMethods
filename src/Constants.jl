@@ -81,6 +81,7 @@ const WK_FCKEEP                 = "fckeep"
 const WK_FCPRI                  = "fcpri"
 const WK_DMYCOR                 = "dmycor"
 const WK_SUMXS                  = "sumxs"
+const WK_SENS1                  = "sens1"
 
 function getMachineConstants(i)
 # 1 = realmin

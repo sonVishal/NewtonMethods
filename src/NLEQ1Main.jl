@@ -210,12 +210,12 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            xw = n1scal(n , x, xa, xScal, iScal, qIniSc, opt)
+            xw = scal(n , x, xa, xScal, iScal, qIniSc, opt)
             qIniSc = false
             if nIter != 0
                 # --------------------------------------------------------------
                 # 2.2 Aposteriori estimate of damping factor
-                dxQa = dxQ
+                dxQa[:] = dxQ
                 if !qOrdi
                     fcNumP = sum((dx./xw).^2)
                     th = fc - 1.0
@@ -425,7 +425,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         end
         wkNLEQ1.options[STATS_SUMX]   = sumX
         wkNLEQ1.options[STATS_DLEVF]  = dLevF
-        xa[:] = x
+        xa[:]    = x
         sumXa    = sumX
         dLevXa   = sqrt(sumXa/n)
         conva    = conv
@@ -1057,7 +1057,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
 
     # --------------------------------------------------------------------------
     # 10 Prepare all the variables for returning
-    xScal = xw
+    xScal[:] = xw
     # TODO: Convert the setOptions to a function since it is called twice
     setOption!(opt, OPT_QSUCC, Int(qSucc))
     setOption!(opt, OPT_FCSTART, fc)

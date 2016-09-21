@@ -315,7 +315,33 @@ function n1fact(n,lda,ml,mu,a,opt)
     return (l,u,p,iFail)
 end
 
-function n2fact(n,lda,ldaInv,ml,mu,a,cond,iRank,opt)
+function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat)
+    mPrWarn = opt.options[OPT_PRINTWARNING]
+    printIO = opt.options[OPT_PRINTIOWARN]
+    mCon = 0
+    iRepeat = -iRepeat
+    # TODO: This next line is not clear tmp = IWK(2) which is the variable iRankC from deccon
+    tmp = n
+    if iRepeat == 0
+        tmp = mCon
+    end
+    (iRankC, iRank, cond, subCond, iFail) = deccon(a, lda, n, mCon, n, n,
+                                            tmp, iRank, cond, d, p,
+                                            iRepeat, aInv)
+    if iFail == -2 && mPrWarn == 1
+        write(printIO,"\n","Deccon failed to compute Rank-deficient QR-Decomposition\n")
+    end
+    if iRank != 0
+        cond = abs(d[1]/d[iRank])
+        # TODO: Don't know what this variable is tmp = RWK(1)
+        tmp = abs(d[1])
+    else
+        cond = 1.0
+        # TODO: Don't know what this variable is tmp = RWK(1)
+        tmp = 0.0
+    end
+    # TODO: Reassign output variables either here or where the function is called
+    return (cond,iFail)
 end
 
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)
@@ -332,10 +358,21 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     return (x,iFail)
 end
 
-function n2solv()
+function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat)
+    # Begin
+    mCon = 0
+    iRepeat = -iRepeat
+    # TODO: Don't know this yet
+    tmp = n
+    (iRankC,iRank) = solcon(a,lda,n,mCon,n,n,z,b,tmp,iRank,d,pivot,
+        iRepeat,aInv)
+
+    # TODO: Reassign output variables either here or where the function is called
+    return iFail
 end
 
 function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
+    # Begin
     if qMixIO
         write(printIO,"  ******************************************************************",
         "\n");
@@ -360,6 +397,7 @@ function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
 end
 
 function n2prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO,cond1,iRank)
+    # Begin
     if qMixIO
         write(printIO,"  ******************************************************************",
         "\n");

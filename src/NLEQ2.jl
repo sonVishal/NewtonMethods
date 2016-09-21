@@ -570,12 +570,12 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 cond1 = cond
                 # TODO: Check if this is required or not
                 if qRepeat
-                    tempVar = 1
+                    iRepeat = 1
                 else
-                    tempVar = 0
+                    iRepeat = 0
                 end
                 # TODO: remember to set WK_SENS1 inside n2fact
-                iFail = n2fact(n,m1,n,ml,mu,a,qa,cond1,iRank,opt,tempVar)
+                (cond,iFail) = n2fact(n,m1,n,ml,mu,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80
                     break
@@ -587,7 +587,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
-                iFail = n2solv(n, m1, n, ml, mu, a, qa, t1, t2, iRank, opt)
+                iFail = n2solv(n, m1, n, ml, mu, a, qa, t1, t2, iRank, opt, iRepeat)
                 if iFail != 0
                     retCode = 81
                     break
@@ -841,11 +841,11 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         # ------------------------------------------------------
                         # 3.6.2 Solution of linear (n,n) system
                         if qRepeat
-                            tempVar = 1
+                            iRepeat = 1
                         else
-                            tempVar = 0
+                            iRepeat = 0
                         end
-                        (t2,iFail) = n2solv(n,m1,ml,mu,l,u,p,t1,opt,tempVar)
+                        (t2,iFail) = n2solv(n,m1,ml,mu,l,u,p,t1,opt,iRepeat)
                         if iFail != 0
                             retCode = 81
                             break

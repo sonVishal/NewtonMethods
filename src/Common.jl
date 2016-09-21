@@ -133,6 +133,7 @@ function printStats(stats, printIOmon)
     @sprintf("*****************************************\n"))
 end
 
+# TODO: Get printIO from call rather than inside function
 function nScal(n,x,xa,xScal,iScal,qIniSc,opt)
     small = getMachineConstants(6)
     # Begin

@@ -762,7 +762,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
 
             if mPrMon >= 2
                 n2prv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
-                    printIOmon, qMixIO, cond1)
+                    printIOmon, qMixIO, cond1, iRank)
             end
 
             if !qRedu
@@ -1115,7 +1115,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                     mPrMon,printIOmon,qMixIO,"*")
                 elseif iOrMon == 3
                     n2prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
-                    mPrMon,printIOmon,qMixIO)
+                    mPrMon,printIOmon,qMixIO,cond1,iRank)
                 end
             end
             if iOrMon >= 2

@@ -60,6 +60,30 @@ function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
     return nothing
 end
 
+function n2prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO,cond1,iRank)
+    if qMixIO
+        write(printIO,"  ******************************************************************",
+        "\n");
+        if mPr >= 3
+            write(printIO,"        It       Normf           Normx                     New      Rank        Cond\n")
+        end
+        if mPr == 2
+            write(printIO,"        It       Normf           Normx         Damp.Fct.   New      Rank        Cond\n")
+        end
+    end
+    if mPr >= 3 || niter == 0
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e                 %2i      %4i  %10.3e\n",niter,dlevf,dlevx,newt,iRank,cond1))
+    end
+    if mPr == 2 && niter != 0
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e      %7.5f    %2i      %4i  %10.3e\n",niter,dlevf,dlevx,fc,newt,iRank,cond1))
+    end
+    if qMixIO
+        write(printIO,"  ******************************************************************",
+        "\n");
+    end
+    return nothing
+end
+
 function n2prjn()
 end
 
@@ -69,8 +93,6 @@ end
 function n2solv()
 end
 
-function n2prv1()
-end
 
 function deccon()
 end

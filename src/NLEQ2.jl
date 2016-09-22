@@ -1,3 +1,4 @@
+using Debug
 function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
@@ -241,7 +242,7 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall,tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mStor, printWarn, printMon, printSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -295,6 +296,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # --------------------------------------------------------------------------
     # 1 Initialization
     # --------------------------------------------------------------------------
+    @bp
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
     qRank1      = Bool(opt.options[OPT_QRANK1])

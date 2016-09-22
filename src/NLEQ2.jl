@@ -273,7 +273,8 @@ end
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-
+    iCnv = 0
+    fck2 = fc
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)

@@ -14,6 +14,8 @@ end
 function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
+    level = 1
+    k = 1
     # --------------------------------------------------------------------------
     # 1 Initialization
     v = zeros(n)
@@ -229,6 +231,7 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     kRed, ah)
     # Begin
     v = zeros(n)
+    s = 0.0
     # --------------------------------------------------------------------------
     # 1 Solution for pseudo-rank zero
     if iRank == 0
@@ -274,6 +277,7 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
             s = sum(ah[1:j-1].*v[1:j-1])
             v[j] = -s/d[j]
         end
+        j1 = 1
         for jj = 1:n
             j = n-jj+1
             if jj != 1

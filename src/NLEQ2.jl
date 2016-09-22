@@ -104,7 +104,7 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     end
 
     if qIniMon
-        printInitialization(n, printIOmon, opt.options[OPT_RTOL], jacGen, mStor,
+        printInitialization(n, printIOmon, opt.options[OPT_RTOL], jacGen, 0,
         0, 0, opt.options[OPT_NOROWSCAL], qRank1, nonLin, qBDamp,
         opt.options[OPT_FCBAND], false, false, nItmax)
     end
@@ -194,8 +194,8 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     nonLin, iRank, cond, opt, retCode, m1, m2, nBroy,
     xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
-    opt.options[OPT_SIGMA2], mStor, printWarn,
-    printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
+    opt.options[OPT_SIGMA2], printWarn, printMon, printSol, printIOwarn,
+    printIOmon, printIOsol, qBDamp)
 
     # set stats variable
     stats = Dict{ASCIIString,Any}()
@@ -236,7 +236,7 @@ end
 
 @debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall,tolAll, fcAll, fc, fcMin,
-    sigma, sigma2, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
+    sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global

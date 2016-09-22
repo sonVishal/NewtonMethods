@@ -101,7 +101,7 @@ function checkOptions(n, x, xScal, opt)
     jacGen = getOption!(opt,OPT_JACGEN,0)
     if jacGen == 1
         jacFcn = getOption!(opt,OPT_JACFCN,0)
-        if typeof(jacFcn) != Function
+        if jacFcn == 0
             retCode = 99
             write(printIOwarn,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
             "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")

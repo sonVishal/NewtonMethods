@@ -1,4 +1,4 @@
-function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
+function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
     assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)
@@ -411,10 +411,10 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             #=throw(DimensionMismatch("Dimension of the function output does not
             match the input dimension. Please check the function \"$fcn\" again."))=#
         end
-        # TODO: Perform check whether f and x are of same length in CheckOptionsNLEQ
     else
         qIniSc = false
     end
+
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat

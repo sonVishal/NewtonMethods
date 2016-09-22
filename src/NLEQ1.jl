@@ -45,7 +45,7 @@ suitable for your machine.
 
 Please generate the documentation using the following steps
 """
-function nleq1(fcn::Function, x, xScal, opt::OptionsNLEQ)
+function nleq1(fcn, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
     assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)

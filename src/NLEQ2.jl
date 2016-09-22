@@ -190,11 +190,10 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
 
     # Call to n2int
     (x, xScal, retCode) = n2int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
-    nonLin, iRank, cond, opt, retCode, m1, m2, nBroy,
-    xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
-    opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
-    opt.options[OPT_SIGMA2], printWarn, printMon, printSol, printIOwarn,
-    printIOmon, printIOsol, qBDamp)
+    nonLin, iRank, cond, opt, retCode, m1, m2, nBroy, xIter, sumXall, dLevFall,
+    sumXQall, tolAll, fcAll, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
+    opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], printWarn, printMon,
+    printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
     # set stats variable
     stats = Dict{String,Any}()

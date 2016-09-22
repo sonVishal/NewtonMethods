@@ -4,7 +4,7 @@ __precompile__(true)
 module NewtonMethods
 
 # Export the required methods
-export nleq1, nleq2, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
+export nleq1, nleq2, n1int, n2int, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
 export OPT_RTOL, OPT_QSUCC, OPT_MODE, OPT_JACGEN, OPT_JACFCN, OPT_MSTOR, OPT_ML,
         OPT_MU, OPT_ISCAL, OPT_PRINTWARNING, OPT_PRINTITERATION,
         OPT_PRINTIOWARN, OPT_PRINTIOMON, OPT_PRINTIOSOL, OPT_PRINTSOLUTION,

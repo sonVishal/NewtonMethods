@@ -42,16 +42,8 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mStor = getOption!(opt,OPT_MSTOR,0)
-    if mStor == 0
-        m1 = n
-        m2 = n
-    elseif mStor == 1
-        ml = getOption!(opt,"OPT_ML",0)
-        mu = getOption!(opt,"OPT_MU",0)
-        m1 = 2*ml + mu + 1
-        m2 = ml + mu + 1
-    end
+    m1 = n
+    m2 = n
 
     jacGen = getOption!(opt,OPT_JACGEN,0)
     if jacGen == 0
@@ -314,13 +306,6 @@ end
     @bp
     # --------------------------------------------------------------------------
     # 1.2 Derived dimensional parameters
-    if mStor == 0
-        ml = 0
-        mu = 0
-    elseif mStor == 1
-        ml = m1 - m2
-        mu = m2 - 1 - ml
-    end
     minRnk = max(1,n-max(round(Int,n/10.0),10))
     # --------------------------------------------------------------------------
     # 1.3 Derived internal parameters

@@ -1,3 +1,4 @@
+using Debug
 function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
@@ -232,8 +233,8 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
-    m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall,tolAll, fcAll, fc, fcMin,
+@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+    m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
     # --------------------------------------------------------------------------
@@ -276,7 +277,15 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)
+    cLin1   = getOption!(wkNLEQ2,"P_CLIN1",0.0)
+    cAlpha  = getOption!(wkNLEQ2,"P_CALPHA",0.0)
     alphaE  = getOption!(wkNLEQ2,"P_ALPHAE",0.0)
+    alphaK  = getOption!(wkNLEQ2,"P_ALPHAK",0.0)
+    alphaA  = getOption!(wkNLEQ2,"P_ALPHAA",0.0)
+    qMStop  = getOption!(wkNLEQ2,"P_QMSTOP",false)
+    sumxa2  = getOption!(wkNLEQ2,"P_SUMXA2",0.0)
+    d       = getOption!(wkNLEQ2,"P_D",Float64[])
+    p       = getOption!(wkNLEQ2,"P_P",Float64[])
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)
@@ -417,6 +426,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
+    @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -566,7 +576,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                     iRepeat = 0
                 end
                 # TODO: remember to set WK_SENS1 inside n2fact
-                (cond,iFail) = n2fact(n,m1,n,ml,mu,a,qa,cond1,iRank,opt,p,d,iRepeat)
+                (cond,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80
                     break
@@ -578,7 +588,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
-                iFail = n2solv(n, m1, n, ml, mu, a, qa, t1, t2, iRank, opt, iRepeat)
+                iFail = n2solv(n, m1, n, 1, 1, a, qa, t1, t2, iRank, opt, iRepeat)
                 if iFail != 0
                     retCode = 81
                     break
@@ -836,7 +846,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         else
                             iRepeat = 0
                         end
-                        (t2,iFail) = n2solv(n,m1,ml,mu,l,u,p,t1,opt,iRepeat)
+                        (t2,iFail) = n2solv(n,m1,1,1,l,u,p,t1,opt,iRepeat)
                         if iFail != 0
                             retCode = 81
                             break
@@ -1074,6 +1084,18 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 setOption!(wkNLEQ2, STATS_SUMX, sumX)
                 setOption!(wkNLEQ2, WK_SUMXS, sumXs)
                 setOption!(wkNLEQ2, STATS_DLEVF, dLevF)
+
+                setOption!(wkNLEQ1, "P_CLIN0", cLin0)
+                setOption!(wkNLEQ1, "P_CLIN1", cLin1)
+                setOption!(wkNLEQ1, "P_CALPHA", cAlpha)
+                setOption!(wkNLEQ1, "P_ALPHAE", alphaE)
+                setOption!(wkNLEQ1, "P_ALPHAK", alphaK)
+                setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
+                setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
+                setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
+                setOption!(wkNLEQ1, "P_D", d)
+                setOption!(wkNLEQ1, "P_P", p)
+
                 return (x, xScal, retCode, wkNLEQ2)
             end
         end
@@ -1281,6 +1303,17 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     setOption!(wkNLEQ2, STATS_SUMX, sumX)
     setOption!(wkNLEQ2, WK_SUMXS, sumXs)
     setOption!(wkNLEQ2, STATS_DLEVF, dLevF)
+
+    setOption!(wkNLEQ1, "P_CLIN0", cLin0)
+    setOption!(wkNLEQ1, "P_CLIN1", cLin1)
+    setOption!(wkNLEQ1, "P_CALPHA", cAlpha)
+    setOption!(wkNLEQ1, "P_ALPHAE", alphaE)
+    setOption!(wkNLEQ1, "P_ALPHAK", alphaK)
+    setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
+    setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
+    setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
+    setOption!(wkNLEQ1, "P_D", d)
+    setOption!(wkNLEQ1, "P_P", p)
 
     return (x, xScal, retCode)
     # End of function n2int

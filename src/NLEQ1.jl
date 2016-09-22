@@ -1172,6 +1172,18 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 setOption!(wkNLEQ1, STATS_SUMX, sumX)
                 setOption!(wkNLEQ1, WK_SUMXS, sumXs)
                 setOption!(wkNLEQ1, STATS_DLEVF, dLevF)
+                
+                setOption!(wkNLEQ1, "P_CLIN0", cLin0)
+                setOption!(wkNLEQ1, "P_CLIN1", cLin1)
+                setOption!(wkNLEQ1, "P_CALPHA", cAlpha)
+                setOption!(wkNLEQ1, "P_ALPHAE", alphaE)
+                setOption!(wkNLEQ1, "P_ALPHAK", alphaK)
+                setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
+                setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
+                setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
+                setOption!(wkNLEQ1, "P_L", l)
+                setOption!(wkNLEQ1, "P_U", u)
+                setOption!(wkNLEQ1, "P_P", p)
                 return (x, xScal, retCode, wkNLEQ1)
             end
         end
@@ -1394,6 +1406,18 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     setOption!(wkNLEQ1, STATS_SUMX, sumX)
     setOption!(wkNLEQ1, WK_SUMXS, sumXs)
     setOption!(wkNLEQ1, STATS_DLEVF, dLevF)
+
+    setOption!(wkNLEQ1, "P_CLIN0", cLin0)
+    setOption!(wkNLEQ1, "P_CLIN1", cLin1)
+    setOption!(wkNLEQ1, "P_CALPHA", cAlpha)
+    setOption!(wkNLEQ1, "P_ALPHAE", alphaE)
+    setOption!(wkNLEQ1, "P_ALPHAK", alphaK)
+    setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
+    setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
+    setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
+    setOption!(wkNLEQ1, "P_L", l)
+    setOption!(wkNLEQ1, "P_U", u)
+    setOption!(wkNLEQ1, "P_P", p)
 
     return (x, xScal, retCode)
     # End of function n1int

@@ -244,7 +244,7 @@ end
 
 @debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall,tolAll, fcAll, fc, fcMin,
-    sigma, sigma2, mStor, printWarn, printMon, printSol, printIOwarn, printIOmon,
+    sigma, sigma2, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global

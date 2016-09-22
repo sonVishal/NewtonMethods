@@ -1,4 +1,4 @@
-using Debug
+# using Debug
 function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
@@ -73,7 +73,7 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     # If first call then reset the workspace and persistent variables
     if !qSucc
         empty!(wkNLEQ2.options)
-        initializeOptions(opt, wkNLEQ2, n, m1, qRank1)
+        initializeOptions(opt, wkNLEQ2, n, m1, nBroy, true)
     end
 
     # Check for non linear option
@@ -233,7 +233,7 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+#=@debug=# function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -241,7 +241,7 @@ end
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
     a       = wkNLEQ2.options[WK_A]
-    qa      = wkNLEQ2.options[WK_DXSAVE]
+    qa      = wkNLEQ2.options[WK_QA]
     dxSave  = wkNLEQ2.options[WK_DXSAVE]
     dx      = wkNLEQ2.options[WK_DX]
     dxQ     = wkNLEQ2.options[WK_DXQ]
@@ -426,7 +426,7 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    @bp
+    # @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -588,7 +588,7 @@ end
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
-                iFail = n2solv(n, m1, n, 1, 1, a, qa, t1, t2, iRank, opt, iRepeat)
+                iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
                 if iFail != 0
                     retCode = 81
                     break
@@ -614,7 +614,7 @@ end
             # scaled maximum error norm conv
             # evaluation of (scaled) standard level function dlevf
             # and computation of ordinary Newton corrections dx[n]
-            (dx,conv,sumX,dLevF) = nLvls(n,t2,xw,f,mPrMon,newt == 0)
+            (dx,conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,mPrMon,newt == 0)
             wkNLEQ2.options[STATS_SUMX]   = sumX
             wkNLEQ2.options[STATS_DLEVF]  = dLevF
             xa[:]    = x
@@ -846,7 +846,7 @@ end
                         else
                             iRepeat = 0
                         end
-                        (t2,iFail) = n2solv(n,m1,1,1,l,u,p,t1,opt,iRepeat)
+                        iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
                         if iFail != 0
                             retCode = 81
                             break

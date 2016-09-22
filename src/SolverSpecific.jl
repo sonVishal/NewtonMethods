@@ -51,10 +51,12 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
         end
         iRk1 = iRank
         for k = 1:iRk1
+            dd = 1
             level = 1
             if k != n
                 k1 = k+1
                 qLoop = true
+                jj = k
                 while qLoop
                     if jd != 0
                         for j = k:n
@@ -333,12 +335,11 @@ function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat)
     end
     if iRank != 0
         cond = abs(d[1]/d[iRank])
-        # TODO: Don't know what this variable is tmp = RWK(1)
+        setOption!(wkNLEQ2, WK_SENS1, abs(d[1]))
         tmp = abs(d[1])
     else
         cond = 1.0
-        # TODO: Don't know what this variable is tmp = RWK(1)
-        tmp = 0.0
+        setOption!(wkNLEQ2, WK_SENS1, 0.0)
     end
     # TODO: Reassign output variables either here or where the function is called
     return (cond,iFail)
@@ -358,7 +359,7 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     return (x,iFail)
 end
 
-function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat)
+function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot)
     # Begin
     mCon = 0
     iRepeat = -iRepeat
@@ -366,7 +367,7 @@ function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat)
     tmp = n
     (iRankC,iRank) = solcon(a,lda,n,mCon,n,n,z,b,tmp,iRank,d,pivot,
         iRepeat,aInv)
-
+    iFail = 0
     # TODO: Reassign output variables either here or where the function is called
     return iFail
 end

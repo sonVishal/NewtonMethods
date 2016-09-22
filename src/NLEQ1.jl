@@ -138,7 +138,7 @@ function nleq1(fcn, x, xScal, opt::OptionsNLEQ)
     # If first call then reset the workspace and persistent variables
     if !qSucc
         empty!(wkNLEQ1.options)
-        initializeOptions(opt, wkNLEQ1, n, m1, qRank1)
+        initializeOptions(opt, wkNLEQ1, n, m1, nBroy, false)
     end
 
     # Check for non linear option

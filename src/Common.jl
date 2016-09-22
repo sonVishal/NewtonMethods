@@ -1,4 +1,4 @@
-function initializeOptions(opt, wk, n, m1, qRank1)
+function initializeOptions(opt, wk, n, m1, nBroy, flag)
     # Initialize options
     initOption!(opt, OPT_FCMIN,     0.0)
     initOption!(opt, OPT_SIGMA,     0.0)
@@ -8,7 +8,8 @@ function initializeOptions(opt, wk, n, m1, qRank1)
     # Workspace: WK
     initOption!(wk, WK_A, zeros(m1,n))
 
-    if qRank1
+    if flag
+        initOption!(wk, WK_QA, zeros(n,n))
         initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
     else
         initOption!(wk, WK_DXSAVE, 0.0)

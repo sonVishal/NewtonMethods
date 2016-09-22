@@ -296,7 +296,6 @@ end
     # --------------------------------------------------------------------------
     # 1 Initialization
     # --------------------------------------------------------------------------
-    @bp
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
     qRank1      = Bool(opt.options[OPT_QRANK1])
@@ -312,6 +311,7 @@ end
         qMixIO = false
     end
     qMixIO      &= mPrMon != 0 && mPrSol != 0
+    @bp
     # --------------------------------------------------------------------------
     # 1.2 Derived dimensional parameters
     if mStor == 0

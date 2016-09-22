@@ -15,7 +15,7 @@ import Base: show
 # NLEQ solvers often have serveral parameters for fine-tuning them.
 # In this NLEQInterface this parameters are called 'options' and
 # they are stored in key/value paris. For the key a
-# `ASCIIString` is used. The value can be `Any`-thing.
+# `String` is used. The value can be `Any`-thing.
 # The key is often called the option-name.
 #
 # All types for this purpose have this abstract type as super-type.
@@ -48,10 +48,10 @@ abstract AbstractOptionsNLEQ <: Any
 type OptionsNLEQ <: AbstractOptionsNLEQ
     name        :: AbstractString
     lastchanged :: DateTime
-    options     :: Dict{ASCIIString,Any}
+    options     :: Dict{String,Any}
 
     function OptionsNLEQ(name::AbstractString="")
-        obj = new(name,now(),Dict{ASCIIString,Any}())
+        obj = new(name,now(),Dict{String,Any}())
         return obj
     end
 end
@@ -77,25 +77,25 @@ function OptionsNLEQ(pairs::Pair...)
 end
 
 
-# function getOption(opt::AbstractOptionsNLEQ,name::ASCIIString,
+# function getOption(opt::AbstractOptionsNLEQ,name::String,
 # default::Any=nothing)
 #
 # get saved value of option with given `name` or set option to
 # `default` if option is unknown.
 
-function getOption(opt::AbstractOptionsNLEQ,name::ASCIIString,
+function getOption(opt::AbstractOptionsNLEQ,name::String,
     default::Any=nothing)
     return haskey(opt.options,name)?opt.options[name]:default
 end
 
 
-# function getOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,
+# function getOption!(opt::AbstractOptionsNLEQ,name::String,
 #     default::Any=nothing)
 #
 # function to get value and set default value in case no value was present
 # This avoids the recursive calls to setOption and getOption
 
-function getOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,
+function getOption!(opt::AbstractOptionsNLEQ,name::String,
     default::Any=nothing)
     if haskey(opt.options,name)
         return opt.options[name]
@@ -106,12 +106,12 @@ function getOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,
 end
 
 
-# function setOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,value::Any)
+# function setOption!(opt::AbstractOptionsNLEQ,name::String,value::Any)
 #
 # set NLEQ-Option with given `name` and return old value
 # (or `nothing` if there was no old value).
 
-function setOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,value::Any)
+function setOption!(opt::AbstractOptionsNLEQ,name::String,value::Any)
     oldValue = getOption(opt,name)
     opt.options[name]=value
     opt.lastchanged=now()
@@ -142,12 +142,12 @@ function setOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
 end
 
 
-# function initOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,value::Any)
+# function initOption!(opt::AbstractOptionsNLEQ,name::String,value::Any)
 #
 # initialize NLEQ-Option with given `name` only if it does not exist already and return the old value if changed
 # (or `nothing` if there was an old value).
 
-function initOption!(opt::AbstractOptionsNLEQ,name::ASCIIString,value::Any)
+function initOption!(opt::AbstractOptionsNLEQ,name::String,value::Any)
     return haskey(opt.options,name)?nothing:setOption!(opt,name,value);
 end
 

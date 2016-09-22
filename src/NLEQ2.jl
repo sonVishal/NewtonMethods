@@ -1,4 +1,3 @@
-using Debug
 function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
@@ -198,7 +197,7 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     printIOmon, printIOsol, qBDamp)
 
     # set stats variable
-    stats = Dict{ASCIIString,Any}()
+    stats = Dict{String,Any}()
     stats[STATS_XSCAL] = xScal
     if retCode == -1
         stats[STATS_RTOL] = tolAll[wkNLEQ2.options[STATS_NITER]]
@@ -234,7 +233,7 @@ function nleq2(fcn::Function, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall,tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -418,7 +417,6 @@ end
     end
     # --------------------------------------------------------------------------
     # Main iteration loop
-    @bp
     # Repeat
     while qIter
         # ----------------------------------------------------------------------

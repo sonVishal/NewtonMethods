@@ -303,7 +303,6 @@ end
         qMixIO = false
     end
     qMixIO      &= mPrMon != 0 && mPrSol != 0
-    @bp
     # --------------------------------------------------------------------------
     # 1.2 Derived dimensional parameters
     minRnk = max(1,n-max(round(Int,n/10.0),10))
@@ -326,6 +325,7 @@ end
     qJcRfr              = false
     qLInit              = false
     qRepeat             = false
+    qIter               = true
     iFail               = 0
     fcBand              = 0.0
     if qBDamp
@@ -399,11 +399,18 @@ end
         # 1.7.1 Computation of residual vector
         try
             fcn(f,x)
-            nFcn += 1
-            iFail = 0
+            # iFail = 0
         catch
             iFail = -1
             retCode = 82
+            qIter = false
+        end
+        nFcn += 1
+        if length(f) != n
+            retCode = 22
+            qIter   = false
+            #=throw(DimensionMismatch("Dimension of the function output does not
+            match the input dimension. Please check the function \"$fcn\" again."))=#
         end
         # TODO: Perform check whether f and x are of same length in CheckOptionsNLEQ
     else
@@ -411,7 +418,7 @@ end
     end
     # --------------------------------------------------------------------------
     # Main iteration loop
-
+    @bp
     # Repeat
     while qIter
         # ----------------------------------------------------------------------

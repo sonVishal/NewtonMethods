@@ -1172,7 +1172,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 setOption!(wkNLEQ1, STATS_SUMX, sumX)
                 setOption!(wkNLEQ1, WK_SUMXS, sumXs)
                 setOption!(wkNLEQ1, STATS_DLEVF, dLevF)
-                
+
                 setOption!(wkNLEQ1, "P_CLIN0", cLin0)
                 setOption!(wkNLEQ1, "P_CLIN1", cLin1)
                 setOption!(wkNLEQ1, "P_CALPHA", cAlpha)

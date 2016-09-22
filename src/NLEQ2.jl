@@ -284,8 +284,8 @@ end
     alphaA  = getOption!(wkNLEQ2,"P_ALPHAA",0.0)
     qMStop  = getOption!(wkNLEQ2,"P_QMSTOP",false)
     sumxa2  = getOption!(wkNLEQ2,"P_SUMXA2",0.0)
-    d       = getOption!(wkNLEQ2,"P_D",Float64[])
-    p       = getOption!(wkNLEQ2,"P_P",Float64[])
+    d       = getOption!(wkNLEQ2,"P_D",zeros(n))
+    p       = getOption!(wkNLEQ2,"P_P",zeros(Int64,n))
     # --------------------------------------------------------------------------
 
     epMach  = getMachineConstants(3)

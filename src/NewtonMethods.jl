@@ -29,7 +29,7 @@ include("CheckOptionsNLEQ1.jl")
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()
 
-function clearWorkspace(name::String)
+function clearWorkspace(name::AbstractString)
     if name == "NLEQ1" || name == "nleq1" || name == "Nleq1"
         empty!(wkNLEQ1.options)
     elseif name == "NLEQ2" || name == "nleq2" || name == "Nleq2"

@@ -197,7 +197,7 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
     # set stats variable
-    stats = Dict{String,Any}()
+    stats = Dict{AbstractString,Any}()
     stats[STATS_XSCAL] = xScal
     if retCode == -1
         stats[STATS_RTOL] = tolAll[wkNLEQ2.options[STATS_NITER]]

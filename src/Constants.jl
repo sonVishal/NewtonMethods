@@ -1,4 +1,4 @@
-# String constants for NLEQ options
+# AbstractString constants for NLEQ options
 const OPT_RTOL                  = "relativeTolerance"
 const OPT_QSUCC                 = "successiveCall"
 const OPT_MODE                  = "mode"

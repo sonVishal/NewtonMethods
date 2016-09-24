@@ -575,7 +575,7 @@ end
                 else
                     iRepeat = 0
                 end
-                (cond,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
+                (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 @bp
                 if iFail != 0
                     retCode = 80

@@ -562,7 +562,6 @@ end
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -576,8 +575,8 @@ end
                 else
                     iRepeat = 0
                 end
-                # TODO: remember to set WK_SENS1 inside n2fact
                 (cond,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
+                @bp
                 if iFail != 0
                     retCode = 80
                     break

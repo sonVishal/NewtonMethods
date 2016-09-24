@@ -427,7 +427,6 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -563,6 +562,7 @@ end
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
+        @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system

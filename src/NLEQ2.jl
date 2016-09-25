@@ -1,4 +1,3 @@
-using Debug
 function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
@@ -233,7 +232,7 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -576,7 +575,6 @@ end
                     iRepeat = 0
                 end
                 (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
-                @bp
                 if iFail != 0
                     retCode = 80
                     break

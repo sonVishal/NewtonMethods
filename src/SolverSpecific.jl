@@ -1,3 +1,4 @@
+using Debug
 function n2prjn(n, iRank, u, d, qe, p)
     v = u[p]
     iRk1 = iRank + 1
@@ -11,9 +12,10 @@ function n2prjn(n, iRank, u, d, qe, p)
     return del
 end
 
-function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
+@debug function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
+    @bp
     level = 1
     k = 1
     # --------------------------------------------------------------------------

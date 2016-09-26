@@ -1,3 +1,4 @@
+using Debug
 function n2prjn(n, iRank, u, d, qe, p)
     # Begin
     v = u[p]
@@ -12,13 +13,14 @@ function n2prjn(n, iRank, u, d, qe, p)
     return del
 end
 
-function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
+@debug function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
     level = 1
     k = 1
     # --------------------------------------------------------------------------
     # 1 Initialization
+    @bp
     v = zeros(n)
     epMach  = getMachineConstants(3)
     small   = getMachineConstants(6)

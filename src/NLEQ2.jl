@@ -160,8 +160,8 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
         setOption!(opt, OPT_IRANK, iRank)
     end
 
-    # epMach = getMachineConstants(3)
-    cond = getOption!(opt, OPT_COND, 1e17)
+    epMach = 1e-17
+    cond = getOption!(opt, OPT_COND, 1.0/epMach)
     if cond < 1.0
         cond = 1.0/epMach
         setOption!(opt, OPT_COND, cond)
@@ -289,8 +289,8 @@ end
     p       = getOption!(wkNLEQ2,"P_P",zeros(Int64,n))
     # --------------------------------------------------------------------------
 
-    epMach  = getMachineConstants(3)
-    small   = getMachineConstants(6)
+    epMach  = 1e-17
+    small   = 1e-150
     n       = length(x)
     # Begin
     # --------------------------------------------------------------------------

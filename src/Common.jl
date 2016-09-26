@@ -136,7 +136,9 @@ end
 
 # TODO: Get printIO from call rather than inside function
 function nScal(n,x,xa,xScal,iScal,qIniSc,opt)
-    small = getMachineConstants(6)
+    # TODO: For nleq2 small is 1e-150
+    # small = getMachineConstants(6)
+    small = 1e-150
     # Begin
     xw = zeros(n)
     if iScal == 1

@@ -1,5 +1,5 @@
-using Debug
 function n2prjn(n, iRank, u, d, qe, p)
+    # Begin
     v = u[p]
     iRk1 = iRank + 1
     del = 0.0
@@ -12,10 +12,9 @@ function n2prjn(n, iRank, u, d, qe, p)
     return del
 end
 
-@debug function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
+function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
-    @bp
     level = 1
     k = 1
     # --------------------------------------------------------------------------
@@ -324,6 +323,7 @@ function n1fact(n,lda,ml,mu,a,opt)
 end
 
 function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat)
+    # Begin
     mPrWarn = opt.options[OPT_PRINTWARNING]
     printIO = opt.options[OPT_PRINTIOWARN]
     mCon = 0

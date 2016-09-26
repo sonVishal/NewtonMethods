@@ -1,3 +1,4 @@
+# using Debug
 function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
@@ -159,8 +160,8 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
         setOption!(opt, OPT_IRANK, iRank)
     end
 
-    epMach = getMachineConstants(3)
-    cond = getOption!(opt, OPT_COND, 1/epMach)
+    # epMach = getMachineConstants(3)
+    cond = getOption!(opt, OPT_COND, 1e17)
     if cond < 1.0
         cond = 1.0/epMach
         setOption!(opt, OPT_COND, cond)
@@ -232,7 +233,7 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+#=@debug=# function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -426,6 +427,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
+    # @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -574,7 +576,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 else
                     iRepeat = 0
                 end
-                (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
+                # TODO: remember to set WK_SENS1 inside n2fact
+                (cond,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80
                     break

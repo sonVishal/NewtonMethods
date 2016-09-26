@@ -16,20 +16,22 @@ end
 @debug function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
-    level = 1
-    k = 1
     # --------------------------------------------------------------------------
     # 1 Initialization
+    level = 1
+    k = 1
+    dd = 1
+    jj = 1
+    iFail = 0
     v = zeros(n)
-    epMach  = getMachineConstants(3)
-    small   = getMachineConstants(6)
+    epMach  = 1e-17
+    small   = 1e-150
     if iRank > n
         iRank = n
     end
     if iRank > m
         iRank = m
     end
-    iFail = 0
     # --------------------------------------------------------------------------
     # 1.1 Special case m = 1 and n = 1
     if m == 1 && n == 1
@@ -43,6 +45,7 @@ end
         # 1.2 Initialize pivot-array
         pivot[1:n] = collect(1:n)
         # ----------------------------------------------------------------------
+        # 2. Constrained Householder triangularization
         jd = 1
         iRanC1 = iRankC + 1
         mh = mCon
@@ -55,12 +58,11 @@ end
         end
         iRk1 = iRank
         for k = 1:iRk1
-            dd = 1
+            @bp
             level = 1
             if k != n
                 k1 = k+1
                 qLoop = true
-                jj = k
                 while qLoop
                     if jd != 0
                         for j = k:n
@@ -78,7 +80,6 @@ end
                         end
                     end
                     h = d[jj]
-                    @bp
                     if jd == 1
                         hMax = h/max(1.0e1,cond*0.05)
                     end

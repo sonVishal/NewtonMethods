@@ -45,10 +45,7 @@ suitable for your machine.
 
 Please generate the documentation using the following steps
 """
-function nleq1(fcn, x, xScal, opt::OptionsNLEQ)
-
-    # TODO: Get rid of this assertion.
-    assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)
+function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize error code 0
     retCode = 0

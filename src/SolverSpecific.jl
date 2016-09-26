@@ -20,7 +20,6 @@ end
     k = 1
     # --------------------------------------------------------------------------
     # 1 Initialization
-    @bp
     v = zeros(n)
     epMach  = getMachineConstants(3)
     small   = getMachineConstants(6)
@@ -79,6 +78,7 @@ end
                         end
                     end
                     h = d[jj]
+                    @bp
                     if jd == 1
                         hMax = h/max(1.0e1,cond*0.05)
                     end

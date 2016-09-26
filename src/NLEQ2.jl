@@ -1,8 +1,5 @@
-# using Debug
-function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
-
-    # TODO: Get rid of this assertion.
-    assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)
+using Debug
+function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
     message = ""
@@ -233,7 +230,7 @@ function nleq2(fcn, x, xScal, opt::OptionsNLEQ)
     return (x, stats, retCode);
 end
 
-#=@debug=# function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -577,6 +574,7 @@ end
                     iRepeat = 0
                 end
                 # TODO: remember to set WK_SENS1 inside n2fact
+                @bp
                 (cond,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80

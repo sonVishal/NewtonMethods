@@ -575,7 +575,7 @@ end
                 end
                 # TODO: remember to set WK_SENS1 inside n2fact
                 @bp
-                (cond,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
+                (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80
                     break

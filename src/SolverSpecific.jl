@@ -13,7 +13,7 @@ function n2prjn(n, iRank, u, d, qe, p)
     return del
 end
 
-@debug function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
+function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
     # --------------------------------------------------------------------------
@@ -58,7 +58,6 @@ end
         end
         iRk1 = iRank
         for k = 1:iRk1
-            @bp
             level = 1
             if k != n
                 k1 = k+1
@@ -186,7 +185,7 @@ end
                 s = a[i,j]
                 if ii != 1
                     sh = sum(a[i,i1:iRank]'.*v[i1:iRank])
-                    s -= sh
+                    s = s - sh
                 end
                 i1 = i
                 v[i] = s/d[i]
@@ -203,7 +202,7 @@ end
                 d[j] = sqrt(s+1.0)
             else
                 iFail = -2
-                break
+                return (iRankC, iRank, cond, v[1], iFail)
             end
         end
     end

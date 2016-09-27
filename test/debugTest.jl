@@ -1,3 +1,5 @@
+using NewtonMethods
+include("ChebyQuad.jl")
 dim = 2
 n1 = dim + 1
 

@@ -1,4 +1,4 @@
-function chebyQuad(f,x)
+function chebyQuad(f::Vector{Float64},x::Vector{Float64})
     n = length(x)
     f[:] = zeros(n);
     for i = 2:2:n
@@ -19,7 +19,7 @@ function chebyQuad(f,x)
     return nothing
 end
 
-function chebyQuadJac(J,x)
+function chebyQuadJac(J::Array{Float64,2},x::Vector{Float64})
     n = length(x)
     for j = 1:n
         factt = 4.0*x[j] - 2.0

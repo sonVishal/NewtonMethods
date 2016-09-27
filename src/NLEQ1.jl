@@ -45,7 +45,7 @@ suitable for your machine.
 
 Please generate the documentation using the following steps
 """
-function nleq1(fcn, x, xScal, opt::OptionsNLEQ)
+function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # TODO: Get rid of this assertion.
     assert(typeof(x[1]) == Float64 && typeof(xScal[1]) == Float64)
@@ -1172,7 +1172,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 setOption!(wkNLEQ1, STATS_SUMX, sumX)
                 setOption!(wkNLEQ1, WK_SUMXS, sumXs)
                 setOption!(wkNLEQ1, STATS_DLEVF, dLevF)
-                
+
                 setOption!(wkNLEQ1, "P_CLIN0", cLin0)
                 setOption!(wkNLEQ1, "P_CLIN1", cLin1)
                 setOption!(wkNLEQ1, "P_CALPHA", cAlpha)

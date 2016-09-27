@@ -1,3 +1,227 @@
+"""
+# Summary:
+checkOptions : Checking of input parameters and options for NLEQ1.
+"""
+function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
+    opt::OptionsNLEQ)
+    # Begin
+
+    # Machine related constants
+    epMach  = 1e-17
+    small   = 1e-150
+    great   = 1.0/small
+
+    # Check the print stream variables
+    printWarn   = getOption!(opt, OPT_PRINTWARNING, 0)
+    printIOwarn = getOption!(opt, OPT_PRINTIOWARN, 0)
+    if printIOwarn == 0
+        printIOwarn = STDOUT
+    elseif typeof(printIOwarn) != IOStream
+        write(STDOUT, "ERROR: Please provide a file handle for writing warning messages",
+            " \n or use the default option OPT_PRINTIOWARN = 0 for output to STDOUT.\n")
+        return 99
+    end
+    printIOmon  = getOption!(opt, OPT_PRINTIOMON, 0)
+    if printIOmon == 0
+        printIOmon = STDOUT
+    elseif typeof(printIOmon) != IOStream
+        write(STDOUT, "ERROR: Please provide a file handle for writing iteration monitor",
+            " \n or use the default option OPT_PRINTIOMON = 0 for output to STDOUT.\n")
+        return 99
+    end
+    printIOsol  = getOption!(opt, OPT_PRINTIOSOL, 0)
+    if printIOsol == 0
+        printIOsol = STDOUT
+    elseif typeof(printIOsol) != IOStream
+        write(STDOUT, "ERROR: Please provide a file handle for writing the solution",
+            " \n or use the default option OPT_PRINTIOSOL = 0 for output to STDOUT.\n")
+        return 99
+    end
+
+    # Check dimensional parameter n
+    if n <= 0
+        write(printIOwarn, "ERROR: Bad input to dimensional parameter n supplied","\n",
+            "Choose n positive, your input is: n = $n\n")
+        return 20
+    end
+
+    # Check if x and xScal are of same length
+    if length(x) != length(xScal)
+        write(printIOwarn, "ERROR: Length of x and xScal do not match","\n")
+        return 20
+    end
+
+    # Check for successive call
+    qSucc = getOption!(opt, OPT_QSUCC, 0)
+    if qSucc > 1 || qSucc < 0
+        write(printIOwarn, "ERROR: Invalid option for OPT_QSUCC provided.\n")
+        return 99
+    end
+
+    # Check the mode
+    mode = getOption!(opt, OPT_MODE, 0)
+    if mode > 1 || mode < 0
+        write(printIOwarn, "ERROR: Invalid option for OPT_MODE provided.\n")
+        return 99
+    end
+
+    # Check the Jacobian
+    jacGen = getOption!(opt, OPT_JACGEN, 2)
+    if jacGen == 1
+        jacFcn = getOption!(opt, OPT_JACFCN, 0)
+        if jacFcn == 0
+            write(printIOwarn, "ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
+            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.\n")
+            return 99
+        end
+    elseif jacGen < 1 || jacGen > 3
+        write(printIOwarn, "ERROR: Invalid option for OPT_JACGEN provided.\n")
+        return 99
+    end
+
+    # Check the storage
+    mStor = getOption!(opt, OPT_MSTOR, 0)
+    if mStor < 0 || mStor > 1
+        write(printIOwarn, "ERROR: Invalid option for OPT_MSTOR provided.\n")
+        return 99
+    end
+
+    # Check the bandwidth if in banded mode
+    if mStor == 1
+        ml = getOption!(opt, OPT_ML, 0)
+        mu = getOption!(opt, OPT_MU, 0)
+        if ml < 0 || ml > 9999999
+            write(printIOwarn, "ERROR: Invalid option for OPT_ML provided.\n")
+            return 99
+        end
+        if mu < 0 || mu > 9999999
+            write(printIOwarn, "ERROR: Invalid option for OPT_MU provided.\n")
+            return 99
+        end
+    end
+
+    # Check scaling strategy
+    iScal = getOption!(opt, OPT_ISCAL, 0)
+    if iScal < 0 || iScal > 1
+        write(printIOwarn, "ERROR: Invalid option for OPT_ISCAL provided.\n")
+        return 99
+    end
+
+    # Problem type specification by user
+    nonLin = getOption!(opt, OPT_NONLIN, 3)
+    if nonLin < 1 || nonLin > 4
+        write(printIOwarn, "ERROR: Invalid option for OPT_NONLIN provided.\n")
+        return 99
+    end
+
+    # Check rank-1 update strategy
+    qRank1 = getOption!(opt, OPT_QRANK1, 0)
+    if qRank1 < 0 || qRank1 > 1
+        write(printIOwarn, "ERROR: Invalid option for OPT_QRANK1 provided.\n")
+        return 99
+    end
+
+    # Check if ordinary Newton iteration is to be performed
+    qOrdi = getOption!(opt, OPT_QORDI, 0)
+    if qOrdi < 0 || qOrdi > 1
+        write(printIOwarn, "ERROR: Invalid option for OPT_ORDI provided.\n")
+        return 99
+    end
+
+    # Check if Simplified Newton iteration is to be performed
+    qSimpl = getOption!(opt, OPT_QSIMPL, 0)
+    if qSimpl < 0 || qSimpl > 1
+        write(printIOwarn, "ERROR: Invalid option for OPT_SIMPL provided.\n")
+        return 99
+    end
+
+    # Check if automatic row scaling is allowed ot inhibited
+    qNScal = getOption!(opt, OPT_NOROWSCAL, 0)
+    if qNScal < 0 || qNScal > 1
+        write(printIOwarn, "ERROR: Invalid option for OPT_NOROWSCAL provided.\n")
+        return 99
+    end
+
+    # Check bounded damping strategy
+    iBDamp = getOption!(opt, OPT_BOUNDEDDAMP, 0)
+    if iBDamp < 0 || iBDamp > 2
+        write(printIOwarn, "ERROR: Invalid option for OPT_BOUNDEDDAMP provided.\n")
+        return 99
+    end
+
+    # Check convergence order monitor
+    iOrMon = getOption!(opt, OPT_IORMON, 2)
+    if iOrMon < 1 || iOrMon > 3
+        write(printIOwarn, "ERROR: Invalid option for OPT_IORMON provided.\n")
+        return 99
+    end
+
+    # Checking and conditional adaptation of user given RTOL
+    # if RTOL is not set, set it to 1e-6
+    rTol = getOption!(opt,OPT_RTOL,1e-6)
+    if rTol <= 0.0
+        retCode = 21
+        write(printIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied")
+        return retCode
+    else
+        tolMin = epMach*10.0*n
+        if rTol < tolMin
+            rTol = tolMin
+            setOption!(opt,OPT_RTOL,rTol)
+            if printWarn == 1
+                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
+            end
+        end
+
+        tolMax = 1.0e-1
+        if rTol > tolMax
+            rTol = tolMax
+            setOption!(opt,OPT_RTOL,rTol)
+            if printWarn == 1
+                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
+            end
+        end
+    end
+
+    # Test user prescribed accuracy and scaling on proper values
+    if nonLin >= 3
+        defScal = rTol
+    else
+        defScal = 1.0
+    end
+
+    for i = 1:n
+        # Scaling Values cannot be negative
+        # Positive scaling values give scale invariance
+        if xScal[i] < 0.0
+            retCode = 22
+            write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied")
+            return retCode
+        end
+
+        if xScal[i] == 0.0
+            xScal[i] = defScal
+        end
+        # Avoid overflow due to division by xScal[i]
+        if xScal[i] > 0.0 && xScal[i] < small
+            if printWarn == 1
+                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small")
+            end
+            xScal[i] = small
+        end
+        # Avoid underflow due to division by xScal[i]
+        if xScal[i] > great
+            if printWarn == 1
+                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great")
+            end
+            xScal[i] = great
+        end
+    end
+
+    # If this point is reached means everything went on smoothly
+    return 0
+end
+
 function initializeOptions(opt, wk, n, m1, qRank1)
     # Initialize options
     initOption!(opt, OPT_FCMIN,     0.0)

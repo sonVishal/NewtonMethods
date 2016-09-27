@@ -285,14 +285,15 @@ end
     d       = getOption!(wkNLEQ2,"P_D",zeros(n))
     p       = getOption!(wkNLEQ2,"P_P",zeros(Int64,n))
     # --------------------------------------------------------------------------
-
+    # 0.3 Machine related constants
     epMach  = 1e-17
     small   = 1e-150
-    n       = length(x)
+    # --------------------------------------------------------------------------
     # Begin
     # --------------------------------------------------------------------------
     # 1 Initialization
     # --------------------------------------------------------------------------
+    n           = length(x)
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
     qRank1      = Bool(opt.options[OPT_QRANK1])
@@ -307,7 +308,7 @@ end
     if qMixIO && typeof(printIOmon) == IOStream && printIOmon.name != printIOsol.name
         qMixIO = false
     end
-    qMixIO      &= mPrMon != 0 && mPrSol != 0
+    qMixIO &= mPrMon != 0 && mPrSol != 0
     # --------------------------------------------------------------------------
     # 1.2 Derived dimensional parameters
     minRnk = max(1,n-max(round(Int,n/10.0),10))
@@ -424,7 +425,7 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    # @bp
+    @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step

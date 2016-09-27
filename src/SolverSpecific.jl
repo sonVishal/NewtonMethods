@@ -1,4 +1,3 @@
-using Debug
 function n2prjn(n, iRank, u, d, qe, p)
     # Begin
     v = u[p]

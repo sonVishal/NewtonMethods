@@ -47,51 +47,23 @@ Please generate the documentation using the following steps
 """
 function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 # Begin
-#-------------------------------------------------------------------------------
-# Printing related stuff
-#-------------------------------------------------------------------------------
-    # Print warning messages?
-#     printWarn   = getOption(opt,OPT_PRINTWARNING,0)
-#     # Print iteration summary?
-#     printMon    = getOption!(opt,OPT_PRINTITERATION,0)
-#     # Print solution summary?
-#     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
-#     # Where to print?
-#     # Defaults to STDOUT
-#     printIOwarn = getOption(opt,OPT_PRINTIOWARN,STDOUT)
-#     printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
-#     printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
-#
-#     # TODO: Remove this. The user has to be sensible enough. Only give ERROR
-#     # if printIO == "FILE"
-#     #     # If not STDOUT then print to file
-#     #     # Default file name is log.txt and the file is opened for writing
-#     #     printFileName   = getOption!(opt,OPT_PRINTFILENAME,"log.txt")
-#     #     printFileMode   = getOption!(opt,OPT_PRINTFILEMODE,"w")
-#     #     if printFileMode != "w" || printFileMode != "a"
-#     #         throw(InvalidOption("OPT_PRINTFILEMODE",printFileMode))
-#     #     end
-#     #     f = open(printFileName,printFileMode)
-#     # end
-# #-------------------------------------------------------------------------------
-#
-#     # First call or successive call
-#     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
-#     qIniMon = (printMon >= 1 && !qSucc)
 
     # Check input parameters and options
     n = length(x)
     retCode = checkOptions(n, x, xScal, opt)
-
-    # TODO: Debug
-    stats = Dict{String,Any}()
-    return (x, stats, retCode);
 
     # Exit if any parameter error was detected
     if retCode != 0
         error("Exit with return code $retCode.\n")
     end
 
+    # TODO: Debug
+    stats = Dict{String,Any}()
+    return (x, stats, retCode);
+
+    #     # First call or successive call
+    #     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
+    #     qIniMon = (printMon >= 1 && !qSucc)
     # Check if the Jacobian is Dense/Sparse or Banded matrix
     mStor = getOption!(opt,OPT_MSTOR,0)
     ml = getOption!(opt,"OPT_ML",0)

@@ -297,7 +297,7 @@ end
     end
     # --------------------------------------------------------------------------
     # 4 Back-permutation of solution components
-    x[:] = x[pivot]
+    x[:] = v[pivot]
     return (iRankC, iRank)
 end
 

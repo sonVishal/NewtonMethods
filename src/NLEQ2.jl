@@ -233,6 +233,7 @@ end
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
+    @bp
     if nBroy == 0
         qa      = wkNLEQ2.options[WK_A]
         dxSave  = wkNLEQ2.options[WK_A]

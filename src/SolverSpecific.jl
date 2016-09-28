@@ -373,7 +373,7 @@ end
     mCon = 0
     iRepeat = -iRepeat
     # TODO: Don't know this yet
-    tmp = n
+    tmp = 0
     (iRankC,iRank) = solcon(a,lda,n,mCon,n,n,z,b,tmp,iRank,d,pivot,
         iRepeat,aInv)
     iFail = 0

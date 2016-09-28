@@ -491,6 +491,7 @@ end
         # if qGenJ == true
         # - or -
         # Rank-1 update of Jacobian if qGenJ == false
+        # TODO: Check the validity of the jacobian computation
         if qGenJ
             newt = 0
             if jacGen == 1

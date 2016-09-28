@@ -272,8 +272,9 @@ end
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    iCnv = 0
-    fck2 = fc
+    iCnv  = 0
+    fck2  = fc
+    sumXa = 0.0
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)
@@ -615,7 +616,6 @@ end
             # scaled maximum error norm conv
             # evaluation of (scaled) standard level function dlevf
             # and computation of ordinary Newton corrections dx[n]
-            @bp
             (conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,mPrMon,newt == 0)
             wkNLEQ2.options[STATS_SUMX]   = sumX
             wkNLEQ2.options[STATS_DLEVF]  = dLevF
@@ -869,7 +869,6 @@ end
                         #       sumX
                         #       scaled maximum error norm conv and evaluation
                         #       of (scaled) standard level function dLevFn
-                        @bp
                         (conv,sumX,dLevFn) =
                             nLvls(n,dxQ,t2,xw,f,mPrMon,newt==0)
 
@@ -1034,6 +1033,7 @@ end
             end
             # Print the natural level of the current iterate and
             # return it in one-step mode
+            @bp
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
                 nSout(n,xa,2,opt,wkNLEQ2,mPrSol,printIOsol)

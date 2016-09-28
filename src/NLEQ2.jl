@@ -1,5 +1,5 @@
 using Debug
-function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+@debug function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
     message = ""
@@ -189,6 +189,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], printWarn, printMon,
     printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
+    @bp
     # set stats variable
     stats = Dict{AbstractString,Any}()
     stats[STATS_XSCAL] = xScal

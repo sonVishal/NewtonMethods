@@ -1103,8 +1103,8 @@ end
                 setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-                setOption!(wkNLEQ2, "P_D", d)
-                setOption!(wkNLEQ2, "P_P", p)
+                # setOption!(wkNLEQ2, "P_D", d)
+                # setOption!(wkNLEQ2, "P_P", p)
 
                 return (x, xScal, retCode, wkNLEQ2)
             end
@@ -1324,8 +1324,8 @@ end
     setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
     setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-    setOption!(wkNLEQ2, "P_D", d)
-    setOption!(wkNLEQ2, "P_P", p)
+    # setOption!(wkNLEQ2, "P_D", d)
+    # setOption!(wkNLEQ2, "P_P", p)
 
     return (x, xScal, retCode)
     # End of function n2int

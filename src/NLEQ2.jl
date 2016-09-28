@@ -233,11 +233,10 @@ end
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
-    @bp
     if nBroy == 0
         qa      = wkNLEQ2.options[WK_A]
         dxSave  = wkNLEQ2.options[WK_A]
-        nBroy = 1
+        nBroyNew = 1
     else
         qa      = wkNLEQ2.options[WK_QA_DXSAVE]
         dxSave  = wkNLEQ2.options[WK_QA_DXSAVE]
@@ -428,7 +427,6 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -453,7 +451,7 @@ end
                 qGenJ = true
                 if fc == fcPri
                     qGenJ = fc < 1.0 || fcA < 1.0 || dMyCor <= fc*sigma ||
-                    !qRank1 || newt + 2 > nBroy
+                    !qRank1 || newt + 2 > nBroyNew
 
                     fcA = fc
                 else
@@ -578,8 +576,6 @@ end
                 else
                     iRepeat = 0
                 end
-                # TODO: remember to set WK_SENS1 inside n2fact
-                @bp
                 (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80
@@ -589,6 +585,7 @@ end
                 sens1 = wkNLEQ2.options[WK_SENS1]
             end
             qLInit = true
+            @bp
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
@@ -1067,8 +1064,9 @@ end
 
                 setOption!(wkNLEQ2, WK_A, a)
                 setOption!(wkNLEQ2, WK_QU, qu)
-                # TODO: Take care of dxSave and qa
-                # setOption!(wkNLEQ2, WK_QA_DXSAVE, qa)
+                if nBroy != 0
+                    setOption!(wkNLEQ2, WK_QA_DXSAVE, qa)
+                end
                 setOption!(wkNLEQ2, WK_DX, dx)
                 setOption!(wkNLEQ2, WK_DXQ, dxQ)
                 setOption!(wkNLEQ2, WK_DXQA, dxQa)

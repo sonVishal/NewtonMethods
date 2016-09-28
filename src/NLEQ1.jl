@@ -1182,7 +1182,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 setOption!(wkNLEQ1, "P_L", l)
                 setOption!(wkNLEQ1, "P_U", u)
                 setOption!(wkNLEQ1, "P_P", p)
-                return (x, xScal, retCode, wkNLEQ1)
+                return (x, xScal, retCode)
             end
         end
     end

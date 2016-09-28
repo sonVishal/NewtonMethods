@@ -18,6 +18,9 @@ xScal = zeros(x0)
 retCode = -1
 stats   = []
 
+count = 1
+
 while retCode == -1
     (x0, stats, retCode) = nleq2(chebyQuad,x0,xScal,opt)
+    println("returned from call $count")
 end

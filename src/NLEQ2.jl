@@ -255,8 +255,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     qu      = wkNLEQ2.options[WK_QU]
     sumxa0  = wkNLEQ1.options[WK_SUMXA0]
     sumxa1  = wkNLEQ1.options[WK_SUMXA1]
-    t1      = wkNLEQ2.options[WK_T1]
-    t2      = wkNLEQ2.options[WK_T2]
+    # t1      = wkNLEQ2.options[WK_T1]
+    # t2      = wkNLEQ2.options[WK_T2]
     fcMon   = wkNLEQ1.options[WK_FCMON]
     fcA     = wkNLEQ2.options[WK_FCA]
     fcKeep  = wkNLEQ2.options[WK_FCKEEP]
@@ -1082,6 +1082,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 # setOption!(wkNLEQ2, WK_FA, fa)
                 # setOption!(wkNLEQ2, WK_FW, fw)
                 # setOption!(wkNLEQ2, WK_ETA, eta)
+                # setOption!(wkNLEQ2, WK_T1, t1)
+                # setOption!(wkNLEQ2, WK_T2, t2)
                 setOption!(wkNLEQ2, WK_SUMXA0, sumxa0)
                 setOption!(wkNLEQ2, WK_SUMXA1, sumxa1)
                 setOption!(wkNLEQ2, WK_FCMON, fcMon)
@@ -1302,6 +1304,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # setOption!(wkNLEQ2, WK_FA, fa)
     # setOption!(wkNLEQ2, WK_FW, fw)
     # setOption!(wkNLEQ2, WK_ETA, eta)
+    # setOption!(wkNLEQ2, WK_T1, t1)
+    # setOption!(wkNLEQ2, WK_T2, t2)
     setOption!(wkNLEQ2, WK_SUMXA0, sumxa0)
     setOption!(wkNLEQ2, WK_SUMXA1, sumxa1)
     setOption!(wkNLEQ2, WK_FCMON, fcMon)

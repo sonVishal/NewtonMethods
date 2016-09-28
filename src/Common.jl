@@ -1,3 +1,4 @@
+using Debug
 function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     # Initialize options
     initOption!(opt, OPT_FCMIN,     0.0)
@@ -231,8 +232,9 @@ function nScrb(n,lda,ml,mu,a)
     return (aout,fw)
 end
 
-function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
+@debug function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
     # Begin
+    @bp
     if qdscal
         # ----------------------------------------------------------------------
         # 1.2 Descaling of solution dx1 (stored to dxq)

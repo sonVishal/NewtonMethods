@@ -638,8 +638,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         # estimate
                         t1 = dxQ./xw
                         # Norm of projection of reduced component t1[n]
-                        # "p" is the pivot vector
-                        # "t2" is the diagonal returned by deccon
                         del = n2prjn(n, iRank, t1, d, qa, p, t2)
                         fcDnm -= del
                     end
@@ -1182,8 +1180,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         if iConv == 3
             ctyp = "quadratic"
         end
-        # TODO: write a wrapper for error(), warn(), info() such that it prints
-        # either on STDOUT or in file
         if qMStop
             write(printIOwarn,"\nWARNING: Monotonicity test failed after ",ctyp,
             " convergence was already checked\nrTol requirement may be too",

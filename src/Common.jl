@@ -264,19 +264,24 @@ function nPrv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     return nothing
 end
 
-function nSout(n,x,mode,opt,wkNLEQ1,mPr,printIO)
+function nSout(n, x, mode, opt, wk, mPr, printIO)
     # Begin
     qNorm = true
     if qNorm
         if mode == 1
-            write(printIO,@sprintf("%s\n%s%5i\n\n%s\n","  Start data:","  N =",n, "  Format: iteration-number, (x(i),i=1,...N) , Normf , Normx "))
+            write(printIO,@sprintf("%s\n%s%5i\n\n%s\n","  Start data:","  N =",n,
+                "  Format: iteration-number, (x(i),i=1,...N) , Normf , Normx "))
             write(printIO,@sprintf("%s\n","  Initial data:"))
+            write(printIO,@sprintf(" %5i\n",wk.options[STATS_NITER]))
         elseif mode == 3
             write(printIO,@sprintf("%s\n","  Solution data:"))
+            write(printIO,@sprintf(" %5i\n",wk.options[STATS_NITER]+1))
         elseif mode == 4
             write(printIO,@sprintf("%s\n","  Final data:"))
+            write(printIO,@sprintf(" %5i\n",wk.options[STATS_NITER]))
+        else
+            write(printIO,@sprintf(" %5i\n",wk.options[STATS_NITER]))
         end
-        write(printIO,@sprintf(" %5i\n",wkNLEQ1.options[STATS_NITER]))
         l2 = 0
         for l1 = 1:n
             write(printIO,@sprintf("%18.10e ",x[l1]))
@@ -286,7 +291,8 @@ function nSout(n,x,mode,opt,wkNLEQ1,mPr,printIO)
                 l2 = 0
             end
         end
-        write(printIO,@sprintf("%18.10e %18.10e \n",wkNLEQ1.options[STATS_DLEVF],sqrt(wkNLEQ1.options[STATS_SUMX]/n)))
+        write(printIO,@sprintf("%18.10e %18.10e \n",wk.options[STATS_DLEVF],
+            sqrt(wk.options[STATS_SUMX]/n)))
         if mode == 1 && mPr >= 2
             write(printIO,@sprintf("%s\n","  Intermediate data:"))
         elseif mode >= 3

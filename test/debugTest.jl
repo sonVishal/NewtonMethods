@@ -1,7 +1,7 @@
-using NewtonMethods
-include("ChebyQuad.jl")
+# using NewtonMethods
+# include("ChebyQuad.jl")
 clearWorkspace("nleq2")
-dim = 2
+dim = 3
 n1 = dim + 1
 
 fSol = open("nleq2.dat","w")

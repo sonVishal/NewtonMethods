@@ -277,6 +277,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     sumXa  = 0.0
     dLevFn = 0.0
     conva  = 0.0
+    sumxa0 = 0.0
+    sumxa1 = 0.0
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)
@@ -387,9 +389,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         xa[:] = x[:]
 
         iConv  = 0
-
-        sumxa0  = 0.0
-        sumxa1  = 0.0
 
         push!(xIter,x)
         wkNLEQ2.options[STATS_NITER] = nIter

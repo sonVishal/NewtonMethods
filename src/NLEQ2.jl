@@ -279,6 +279,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     dLevFn = 0.0
     sumXa  = 0.0
     conva  = 0.0
+    t2     = zeros(n)
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)
@@ -559,7 +560,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         # 2.4.3 Save and scale values of F(n)
         fa[:] = f
         t1 = f.*fw
-        t2 = zeros(n)
         iRankA = iRank
         if nIter != 0
             iRank = n

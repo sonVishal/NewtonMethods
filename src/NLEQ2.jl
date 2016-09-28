@@ -435,7 +435,7 @@ end
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            xw = nScal(n , x, xa, xScal, iScal, qIniSc, opt)
+            nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
             qIniSc = false
             if nIter != 0
                 # Preliminary psuedo-rank
@@ -507,7 +507,8 @@ end
                 end
             else
                 if jacGen == 3
-                    (a,eta,nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
+                    (a,eta,nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,
+                                            etaDif,conv,nFcnJ)
                 end
                 if jacGen == 2
                     (a,nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ)
@@ -545,7 +546,7 @@ end
             # ------------------------------------------------------------------
             # 2.4.2 Row scaling of matrix A
             if qScale
-                (a,fw) = nScrf(n,n,a)
+                nScrf(n,n,a,fw)
             else
                 fw = ones(n)
             end
@@ -1065,7 +1066,9 @@ end
                 setOption!(wkNLEQ2, STATS_ICONV,  iConv)
 
                 setOption!(wkNLEQ2, WK_A, a)
-                setOption!(wkNLEQ2, WK_DXSAVE, dxSave)
+                setOption!(wkNLEQ2, WK_QU, qu)
+                # TODO: Take care of dxSave and qa
+                # setOption!(wkNLEQ2, WK_QA_DXSAVE, qa)
                 setOption!(wkNLEQ2, WK_DX, dx)
                 setOption!(wkNLEQ2, WK_DXQ, dxQ)
                 setOption!(wkNLEQ2, WK_DXQA, dxQa)
@@ -1284,7 +1287,9 @@ end
     setOption!(wkNLEQ2, STATS_ICONV,  iConv)
 
     setOption!(wkNLEQ2, WK_A, a)
-    setOption!(wkNLEQ2, WK_DXSAVE, dxSave)
+    setOption!(wkNLEQ2, WK_QU, qu)
+    # TODO: Take care of dxSave and qa
+    # setOption!(wkNLEQ2, WK_QA_DXSAVE, qa)
     setOption!(wkNLEQ2, WK_DX, dx)
     setOption!(wkNLEQ2, WK_DXQ, dxQ)
     setOption!(wkNLEQ2, WK_DXQA, dxQa)

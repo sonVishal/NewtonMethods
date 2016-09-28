@@ -140,12 +140,11 @@ function printStats(stats, printIOmon)
 end
 
 # TODO: Get printIO from call rather than inside function
-function nScal(n,x,xa,xScal,iScal,qIniSc,opt)
+function nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
     # TODO: For nleq2 small is 1e-150
     # small = getMachineConstants(6)
     small = 1e-150
     # Begin
-    xw = zeros(n)
     if iScal == 1
         xw[:] = xScal
     else
@@ -165,12 +164,11 @@ function nScal(n,x,xa,xScal,iScal,qIniSc,opt)
         end
         write(printIO,"+++++++++++++++++++++++++++++++++++++++++++++++++\n\n")
     end
-    return xw
+    return nothing
 end
 
-function nScrf(m,n,a)
+function nScrf(m,n,a,fw)
     # Begin
-    fw = zeros(n)
     if issparse(a)
         nza = nnz(a)
         (row,col) = findn(a)
@@ -204,7 +202,7 @@ function nScrf(m,n,a)
             end
         end
     end
-    return (aout,fw)
+    a[:] = aout
 end
 
 function nScrb(n,lda,ml,mu,a)

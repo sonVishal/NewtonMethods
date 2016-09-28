@@ -507,7 +507,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            xw = nScal(n , x, xa, xScal, iScal, qIniSc, opt)
+            nScal(n , x, xa, xScal, iScal, qIniSc, opt, xw)
             qIniSc = false
             if nIter != 0
                 # --------------------------------------------------------------
@@ -580,7 +580,8 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             else
                 if mStor == 0
                     if jacGen == 3
-                        (a,eta,nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ)
+                        (a,eta,nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,
+                                                etaMax,etaDif,conv,nFcnJ)
                     end
                     if jacGen == 2
                         (a,nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ)
@@ -659,7 +660,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             # 2.4.2 Row scaling of matrix A
             if qScale
                 if mStor == 0
-                    (a,fw) = nScrf(n,n,a)
+                    nScrf(n,n,a,fw)
                 elseif mStor == 1
                     (a,fw) = nScrb(n,m1,ml,mu,a)
                 end

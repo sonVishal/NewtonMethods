@@ -230,6 +230,7 @@ end
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
+    @bp
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
@@ -1054,6 +1055,7 @@ end
             # ------------------------------------------------------------------
             # 4.2 Return if in one-step mode
             if mode == 1
+                @bp
                 qSucc = true
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
                 setOption!(opt, OPT_FCSTART, fc)
@@ -1274,6 +1276,7 @@ end
 
     # --------------------------------------------------------------------------
     # 10 Prepare all the variables for returning
+    @bp
     xScal[:] = xw
     # TODO: Convert the setOptions to a function since it is called twice
     setOption!(opt, OPT_QSUCC, Int(qSucc))

@@ -871,7 +871,7 @@ end
                         #       of (scaled) standard level function dLevFn
                         @bp
                         (conv,sumX,dLevFn) =
-                            nLvls(n,dxQ,t1,xw,f,mPrMon,newt==0)
+                            nLvls(n,dxQ,t2,xw,f,mPrMon,newt==0)
 
                         push!(sumXQall,sqrt(sumX/n))
                         dxNrm = wnorm(n,dxQ,xw)

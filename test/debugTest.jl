@@ -1,6 +1,5 @@
-# using NewtonMethods
-# include("ChebyQuad.jl")
-clearWorkspace("nleq2")
+using NewtonMethods
+include("ChebyQuad.jl")
 dim = 3
 n1 = dim + 1
 
@@ -32,7 +31,7 @@ i = 1
 
 while retCode == -1
     (x0, stats, retCode) = nleq2(chebyQuad, x0, xScal, opt)
-    println("returned from call $i")
+    write(fRest, @sprintf("Returned from call %4i of NLEQ2\n",i))
     i += 1
 end
 

@@ -343,13 +343,12 @@ function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat)
     if iRank != 0
         cond = abs(d[1]/d[iRank])
         setOption!(wkNLEQ2, WK_SENS1, abs(d[1]))
-        tmp = abs(d[1])
     else
         cond = 1.0
         setOption!(wkNLEQ2, WK_SENS1, 0.0)
     end
     # TODO: Reassign output variables either here or where the function is called
-    return (cond,iFail)
+    return (cond, iFail)
 end
 
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)

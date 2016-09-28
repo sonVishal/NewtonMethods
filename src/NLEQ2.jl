@@ -182,10 +182,6 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     # to complete the Newton iterations
     retCode = -1
 
-    if nBroy == 0
-        nBroy = 1
-    end
-
     # Call to n2int
     (x, xScal, retCode) = n2int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
     nonLin, iRank, cond, opt, retCode, m1, m2, nBroy, xIter, sumXall, dLevFall,
@@ -237,9 +233,15 @@ end
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
+    if nBroy == 0
+        qa      = wkNLEQ2.options[WK_A]
+        dxSave  = wkNLEQ2.options[WK_A]
+        nBroy = 1
+    else
+        qa      = wkNLEQ2.options[WK_QA_DXSAVE]
+        dxSave  = wkNLEQ2.options[WK_QA_DXSAVE]
+    end
     a       = wkNLEQ2.options[WK_A]
-    qa      = wkNLEQ2.options[WK_QA_DXSAVE]
-    dxSave  = wkNLEQ2.options[WK_QA_DXSAVE]
     dx      = wkNLEQ2.options[WK_DX]
     dxQ     = wkNLEQ2.options[WK_DXQ]
     xa      = wkNLEQ2.options[WK_XA]

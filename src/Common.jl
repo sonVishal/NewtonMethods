@@ -6,22 +6,18 @@ function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     initOption!(opt, OPT_NOROWSCAL, 0)
 
     # Workspace: WK
-    initOption!(wk, WK_A, zeros(m1,n))
-
     if solver == 1
+        initOption!(wk, WK_A, zeros(m1,n))
         if qRank1
             initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
         else
             initOption!(wk, WK_DXSAVE, 0.0)
         end
-    end
-
-    if solver == 2
+    elseif solver == 2
         initOption!(wk, WK_QU, zeros(n))
-        if qRank1
+        initOption!(wk, WK_A, zeros(n,n))
+        if nBroy != 0
             initOption!(wk, WK_QA_DXSAVE, zeros(n,n))
-        else
-            initOption!(wk, WK_QA_DXSAVE, 0.0)
         end
     end
 

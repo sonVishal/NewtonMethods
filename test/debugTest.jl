@@ -21,7 +21,13 @@ stats   = []
 count = 1
 
 while retCode == -1
-    (x0, stats, retCode) = nleq2(chebyQuad,x0,xScal,opt)
+    (x0, stats, retCode) = nleq2(chebyQuad, x0, xScal, opt)
     println("returned from call $count")
     count += 1
 end
+
+f = zero(x0)
+
+chebyQuad(f,x0)
+
+println(f)

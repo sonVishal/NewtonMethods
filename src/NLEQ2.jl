@@ -1046,7 +1046,6 @@ end
             nIter += 1
             wkNLEQ2.options[STATS_NITER] = nIter
             push!(xIter,x)
-            @bp
             dLevF = dLevFn
             if nIter >= nItmax
                 retCode = 2
@@ -1096,16 +1095,16 @@ end
                 setOption!(wkNLEQ2, STATS_SUMX, sumX)
                 setOption!(wkNLEQ2, STATS_DLEVF, dLevF)
 
-                setOption!(wkNLEQ1, "P_CLIN0", cLin0)
-                setOption!(wkNLEQ1, "P_CLIN1", cLin1)
-                setOption!(wkNLEQ1, "P_CALPHA", cAlpha)
-                setOption!(wkNLEQ1, "P_ALPHAE", alphaE)
-                setOption!(wkNLEQ1, "P_ALPHAK", alphaK)
-                setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
-                setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
-                setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
-                setOption!(wkNLEQ1, "P_D", d)
-                setOption!(wkNLEQ1, "P_P", p)
+                setOption!(wkNLEQ2, "P_CLIN0", cLin0)
+                setOption!(wkNLEQ2, "P_CLIN1", cLin1)
+                setOption!(wkNLEQ2, "P_CALPHA", cAlpha)
+                setOption!(wkNLEQ2, "P_ALPHAE", alphaE)
+                setOption!(wkNLEQ2, "P_ALPHAK", alphaK)
+                setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
+                setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
+                setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
+                setOption!(wkNLEQ2, "P_D", d)
+                setOption!(wkNLEQ2, "P_P", p)
 
                 return (x, xScal, retCode, wkNLEQ2)
             end
@@ -1317,16 +1316,16 @@ end
     setOption!(wkNLEQ2, STATS_SUMX, sumX)
     setOption!(wkNLEQ2, STATS_DLEVF, dLevF)
 
-    setOption!(wkNLEQ1, "P_CLIN0", cLin0)
-    setOption!(wkNLEQ1, "P_CLIN1", cLin1)
-    setOption!(wkNLEQ1, "P_CALPHA", cAlpha)
-    setOption!(wkNLEQ1, "P_ALPHAE", alphaE)
-    setOption!(wkNLEQ1, "P_ALPHAK", alphaK)
-    setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
-    setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
-    setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
-    setOption!(wkNLEQ1, "P_D", d)
-    setOption!(wkNLEQ1, "P_P", p)
+    setOption!(wkNLEQ2, "P_CLIN0", cLin0)
+    setOption!(wkNLEQ2, "P_CLIN1", cLin1)
+    setOption!(wkNLEQ2, "P_CALPHA", cAlpha)
+    setOption!(wkNLEQ2, "P_ALPHAE", alphaE)
+    setOption!(wkNLEQ2, "P_ALPHAK", alphaK)
+    setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
+    setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
+    setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
+    setOption!(wkNLEQ2, "P_D", d)
+    setOption!(wkNLEQ2, "P_P", p)
 
     return (x, xScal, retCode)
     # End of function n2int

@@ -230,10 +230,9 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     return (iRankC, iRank, cond, v[1], iFail)
 end
 
-@debug function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
+function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     kRed, ah)
     # Begin
-    @bp
     v = zeros(n)
     s = 0.0
     # --------------------------------------------------------------------------
@@ -367,9 +366,8 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     return (x,iFail)
 end
 
-@debug function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot)
+function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot)
     # Begin
-    @bp
     mCon = 0
     iRepeat = -iRepeat
     # TODO: Don't know this yet

@@ -854,6 +854,7 @@ end
                             break
                         end
                         if newt > 0
+                            @bp
                             dxQ = t2.*xwa
                             for iLoop = 1:newt
                                 sum1 = sum((dxQ.*dxSave[1:n,iLoop])./xw.^2)
@@ -868,7 +869,8 @@ end
                         #       sumX
                         #       scaled maximum error norm conv and evaluation
                         #       of (scaled) standard level function dLevFn
-                        (dxQ,conv,sumX,dLevFn) =
+                        @bp
+                        (conv,sumX,dLevFn) =
                             nLvls(n,dxQ,t1,xw,f,mPrMon,newt==0)
 
                         push!(sumXQall,sqrt(sumX/n))

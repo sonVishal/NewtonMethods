@@ -246,7 +246,7 @@ function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
     # --------------------------------------------------------------------------
     # 3 Evaluation of (scaled) standard level function dlevf
     dlevf = sqrt(sum(f.^2)/n)
-    return (dxq,conv,sumx,dlevf)
+    return (conv,sumx,dlevf)
 end
 
 

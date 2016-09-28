@@ -16,6 +16,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     printIOwarn = getOption!(opt, OPT_PRINTIOWARN, 0)
     if printIOwarn == 0
         printIOwarn = STDOUT
+        setOption!(opt, OPT_PRINTIOWARN, STDOUT)
     elseif typeof(printIOwarn) != IOStream
         write(STDOUT, "ERROR: Please provide a file handle for writing warning messages",
             " \n or use the default option OPT_PRINTIOWARN = 0 for output to STDOUT.\n")
@@ -156,6 +157,14 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
         return 99
     end
 
+    # Check maximum permitted number of iteration steps
+    initOption!(opt, OPT_NITMAX, 50)
+    if opt.options[OPT_NITMAX] <= 0
+        setOption!(opt, OPT_NITMAX, 50)
+        write(printIOwarn, "WARNING: Maximum number of iterations to be performed is non-positive",
+        "\n\tSetting it to a default value of 50.\n")
+    end
+
     # Checking and conditional adaptation of user given RTOL
     # if RTOL is not set, set it to 1e-6
     initOption!(opt, OPT_RTOL, 1e-6)
@@ -219,60 +228,191 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     return 0
 end
 
-function initializeOptions(opt, wk, n, m1, qRank1)
-    # Initialize options
-    initOption!(opt, OPT_FCMIN,     0.0)
-    initOption!(opt, OPT_SIGMA,     0.0)
-    initOption!(opt, OPT_SIGMA2,    0.0)
-    initOption!(opt, OPT_NOROWSCAL, 0)
+function initializeOptions(n::Int64, opt::OptionsNLEQ)
+    # Begin
+    # Initialize iteration monitor
+    initOption!(opt, OPT_PRINTITERATION, 0)
 
-    # Workspace: WK
-    initOption!(wk, WK_A, zeros(m1,n))
-
-    if qRank1
-        initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
-    else
-        initOption!(wk, WK_DXSAVE, 0.0)
+    # First call or successive call
+    qSucc   = opt.options[OPT_QSUCC] == 1
+    qIniMon = (opt.options[OPT_PRINTITERATION] >= 1 && !qSucc)
+    # Check if the Jacobian is Dense/Sparse or Banded matrix
+    if opt.options[OPT_MSTOR] == 0
+        m1 = n
+        m2 = n
+    elseif opt.options[OPT_MSTOR] == 1
+        ml = opt.options[OPT_ML]
+        mu = opt.options[OPT_MU]
+        m1 = 2*ml + mu + 1
+        m2 = ml + mu + 1
     end
 
-    # Initialize temporary workspace
-    initOption!(wk, WK_DX  , zeros(n))
-    initOption!(wk, WK_DXQ , zeros(n))
-    initOption!(wk, WK_XA  , zeros(n))
-    initOption!(wk, WK_XWA , zeros(n))
-    initOption!(wk, WK_F   , zeros(n))
-    initOption!(wk, WK_FA  , zeros(n))
-    initOption!(wk, WK_ETA , zeros(n))
-    initOption!(wk, WK_XW  , zeros(n))
-    initOption!(wk, WK_FW  , zeros(n))
-    initOption!(wk, WK_DXQA, zeros(n))
-    initOption!(wk, WK_QU, zeros(n))
-    initOption!(wk, WK_T1, zeros(n))
-    initOption!(wk, WK_T2, zeros(n))
+    qRank1 = opt.options[OPT_QRANK1] == 1
+    qOrdi  = opt.options[OPT_QORDI]  == 1
+    qSimpl = opt.options[OPT_QSIMPL] == 1
 
-    initOption!(wk, WK_SUMXA0, 0.0)
-    initOption!(wk, WK_SUMXA1, 0.0)
-    initOption!(wk, WK_FCMON,  0.0)
-    initOption!(wk, WK_FCA,    0.0)
-    initOption!(wk, WK_FCKEEP, 0.0)
-    initOption!(wk, WK_FCPRI,  0.0)
-    initOption!(wk, WK_DMYCOR, 0.0)
-    initOption!(wk, WK_SUMXS,  0.0)
+    if qRank1
+        nBroy = getOption!(opt,OPT_NBROY,0)
+        if nBroy == 0
+            nBroy = max(m2, 10)
+            setOption!(opt,OPT_NBROY, nBroy)
+        end
+    else
+        nBroy = 0
+    end
 
-    initOption!(wk, STATS_NITER,  0)
-    initOption!(wk, STATS_NCORR,  0)
-    initOption!(wk, STATS_NFCN,   0)
-    initOption!(wk, STATS_NFCNJ,  0)
-    initOption!(wk, STATS_NJAC,   0)
-    initOption!(wk, STATS_NREJR1, 0)
-    initOption!(wk, STATS_NEW,    0)
-    initOption!(wk, STATS_ICONV,  0)
-    initOption!(wk, STATS_CONV,   0.0)
-    initOption!(wk, STATS_SUMX,   0.0)
-    initOption!(wk, STATS_DLEVF,  0.0)
-    initOption!(wk, STATS_RTOL,   0.0)
+    # Check if this is a first call or successive call to nleq1
+    # If first call then reset the workspace and persistent variables
+    if !qSucc
+        clearWorkspace("nleq1")
+        # Initialize options
+        initOption!(opt, OPT_FCMIN,     0.0)
+        initOption!(opt, OPT_SIGMA,     0.0)
+        initOption!(opt, OPT_SIGMA2,    0.0)
+        initOption!(opt, OPT_NOROWSCAL, 0)
+    end
 
-    return nothing
+    # Check for non linear option
+    nonLin = opt.options[OPT_NONLIN]
+
+    if opt.options[OPT_BOUNDEDDAMP] == 0
+        qBDamp = nonLin == 4
+    elseif opt.options[OPT_BOUNDEDDAMP] == 1
+        qBDamp = true
+    elseif opt.options[OPT_BOUNDEDDAMP] == 2
+        qBDamp = false
+    end
+
+    # Initialize bounded damping strategy restriction factor
+    initOption!(opt, OPT_FCBAND, 0.0)
+    if qBDamp
+        if opt.options[OPT_FCBAND] < 1.0
+            setOption!(opt, OPT_FCBAND, 10.0)
+        end
+    end
+
+    if qIniMon
+        printInitialization(n, opt.options[OPT_PRINTIOMON],
+        opt.options[OPT_RTOL], opt.options[OPT_JACGEN], opt.options[OPT_MSTOR],
+        opt.options[OPT_ML], opt.options[OPT_MU], opt.options[OPT_NOROWSCAL],
+        qRank1, nonLin, qBDamp, opt.options[OPT_FCBAND], qOrdi, qSimpl,
+        opt.options[OPT_NITMAX])
+    end
+
+    # Initial damping factor for highly nonlinear problems
+    initOption!(opt, OPT_FCSTART, 0.0)
+
+    if !(opt.options[OPT_FCSTART] > 0.0)
+        setOption!(opt, OPT_FCSTART, 1.0e-2)
+        if nonLin == 4
+            setOption!(opt, OPT_FCSTART, 1.0e-4)
+        end
+    end
+
+    # Minimal permitted damping factor
+    initOption!(opt, OPT_FCMIN, 0.0)
+    if opt.options[OPT_FCMIN] <= 0.0
+        setOption!(opt, OPT_FCMIN, 1.0e-4)
+        if nonLin == 4
+            setOption!(opt, OPT_FCMIN, 1.0e-8)
+        end
+    end
+
+    # Rank1 decision parameter SIGMA
+    initOption!(opt,OPT_SIGMA,0.0)
+    if opt.options[OPT_SIGMA] < 1.0
+        setOption!(opt, OPT_SIGMA, 3.0)
+    end
+    if !qRank1
+        setOption!(opt, OPT_SIGMA, 10.0/opt.options[OPT_FCMIN])
+    end
+
+    # Decision parameter about increasing too small predictor
+    # to greater corrector value
+    initOption!(opt, OPT_SIGMA2, 0.0)
+    if opt.options[OPT_SIGMA2] < 1.0
+        setOption!(opt, OPT_SIGMA2, 10.0/opt.options[OPT_FCMIN])
+    end
+
+    # Starting value of damping factor (opt.options[OPT_FCMIN] <= fc <= 1.0)
+    if nonLin <= 2 && !(opt.options[OPT_FCSTART] > 0.0)
+        # for linear or mildly nonlinear problems
+        fc = 1.0
+    else
+        # for highly or extremely nonlinear problems
+        fc = getOption(opt, OPT_FCSTART, 0.0)
+    end
+
+    # Simplified Newton iteration implies ordinary Newton iteration mode
+    if qSimpl
+        setOption!(opt, OPT_QORDI, 1)
+    end
+
+    # If ordinary Newton iteration, damping factor is always 1
+    if opt.options[OPT_QORDI] == 1
+        fc = 1.0
+    end
+
+    # Set starting damping factor
+    setOption!(opt, OPT_FCSTART, fc)
+
+    if opt.options[OPT_PRINTITERATION] >= 2 && !qSucc
+        write(opt.options[OPT_PRINTIOMON],"\nINFO: ","Internal parameters:",
+        "\n\tStarting value for damping factor ",
+        @sprintf("OPT_FCSTART\t= %1.2e",opt.options[OPT_FCSTART]),
+        @sprintf("\n\tMinimum allowed damping factor OPT_FCMIN\t= %1.2e",opt.options[OPT_FCMIN]),
+        "\n\tRank-1 updates decision parameter ",
+        @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]))
+    end
+
+
+    # # Workspace: WK
+    # initOption!(wk, WK_A, zeros(m1,n))
+    #
+    # if qRank1
+    #     initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
+    # else
+    #     initOption!(wk, WK_DXSAVE, 0.0)
+    # end
+    #
+    # # Initialize temporary workspace
+    # initOption!(wk, WK_DX  , zeros(n))
+    # initOption!(wk, WK_DXQ , zeros(n))
+    # initOption!(wk, WK_XA  , zeros(n))
+    # initOption!(wk, WK_XWA , zeros(n))
+    # initOption!(wk, WK_F   , zeros(n))
+    # initOption!(wk, WK_FA  , zeros(n))
+    # initOption!(wk, WK_ETA , zeros(n))
+    # initOption!(wk, WK_XW  , zeros(n))
+    # initOption!(wk, WK_FW  , zeros(n))
+    # initOption!(wk, WK_DXQA, zeros(n))
+    # initOption!(wk, WK_QU, zeros(n))
+    # initOption!(wk, WK_T1, zeros(n))
+    # initOption!(wk, WK_T2, zeros(n))
+    #
+    # initOption!(wk, WK_SUMXA0, 0.0)
+    # initOption!(wk, WK_SUMXA1, 0.0)
+    # initOption!(wk, WK_FCMON,  0.0)
+    # initOption!(wk, WK_FCA,    0.0)
+    # initOption!(wk, WK_FCKEEP, 0.0)
+    # initOption!(wk, WK_FCPRI,  0.0)
+    # initOption!(wk, WK_DMYCOR, 0.0)
+    # initOption!(wk, WK_SUMXS,  0.0)
+    #
+    # initOption!(wk, STATS_NITER,  0)
+    # initOption!(wk, STATS_NCORR,  0)
+    # initOption!(wk, STATS_NFCN,   0)
+    # initOption!(wk, STATS_NFCNJ,  0)
+    # initOption!(wk, STATS_NJAC,   0)
+    # initOption!(wk, STATS_NREJR1, 0)
+    # initOption!(wk, STATS_NEW,    0)
+    # initOption!(wk, STATS_ICONV,  0)
+    # initOption!(wk, STATS_CONV,   0.0)
+    # initOption!(wk, STATS_SUMX,   0.0)
+    # initOption!(wk, STATS_DLEVF,  0.0)
+    # initOption!(wk, STATS_RTOL,   0.0)
+
+    return (m1, m2, nBroy, qBDamp)
 end
 
 function printInitialization(n, printIOmon, rTol, jacGen, mStor, ml, mu,

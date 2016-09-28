@@ -586,7 +586,6 @@ end
                 sens1 = wkNLEQ2.options[WK_SENS1]
             end
             qLInit = true
-            @bp
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0

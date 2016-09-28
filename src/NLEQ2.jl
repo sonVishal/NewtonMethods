@@ -616,7 +616,7 @@ end
             # scaled maximum error norm conv
             # evaluation of (scaled) standard level function dlevf
             # and computation of ordinary Newton corrections dx[n]
-            (dx,conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,mPrMon,newt == 0)
+            (conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,mPrMon,newt == 0)
             wkNLEQ2.options[STATS_SUMX]   = sumX
             wkNLEQ2.options[STATS_DLEVF]  = dLevF
             xa[:]    = x

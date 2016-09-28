@@ -253,8 +253,11 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     fw      = wkNLEQ2.options[WK_FW]
     dxQa    = wkNLEQ2.options[WK_DXQA]
     qu      = wkNLEQ2.options[WK_QU]
+    sumxa0  = wkNLEQ1.options[WK_SUMXA0]
+    sumxa1  = wkNLEQ1.options[WK_SUMXA1]
     t1      = wkNLEQ2.options[WK_T1]
     t2      = wkNLEQ2.options[WK_T2]
+    fcMon   = wkNLEQ1.options[WK_FCMON]
     fcA     = wkNLEQ2.options[WK_FCA]
     fcKeep  = wkNLEQ2.options[WK_FCKEEP]
     fcPri   = wkNLEQ2.options[WK_FCPRI]
@@ -268,17 +271,14 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     nJac    = wkNLEQ2.options[STATS_NJAC]
     nRejR1  = wkNLEQ2.options[STATS_NREJR1]
     newt    = wkNLEQ2.options[STATS_NEW]
-
+    iConv   = wkNLEQ1.options[STATS_ICONV]
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    iCnv   = 0
     fck2   = fc
-    sumXa  = 0.0
     dLevFn = 0.0
+    sumXa  = 0.0
     conva  = 0.0
-    sumxa0 = 0.0
-    sumxa1 = 0.0
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)
@@ -389,6 +389,9 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         xa[:] = x[:]
 
         iConv  = 0
+
+        sumxa0 = 0.0
+        sumxa1 = 0.0
 
         push!(xIter,x)
         wkNLEQ2.options[STATS_NITER] = nIter
@@ -879,7 +882,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         push!(tolAll,dxNrm)
                         if dxNrm <= rTol && dxANrm <= rSmall && fc == 1.0
                             retCode = 0
-                            iCnv = 1
+                            iConv = 1
                             break
                         end
 
@@ -982,7 +985,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 # ====================================
             end
 
-            if nonLin == 1 || iCnv == 1 || (retCode != 0 && retCode != -1)
+            if nonLin == 1 || iConv == 1 || (retCode != 0 && retCode != -1)
                 break
             end
 

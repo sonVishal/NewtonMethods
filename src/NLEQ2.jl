@@ -1,5 +1,5 @@
 using Debug
-@debug function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
     message = ""
@@ -189,7 +189,6 @@ using Debug
     opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], printWarn, printMon,
     printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
-    @bp
     # set stats variable
     stats = Dict{AbstractString,Any}()
     stats[STATS_XSCAL] = xScal
@@ -227,11 +226,10 @@ using Debug
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
-    @bp
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
@@ -858,7 +856,6 @@ end
                             break
                         end
                         if newt > 0
-                            @bp
                             dxQ = t2.*xwa
                             for iLoop = 1:newt
                                 sum1 = sum((dxQ.*dxSave[1:n,iLoop])./xw.^2)
@@ -1055,7 +1052,6 @@ end
             # ------------------------------------------------------------------
             # 4.2 Return if in one-step mode
             if mode == 1
-                @bp
                 qSucc = true
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
                 setOption!(opt, OPT_FCSTART, fc)
@@ -1276,7 +1272,6 @@ end
 
     # --------------------------------------------------------------------------
     # 10 Prepare all the variables for returning
-    @bp
     xScal[:] = xw
     # TODO: Convert the setOptions to a function since it is called twice
     setOption!(opt, OPT_QSUCC, Int(qSucc))

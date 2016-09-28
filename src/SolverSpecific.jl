@@ -245,7 +245,7 @@ end
     if iRank <= iRankC && iRank != n
         iRanC1 = iRankC + 1
     end
-    if kRed > 0 && (m != 1 || n != 1)
+    if kRed => 0 && (m != 1 || n != 1)
         # ----------------------------------------------------------------------
         # 2 Constrained householder transformations of right-hand side
         mh = mCon

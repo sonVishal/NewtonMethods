@@ -559,6 +559,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         # 2.4.3 Save and scale values of F(n)
         fa[:] = f
         t1 = f.*fw
+        t2 = zeros(n)
         iRankA = iRank
         if nIter != 0
             iRank = n

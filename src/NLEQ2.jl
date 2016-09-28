@@ -1,5 +1,5 @@
-using Debug
-@debug function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+# using Debug
+function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
     message = ""
@@ -182,8 +182,6 @@ using Debug
     # to complete the Newton iterations
     retCode = -1
 
-    @bp
-
     # Call to n2int
     (x, xScal, retCode) = n2int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
     nonLin, iRank, cond, opt, retCode, m1, m2, nBroy, xIter, sumXall, dLevFall,
@@ -228,7 +226,7 @@ using Debug
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -303,7 +301,7 @@ end
     # --------------------------------------------------------------------------
     # 1 Initialization
     # --------------------------------------------------------------------------
-    @bp
+    qBreak      = false
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
     qRank1      = Bool(opt.options[OPT_QRANK1])
@@ -339,7 +337,6 @@ end
     # --------------------------------------------------------------------------
     # 1.5 Initial preparations
     qJcRfr              = false
-    qLInit              = false
     qRepeat             = false
     qIter               = true
     iFail               = 0
@@ -415,18 +412,13 @@ end
         # 1.7.1 Computation of residual vector
         try
             fcn(f,x)
-            # iFail = 0
         catch
             iFail = -1
-            retCode = 82
-            qIter = false
         end
         nFcn += 1
-        if length(f) != n
-            retCode = 22
-            qIter   = false
-            #=throw(DimensionMismatch("Dimension of the function output does not
-            match the input dimension. Please check the function \"$fcn\" again."))=#
+        if length(f) != n || iFail != 0
+            retCode = 82
+            qIter = false
         end
     else
         qIniSc = false
@@ -493,24 +485,20 @@ end
         qJcRfr = false
         # ----------------------------------------------------------------------
         # 2.3 Jacobian matrix
-        # TODO: Multiple dispatch for the Jacobian evaluation
         # ----------------------------------------------------------------------
         # 2.3.1 Jacobian generation by routine jac or difference approximation
         # if qGenJ == true
         # - or -
         # Rank-1 update of Jacobian if qGenJ == false
-        # TODO: Check the validity of the jacobian computation
+        # TODO: Check the input args of the jacobian computations jacGen ==2,3
         if qGenJ
             newt = 0
             if jacGen == 1
                 jac = getOption(opt, OPT_JACFCN, 0)
                 try
                     jac(a,x)
-                    # iFail = 0
                 catch err
-                    retCode = 82
                     iFail   = -1
-                    # throw(err)
                 end
             else
                 if jacGen == 3
@@ -542,7 +530,7 @@ end
         if newt == 0
             # ------------------------------------------------------------------
             # 2.3.2 Save scaling values
-            xwa = xw[1:n]
+            xwa[:] = xw
             # ------------------------------------------------------------------
             # 2.4 Prepare solution of the linear system
             # --------------------------------------------------------------
@@ -588,18 +576,19 @@ end
                 (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
                 if iFail != 0
                     retCode = 80
+                    qBreak = true
                     break
                 end
                 # Get the sensitivity of the Jacobian as estimated by n2fact
                 sens1 = wkNLEQ2.options[WK_SENS1]
             end
-            qLInit = true
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
                 iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
                 if iFail != 0
                     retCode = 81
+                    qBreak = true
                     break
                 end
                 if !qRepeat && iRank != 0
@@ -764,6 +753,7 @@ end
                     if iConv >= 2 && alphaA < 0.9
                         if iOrMon == 3
                             retCode = 4
+                            qBreak = true
                             break
                         else
                             qMStop = true
@@ -797,20 +787,20 @@ end
                     # 3.5.2 Exit, if problem is specified as being linear
                     if nonLin == 1
                         retCode = 0
+                        qBreak = true
                         break
                     end
                     #-----------------------------------------------------------
                     # 3.6.1 Computation of the residual vector
                     try
                         fcn(f,x)
-                        iFail = 0
                     catch
                         iFail = -1
-                        retCode = 82
                     end
                     nFcn += 1
                     if iFail < 0
                         retCode = 82
+                        qBreak = true
                         break
                     end
                     if iFail == 1 || iFail == 2
@@ -820,6 +810,7 @@ end
                             fcRedu = f[1]
                             if fcRedu <= 0.0 || fcRedu >= 1.0
                                 retCode = 83
+                                qBreak = true
                                 break
                             end
                         end
@@ -844,6 +835,7 @@ end
                         end
                         if fc < fcMin
                             retCode = 3
+                            qBreak = true
                             break
                         end
                     else
@@ -858,6 +850,7 @@ end
                         iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
                         if iFail != 0
                             retCode = 81
+                            qBreak = true
                             break
                         end
                         if newt > 0
@@ -885,7 +878,7 @@ end
                         push!(tolAll,dxNrm)
                         if dxNrm <= rTol && dxANrm <= rSmall && fc == 1.0
                             retCode = 0
-                            iConv = 1
+                            qBreak = true
                             break
                         end
 
@@ -927,6 +920,7 @@ end
                             end
                             if qMStop
                                 retCode = 4
+                                qBreak = true
                                 break
                             end
                             fc = min(fcCor,0.5*fc)
@@ -988,9 +982,13 @@ end
                 # ====================================
             end
 
-            if nonLin == 1 || iConv == 1 || (retCode != 0 && retCode != -1)
+            # Any break inside the damping-factor reduction loop comes here
+            if qBreak
                 break
             end
+            # if nonLin == 1 || iConv == 1 || (retCode != 0 && retCode != -1)
+            #     break
+            # end
 
             if qRedu
                 # --------------------------------------------------------------
@@ -1021,6 +1019,7 @@ end
                     iRank -= 1
                     if iRank < minRnk
                         retCode = 3
+                        qBreak = true
                         break
                     end
                 end
@@ -1029,6 +1028,12 @@ end
         end
         # end of psuedo-rank reduction loop
         # =================================
+
+        # Any break inside the pseudo-rank reduction loop comes here
+        if qBreak
+            break
+        end
+
         if qNext
             # ------------------------------------------------------------------
             # 4 Preparations to start the following iteration step

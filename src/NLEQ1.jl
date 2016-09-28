@@ -405,7 +405,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     # --------------------------------------------------------------------------
     # 1.5 Initial preparations
     qJcRfr              = false
-    qLInit              = false
     qIter               = true
     iFail               = 0
     fcBand              = 0.0
@@ -689,7 +688,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 break
             end
         end
-        qLInit = true
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0

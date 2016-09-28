@@ -70,7 +70,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     # If first call then reset the workspace and persistent variables
     if !qSucc
         empty!(wkNLEQ2.options)
-        initializeOptions(opt, wkNLEQ2, n, m1, nBroy, true)
+        initializeOptions(opt, wkNLEQ2, n, m1, nBroy, qRank1)
     end
 
     # Check for non linear option
@@ -238,8 +238,8 @@ end
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
     a       = wkNLEQ2.options[WK_A]
-    qa      = wkNLEQ2.options[WK_QA]
-    dxSave  = wkNLEQ2.options[WK_DXSAVE]
+    qa      = wkNLEQ2.options[WK_QA_DXSAVE]
+    dxSave  = wkNLEQ2.options[WK_QA_DXSAVE]
     dx      = wkNLEQ2.options[WK_DX]
     dxQ     = wkNLEQ2.options[WK_DXQ]
     xa      = wkNLEQ2.options[WK_XA]

@@ -1,4 +1,4 @@
-function initializeOptions(opt, wk, n, m1, nBroy, flag)
+function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     # Initialize options
     initOption!(opt, OPT_FCMIN,     0.0)
     initOption!(opt, OPT_SIGMA,     0.0)
@@ -8,11 +8,21 @@ function initializeOptions(opt, wk, n, m1, nBroy, flag)
     # Workspace: WK
     initOption!(wk, WK_A, zeros(m1,n))
 
-    if flag
-        initOption!(wk, WK_QA, zeros(n,n))
-        initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
-    else
-        initOption!(wk, WK_DXSAVE, 0.0)
+    if solver == 1
+        if qRank1
+            initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
+        else
+            initOption!(wk, WK_DXSAVE, 0.0)
+        end
+    end
+
+    if solver == 2
+        initOption!(wk, WK_QU, zeros(n))
+        if qRank1
+            initOption!(wk, WK_QA_DXSAVE, zeros(n,n))
+        else
+            initOption!(wk, WK_QA_DXSAVE, 0.0)
+        end
     end
 
     # Initialize temporary workspace
@@ -26,7 +36,6 @@ function initializeOptions(opt, wk, n, m1, nBroy, flag)
     initOption!(wk, WK_XW  , zeros(n))
     initOption!(wk, WK_FW  , zeros(n))
     initOption!(wk, WK_DXQA, zeros(n))
-    initOption!(wk, WK_QU, zeros(n))
     initOption!(wk, WK_T1, zeros(n))
     initOption!(wk, WK_T2, zeros(n))
 

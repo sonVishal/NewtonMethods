@@ -59,6 +59,7 @@ const STATS_DLEVF               = "dlevf"
 # Temporary Workspace variables
 const WK_A                      = "a"
 const WK_DXSAVE                 = "dxsave"
+const WK_QA_DXSAVE              = "qa_dxsave"
 const WK_DX                     = "dx"
 const WK_DXQ                    = "dxq"
 const WK_QA                     = "qa"

@@ -1,4 +1,3 @@
-# using Debug
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
@@ -279,6 +278,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     dLevFn = 0.0
     sumXa  = 0.0
     conva  = 0.0
+    cond1  = 0.0
+    sens1  = 0.0
     t2     = zeros(n)
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
@@ -637,10 +638,9 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         # estimate
                         t1 = dxQ./xw
                         # Norm of projection of reduced component t1[n]
-                        # TODO: Get "p" and "t2" from n2fact and n2solv
                         # "p" is the pivot vector
                         # "t2" is the diagonal returned by deccon
-                        del = n2prjn(n, iRank, t1, d, qa, p)
+                        del = n2prjn(n, iRank, t1, d, qa, p, t2)
                         fcDnm -= del
                     end
                     fcDnm *= sumX
@@ -765,7 +765,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
 
             if mPrMon >= 2
                 n2prv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
-                    printIOmon, qMixIO, cond1, iRank)
+                    printIOmon, qMixIO, cond1)
             end
 
             if !qRedu
@@ -986,9 +986,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             if qBreak
                 break
             end
-            # if nonLin == 1 || iConv == 1 || (retCode != 0 && retCode != -1)
-            #     break
-            # end
 
             if qRedu
                 # --------------------------------------------------------------
@@ -1075,23 +1072,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 setOption!(wkNLEQ2, STATS_NEW,    newt)
                 setOption!(wkNLEQ2, STATS_ICONV,  iConv)
 
-                # setOption!(wkNLEQ2, WK_A, a)
-                # setOption!(wkNLEQ2, WK_QU, qu)
-                # if nBroy != 0
-                #     setOption!(wkNLEQ2, WK_QA_DXSAVE, qa)
-                # end
-                # setOption!(wkNLEQ2, WK_DX, dx)
-                # setOption!(wkNLEQ2, WK_DXQ, dxQ)
-                # setOption!(wkNLEQ2, WK_DXQA, dxQa)
-                # setOption!(wkNLEQ2, WK_XA, xa)
-                # setOption!(wkNLEQ2, WK_XW, xw)
-                # setOption!(wkNLEQ2, WK_XWA, xwa)
-                # setOption!(wkNLEQ2, WK_F, f)
-                # setOption!(wkNLEQ2, WK_FA, fa)
-                # setOption!(wkNLEQ2, WK_FW, fw)
-                # setOption!(wkNLEQ2, WK_ETA, eta)
-                # setOption!(wkNLEQ2, WK_T1, t1)
-                # setOption!(wkNLEQ2, WK_T2, t2)
                 setOption!(wkNLEQ2, WK_SUMXA0, sumxa0)
                 setOption!(wkNLEQ2, WK_SUMXA1, sumxa1)
                 setOption!(wkNLEQ2, WK_FCMON, fcMon)
@@ -1111,8 +1091,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-                # setOption!(wkNLEQ2, "P_D", d)
-                # setOption!(wkNLEQ2, "P_P", p)
 
                 return (x, xScal, retCode)
             end
@@ -1298,22 +1276,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     setOption!(wkNLEQ2, STATS_NEW,    newt)
     setOption!(wkNLEQ2, STATS_ICONV,  iConv)
 
-    # setOption!(wkNLEQ2, WK_A, a)
-    # setOption!(wkNLEQ2, WK_QU, qu)
-    # TODO: Take care of dxSave and qa
-    # setOption!(wkNLEQ2, WK_QA_DXSAVE, qa)
-    # setOption!(wkNLEQ2, WK_DX, dx)
-    # setOption!(wkNLEQ2, WK_DXQ, dxQ)
-    # setOption!(wkNLEQ2, WK_DXQA, dxQa)
-    # setOption!(wkNLEQ2, WK_XA, xa)
-    # setOption!(wkNLEQ2, WK_XW, xw)
-    # setOption!(wkNLEQ2, WK_XWA, xwa)
-    # setOption!(wkNLEQ2, WK_F, f)
-    # setOption!(wkNLEQ2, WK_FA, fa)
-    # setOption!(wkNLEQ2, WK_FW, fw)
-    # setOption!(wkNLEQ2, WK_ETA, eta)
-    # setOption!(wkNLEQ2, WK_T1, t1)
-    # setOption!(wkNLEQ2, WK_T2, t2)
     setOption!(wkNLEQ2, WK_SUMXA0, sumxa0)
     setOption!(wkNLEQ2, WK_SUMXA1, sumxa1)
     setOption!(wkNLEQ2, WK_FCMON, fcMon)
@@ -1333,8 +1295,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
     setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-    # setOption!(wkNLEQ2, "P_D", d)
-    # setOption!(wkNLEQ2, "P_P", p)
 
     return (x, xScal, retCode)
     # End of function n2int

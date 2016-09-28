@@ -1,7 +1,6 @@
-using Debug
-function n2prjn(n, iRank, u, d, qe, p)
+function n2prjn(n, iRank, u, d, qe, p, v)
     # Begin
-    v = u[p]
+    v[:] = u[p]
     iRk1 = iRank + 1
     del = 0.0
     for i = iRk1:n
@@ -17,15 +16,20 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
     # --------------------------------------------------------------------------
-    # 1 Initialization
-    level = 1
-    k = 1
-    dd = 1
-    jj = 1
-    iFail = 0
-    v = zeros(n)
+    # Machine constants
     epMach  = 1e-17
     small   = 1e-150
+    # --------------------------------------------------------------------------
+    # 1 Initialization
+    level = 1
+    k     = 1
+    dd    = 1
+    jj    = 1
+    i1    = 1
+    hMax  = 0.0
+    iFail = 0
+    v     = zeros(n)
+
     if iRank > n
         iRank = n
     end
@@ -404,7 +408,7 @@ function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
     return nothing
 end
 
-function n2prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO,cond1,iRank)
+function n2prv1(dlevf,dlevx,fc,niter,newt,iRank,mPr,printIO,qMixIO,cond1)
     # Begin
     if qMixIO
         write(printIO,"  ******************************************************************",

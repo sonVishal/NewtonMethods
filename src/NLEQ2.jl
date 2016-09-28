@@ -272,9 +272,11 @@ end
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    iCnv  = 0
-    fck2  = fc
-    sumXa = 0.0
+    iCnv   = 0
+    fck2   = fc
+    sumXa  = 0.0
+    dLevFn = 0.0
+    conva  = 0.0
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
     cLin0   = getOption!(wkNLEQ2,"P_CLIN0",0.0)
@@ -1033,7 +1035,6 @@ end
             end
             # Print the natural level of the current iterate and
             # return it in one-step mode
-            @bp
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
                 nSout(n,xa,2,opt,wkNLEQ2,mPrSol,printIOsol)
@@ -1043,6 +1044,7 @@ end
             nIter += 1
             wkNLEQ2.options[STATS_NITER] = nIter
             push!(xIter,x)
+            @bp
             dLevF = dLevFn
             if nIter >= nItmax
                 retCode = 2

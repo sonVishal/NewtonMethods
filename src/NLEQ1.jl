@@ -336,8 +336,8 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
-    dLevFn  = 1.0
-    sumXa   = 1.0
+    dLevFn  = 0.0
+    sumXa   = 0.0
     conva   = 0.0
 
     # --------------------------------------------------------------------------

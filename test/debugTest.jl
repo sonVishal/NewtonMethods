@@ -1,10 +1,10 @@
 using NewtonMethods
 include("ChebyQuad.jl")
-dim = 3
+dim = 5
 n1 = dim + 1
 
-fSol = open("nleq2.dat","w")
-fRest = open("nleq2.out","w")
+fSol = open("nleq2_$dim.dat","w")
+fRest = open("nleq2_$dim.out","w")
 
 # Initialize the options
 opt = OptionsNLEQ(OPT_MODE              => 1,

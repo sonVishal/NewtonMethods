@@ -383,7 +383,7 @@ function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot)
     return iFail
 end
 
-function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
+function n1Prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
     # Begin
     if qMixIO
         write(printIO,"  ******************************************************************",
@@ -408,7 +408,7 @@ function n1prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
     return nothing
 end
 
-function n2prv1(dlevf,dlevx,fc,niter,newt,iRank,mPr,printIO,qMixIO,cond1)
+function n2Prv1(dlevf,dlevx,fc,niter,newt,iRank,mPr,printIO,qMixIO,cond1)
     # Begin
     if qMixIO
         write(printIO,"  ******************************************************************",
@@ -421,10 +421,12 @@ function n2prv1(dlevf,dlevx,fc,niter,newt,iRank,mPr,printIO,qMixIO,cond1)
         end
     end
     if mPr >= 3 || niter == 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e                 %2i      %4i  %10.3e\n",niter,dlevf,dlevx,newt,iRank,cond1))
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e",niter,dlevf,dlevx),
+        @sprintf("                 %2i      %4i          %10.3e\n",newt,iRank,cond1))
     end
     if mPr == 2 && niter != 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e      %7.5f    %2i      %4i  %10.3e\n",niter,dlevf,dlevx,fc,newt,iRank,cond1))
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e",niter,dlevf,dlevx),
+        @sprintf("      %7.5f    %2i      %4i          %10.3e\n",fc,newt,iRank,cond1))
     end
     if qMixIO
         write(printIO,"  ******************************************************************",

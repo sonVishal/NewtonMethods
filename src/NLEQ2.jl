@@ -1,4 +1,4 @@
-using Debug
+# using Debug
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
@@ -174,7 +174,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         @sprintf("\n\tMinimum allowed damping factor OPT_FCMIN\t= %1.2e",fcMin),
         "\n\tRank-1 updates decision parameter ",
         @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]),
-        @sprintf("\n\tInitial Jacobian pseudo-rank iRank\t\t= %1.2e", iRank),
+        @sprintf("\n\tInitial Jacobian pseudo-rank iRank\t\t= %6i", iRank),
         @sprintf("\n\tMaximum permitted subcondition cond\t\t= %1.2e\n", cond))
     end
 
@@ -226,7 +226,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -427,7 +427,7 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    @bp
+    # @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -762,7 +762,7 @@ end
             fcMon = fc
 
             if mPrMon >= 2
-                n2prv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
+                n2Prv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
                     printIOmon, qMixIO, cond1)
             end
 
@@ -789,6 +789,7 @@ end
                         break
                     end
                     #-----------------------------------------------------------
+                    # @bp
                     # 3.6.1 Computation of the residual vector
                     try
                         fcn(f,x)
@@ -1124,7 +1125,7 @@ end
                     nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
                     mPrMon,printIOmon,qMixIO,"*")
                 elseif iOrMon == 3
-                    n2prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
+                    n2Prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
                     mPrMon,printIOmon,qMixIO,cond1,iRank)
                 end
             end

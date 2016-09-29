@@ -287,7 +287,7 @@ function nSout(n, x, mode, opt, wk, mPr, printIO)
             write(printIO,@sprintf("%18.10e ",x[l1]))
             l2 += 1
             if l2 == 3
-                write(printIO,"%1s\n"," ")
+                write(printIO," \n")
                 l2 = 0
             end
         end

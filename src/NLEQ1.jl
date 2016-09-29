@@ -851,7 +851,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # and print iterate
         fcNumK = sumX
         if mPrMon >= 2
-            n1prv1(dLevF,dLevXa,fcKeep,nIter,newt,mPrMon,printIOmon,qMixIO)
+            n1Prv1(dLevF,dLevXa,fcKeep,nIter,newt,mPrMon,printIOmon,qMixIO)
         end
         nRed    = 0
         qNext   = false
@@ -1216,7 +1216,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                         nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
                         mPrMon,printIOmon,qMixIO,"*")
                     elseif iOrMon == 3
-                        n1prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
+                        n1Prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
                         mPrMon,printIOmon,qMixIO)
                     end
                 end

@@ -1,3 +1,4 @@
+using Debug
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
@@ -225,7 +226,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x, stats, retCode);
 end
 
-function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -254,8 +255,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     qu      = wkNLEQ2.options[WK_QU]
     sumxa0  = wkNLEQ2.options[WK_SUMXA0]
     sumxa1  = wkNLEQ2.options[WK_SUMXA1]
-    # t1      = wkNLEQ2.options[WK_T1]
-    # t2      = wkNLEQ2.options[WK_T2]
     fcMon   = wkNLEQ2.options[WK_FCMON]
     fcA     = wkNLEQ2.options[WK_FCA]
     fcKeep  = wkNLEQ2.options[WK_FCKEEP]
@@ -302,6 +301,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # --------------------------------------------------------------------------
     # 1 Initialization
     # --------------------------------------------------------------------------
+    @bp
     qBreak      = false
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1

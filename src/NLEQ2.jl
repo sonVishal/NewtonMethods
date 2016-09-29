@@ -301,7 +301,6 @@ end
     # --------------------------------------------------------------------------
     # 1 Initialization
     # --------------------------------------------------------------------------
-    @bp
     qBreak      = false
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
@@ -626,6 +625,7 @@ end
             # ------------------------------------------------------------------
             # 3.3 A-priori estimate of damping factor FC
             qRedu = false
+            @bp
             if nIter != 0 && nonLin != 1
                 if newt == 0 || qRepeat
                     # ----------------------------------------------------------

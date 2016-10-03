@@ -1,4 +1,4 @@
-# using Debug
+using Debug
 function n2prjn(n, iRank, u, d, qe, p, v)
     # Begin
     v[:] = u[p]
@@ -30,6 +30,7 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     hMax  = 0.0
     iFail = 0
     v     = zeros(n)
+    t     = 0.0
 
     if iRank > n
         iRank = n
@@ -235,7 +236,7 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     return (iRankC, iRank, cond, v[1], iFail)
 end
 
-function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
+@debug function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     kRed, ah)
     # Begin
     v = zeros(n)
@@ -281,8 +282,9 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     if iRank != n && iRank != iRankC
         # ----------------------------------------------------------------------
         # 3.2 Computation of the best constrained least squares-solution
+        @bp
         for j = iRk1:n
-            s = sum(ah[1:j-1].*v[1:j-1])
+            s = sum(ah[1:j-1,j].*v[1:j-1])
             v[j] = -s/d[j]
         end
         j1 = 1
@@ -302,7 +304,7 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     # --------------------------------------------------------------------------
     # 4 Back-permutation of solution components
     x[pivot] = v[:]
-    return (iRankC, iRank)
+    return iRank
 end
 
 function n1fact(n,lda,ml,mu,a,opt)
@@ -329,19 +331,18 @@ function n1fact(n,lda,ml,mu,a,opt)
     return (l,u,p,iFail)
 end
 
-function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat)
+function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat,iRankC)
     # Begin
     mPrWarn = opt.options[OPT_PRINTWARNING]
     printIO = opt.options[OPT_PRINTIOWARN]
     mCon = 0
     iRepeat = -iRepeat
     # TODO: This next line is not clear tmp = IWK(2) which is the variable iRankC from deccon
-    tmp = n
     if iRepeat == 0
-        tmp = mCon
+        iRankC = mCon
     end
     (iRankC, iRank, cond, subCond, iFail) = deccon(a, lda, n, mCon, n, n,
-                                            tmp, iRank, cond, d, p,
+                                            iRankC, iRank, cond, d, p,
                                             iRepeat, aInv)
     if iFail == -2 && mPrWarn == 1
         write(printIO,"\n","Deccon failed to compute Rank-deficient QR-Decomposition\n")
@@ -354,7 +355,7 @@ function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat)
         setOption!(wkNLEQ2, WK_SENS1, 0.0)
     end
     # TODO: Reassign output variables either here or where the function is called
-    return (cond, iFail)
+    return (cond, iRankC, iFail)
 end
 
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)
@@ -371,16 +372,14 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     return (x,iFail)
 end
 
-function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot)
+function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)
     # Begin
+    # @bp
     mCon = 0
     iRepeat = -iRepeat
-    # TODO: Don't know this yet
-    tmp = 0
-    (iRankC,iRank) = solcon(a,lda,n,mCon,n,n,z,b,tmp,iRank,d,pivot,
-        iRepeat,aInv)
+    iRank = solcon(a,lda,n,mCon,n,n,z,b,iRankC,iRank,d,pivot,
+                iRepeat,aInv)
     iFail = 0
-    # TODO: Reassign output variables either here or where the function is called
     return iFail
 end
 

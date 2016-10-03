@@ -1,4 +1,5 @@
-# using Debug
+using Debug
+# TODO: __init()__ function will initialize the Integer and Real workspace vars
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
@@ -226,7 +227,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x, stats, retCode);
 end
 
-function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -279,6 +280,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     conva  = 0.0
     cond1  = 0.0
     sens1  = 0.0
+    iRankC = 0
     t2     = zeros(n)
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
@@ -560,6 +562,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
+        # @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -573,7 +576,8 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 else
                     iRepeat = 0
                 end
-                (cond1,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,opt,p,d,iRepeat)
+                (cond1,iRankC,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,
+                                        opt,p,d,iRepeat,iRankC)
                 if iFail != 0
                     retCode = 80
                     qBreak = true
@@ -585,7 +589,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
-                iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
+                iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p,iRankC)
                 # @bp
                 if iFail != 0
                     retCode = 81
@@ -846,7 +850,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         else
                             iRepeat = 0
                         end
-                        iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
+                        iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p,iRankC)
                         if iFail != 0
                             retCode = 81
                             qBreak = true
@@ -989,14 +993,15 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             if qRedu
                 # --------------------------------------------------------------
                 # 3.11 Restore former values for repeating step
+                @bp
                 nRejR1 += 1
                 x[:]   = xa
                 f[:]   = fa
                 dxQ[:] = dxQa
                 if mPrMon >= 2
                     write(printIOmon,
-                    @sprintf("        %2i not accepted damping factor %7.5f",nIter,fc),
-                    @sprintf("    %2i %4i\n",newt,iRank))
+                    @sprintf("        %2i Not accepted damping factor         %7.5f",nIter,fc),
+                    @sprintf("    %2i      %4i\n",newt,iRank))
                 end
                 fc  = fcKeep
                 fcA = fck2

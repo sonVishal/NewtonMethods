@@ -32,11 +32,10 @@ i = 1
 while retCode == -1
     (x0, stats, retCode) = nleq2(chebyQuad, x0, xScal, opt)
     write(fRest, @sprintf("Returned from call %4i of NLEQ2\n",i))
+    flush(fSol)
+    flush(fRest)
     i += 1
 end
-
-flush(fSol)
-flush(fRest)
 
 close(fSol)
 close(fRest)

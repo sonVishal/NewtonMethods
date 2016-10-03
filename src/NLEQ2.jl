@@ -427,7 +427,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    # @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -587,6 +586,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
                 iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p)
+                # @bp
                 if iFail != 0
                     retCode = 81
                     qBreak = true
@@ -1042,9 +1042,9 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # return it in one-step mode
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                nSout(n,xa,2,opt,wkNLEQ2,mPrSol,printIOsol)
+                nSout(n,xa,2,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
             elseif mPrSol >= 1 && nIter == 0
-                nSout(n,xa,1,opt,wkNLEQ2,mPrSol,printIOsol)
+                nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
             end
             nIter += 1
             wkNLEQ2.options[STATS_NITER] = nIter
@@ -1238,9 +1238,9 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     rTol = aprec
     sumX = sumXa
     if mPrSol >= 2 && nIter != 0
-        nSout(n,xa,2,opt,wkNLEQ2,mPrSol,printIOsol)
+        nSout(n,xa,2,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
     elseif mPrSol >= 1 && nIter == 0
-        nSout(n,xa,1,opt,wkNLEQ2,mPrSol,printIOsol)
+        nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
     end
     if retCode != 4
         nIter += 1
@@ -1253,7 +1253,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         else
             modefi = 4
         end
-        nSout(n,x,modefi,opt,wkNLEQ2,mPrSol,printIOsol)
+        nSout(n,x,modefi,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
     end
     # End of exits
 

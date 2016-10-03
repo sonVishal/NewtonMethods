@@ -1,6 +1,6 @@
 using NewtonMethods
 include("ChebyQuad.jl")
-dim = 5
+dim = 8
 n1 = dim + 1
 
 fSol = open("nleq2_$dim.dat","w")

@@ -1,3 +1,4 @@
+# using Debug
 function n2prjn(n, iRank, u, d, qe, p, v)
     # Begin
     v[:] = u[p]
@@ -300,7 +301,7 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     end
     # --------------------------------------------------------------------------
     # 4 Back-permutation of solution components
-    x[:] = v[pivot]
+    x[pivot] = v[:]
     return (iRankC, iRank)
 end
 

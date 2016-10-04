@@ -1,4 +1,3 @@
-# using Debug
 # TODO: __init()__ function will initialize the Integer and Real workspace vars
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 

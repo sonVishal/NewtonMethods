@@ -3,7 +3,7 @@ include("ChebyPoly.jl")
 
 fSol = open("nleq2.dat","w")
 fRest = open("nleq2.out","w")
-dimMax = 2
+dimMax = 9
 for dim = 2:dimMax
     n1 = dim + 1
 

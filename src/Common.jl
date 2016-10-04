@@ -150,6 +150,28 @@ function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     initOption!(wk, WK_FW  , zeros(n))
     initOption!(wk, WK_DXQA, zeros(n))
 
+    initOption!(wk, WK_SUMXA0, 0.0)
+    initOption!(wk, WK_SUMXA1, 0.0)
+    initOption!(wk, WK_FCMON,  0.0)
+    initOption!(wk, WK_FCA,    0.0)
+    initOption!(wk, WK_FCKEEP, 0.0)
+    initOption!(wk, WK_FCPRI,  0.0)
+    initOption!(wk, WK_DMYCOR, 0.0)
+    initOption!(wk, WK_SUMXS,  0.0)
+
+    initOption!(wk, STATS_NITER,  0)
+    initOption!(wk, STATS_NCORR,  0)
+    initOption!(wk, STATS_NFCN,   0)
+    initOption!(wk, STATS_NFCNJ,  0)
+    initOption!(wk, STATS_NJAC,   0)
+    initOption!(wk, STATS_NREJR1, 0)
+    initOption!(wk, STATS_NEW,    0)
+    initOption!(wk, STATS_ICONV,  0)
+    initOption!(wk, STATS_CONV,   0.0)
+    initOption!(wk, STATS_SUMX,   0.0)
+    initOption!(wk, STATS_DLEVF,  0.0)
+    initOption!(wk, STATS_RTOL,   0.0)
+
     return nothing
 end
 

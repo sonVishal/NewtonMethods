@@ -21,10 +21,12 @@ export OPT_RTOL, OPT_QSUCC, OPT_MODE, OPT_JACGEN, OPT_JACFCN, OPT_MSTOR, OPT_ML,
 include("Jacobian.jl")
 include("Options.jl")
 include("Constants.jl")
-# include("Error.jl")
 include("SolverSpecific.jl")
 include("Common.jl")
-include("CheckOptionsNLEQ1.jl")
+
+# Machine Constants
+global epMach = 1e-17
+global small  = 1e-150
 
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()

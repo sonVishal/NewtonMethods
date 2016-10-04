@@ -17,10 +17,6 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     kRed, ah)
     # Begin
     # --------------------------------------------------------------------------
-    # Machine constants
-    epMach  = 1e-17
-    small   = 1e-150
-    # --------------------------------------------------------------------------
     # 1 Initialization
     level = 1
     k     = 1
@@ -307,7 +303,7 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     return iRank
 end
 
-function n1fact(n,lda,ml,mu,a,opt)
+function n1fact(n,lda,ml,mu,a,opt,l,u,p)
     # Begin
     mStor = opt.options[OPT_MSTOR]
     if mStor == 0
@@ -328,7 +324,7 @@ function n1fact(n,lda,ml,mu,a,opt)
     if iFail != 0
         iFail = 1
     end
-    return (l,u,p,iFail)
+    return iFail
 end
 
 function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat,iRankC)
@@ -369,7 +365,7 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
         x = dgbsl(l,lda,n,ml,mu,p,b,0)
     end
     iFail = 0
-    return (x,iFail)
+    return iFail
 end
 
 function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)

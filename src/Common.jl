@@ -1,3 +1,120 @@
+"""
+# Summary:
+checkOptions : Checking of input parameters and options for NLEQ1.
+"""
+function checkOptions(n, x, xScal, opt)
+
+    # TODO: Get the type of elements in x
+
+    # Check whether warnings need to be printed
+    printWarn = getOption!(opt,OPT_PRINTWARNING,0)
+    printIOwarn = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
+
+    # Get the machine related constants
+    great   = 1.0/small
+
+    # Initialize return code to 0
+    retCode = 0
+
+    # Check dimensional parameter n
+    if n <= 0
+        retCode = 20
+        write(printIOwarn,"ERROR: Bad input to dimensional parameter n supplied","\n",
+            "Choose n positive, your input is: n = $n")
+        return retCode
+    end
+
+    # Problem type specification by user
+    nonLin = getOption(opt,OPT_NONLIN,0)
+    if nonLin == 0
+        nonLin = 3
+        setOption!(opt,OPT_NONLIN,nonLin)
+    end
+
+    # Checking and conditional adaptation of user given RTOL
+    # if RTOL is not set, set it to 1e-6
+    rTol = getOption!(opt,OPT_RTOL,1e-6)
+    if rTol <= 0.0
+        retCode = 21
+        write(printIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied")
+        return retCode
+    else
+        tolMin = epMach*10.0*n
+        if rTol < tolMin
+            rTol = tolMin
+            setOption!(opt,OPT_RTOL,rTol)
+            if printWarn == 1
+                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
+            end
+        end
+
+        tolMax = 1.0e-1
+        if rTol > tolMax
+            rTol = tolMax
+            setOption!(opt,OPT_RTOL,rTol)
+            if printWarn == 1
+                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
+            end
+        end
+    end
+
+    # Test user prescribed accuracy and scaling on proper values
+    if nonLin >= 3
+        defScal = rTol
+    else
+        defScal = 1.0
+    end
+
+    for i = 1:n
+        # Scaling Values cannot be negative
+        # Positive scaling values give scale invariance
+        if xScal[i] < 0.0
+            retCode = 22
+            write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied")
+            return retCode
+        end
+
+        if xScal[i] == 0.0
+            xScal[i] = defScal
+        end
+        # Avoid overflow due to division by xScal[i]
+        if xScal[i] > 0.0 && xScal[i] < small
+            if printWarn == 1
+                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small")
+            end
+            xScal[i] = small
+        end
+        # Avoid underflow due to division by xScal[i]
+        if xScal[i] > great
+            if printWarn == 1
+                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great")
+            end
+            xScal[i] = great
+        end
+    end
+
+    # Assign the Jacobian depending on user input
+    # Multiple dispatch calls the required function based on
+    # the storage requirement of the user
+    jacGen = getOption!(opt,OPT_JACGEN,0)
+    if jacGen == 1
+        jacFcn = getOption!(opt,OPT_JACFCN,0)
+        if jacFcn == 0
+            retCode = 99
+            write(printIOwarn,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
+            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")
+            return retCode
+        end
+    elseif jacGen == 0
+        jacGen = 2
+        opt.options[OPT_JACGEN] = jacGen
+    end
+
+    # TODO: Add check for IO
+
+    return retCode
+end
+
 function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     # Initialize options
     initOption!(opt, OPT_FCMIN,     0.0)
@@ -32,30 +149,6 @@ function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     initOption!(wk, WK_XW  , zeros(n))
     initOption!(wk, WK_FW  , zeros(n))
     initOption!(wk, WK_DXQA, zeros(n))
-    # initOption!(wk, WK_T1, zeros(n))
-    # initOption!(wk, WK_T2, zeros(n))
-
-    initOption!(wk, WK_SUMXA0, 0.0)
-    initOption!(wk, WK_SUMXA1, 0.0)
-    initOption!(wk, WK_FCMON,  0.0)
-    initOption!(wk, WK_FCA,    0.0)
-    initOption!(wk, WK_FCKEEP, 0.0)
-    initOption!(wk, WK_FCPRI,  0.0)
-    initOption!(wk, WK_DMYCOR, 0.0)
-    initOption!(wk, WK_SUMXS,  0.0)
-
-    initOption!(wk, STATS_NITER,  0)
-    initOption!(wk, STATS_NCORR,  0)
-    initOption!(wk, STATS_NFCN,   0)
-    initOption!(wk, STATS_NFCNJ,  0)
-    initOption!(wk, STATS_NJAC,   0)
-    initOption!(wk, STATS_NREJR1, 0)
-    initOption!(wk, STATS_NEW,    0)
-    initOption!(wk, STATS_ICONV,  0)
-    initOption!(wk, STATS_CONV,   0.0)
-    initOption!(wk, STATS_SUMX,   0.0)
-    initOption!(wk, STATS_DLEVF,  0.0)
-    initOption!(wk, STATS_RTOL,   0.0)
 
     return nothing
 end
@@ -141,9 +234,6 @@ end
 
 # TODO: Get printIO from call rather than inside function
 function nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
-    # TODO: For nleq2 small is 1e-150
-    # small = getMachineConstants(6)
-    small = 1e-150
     # Begin
     if iScal == 1
         xw[:] = xScal
@@ -205,9 +295,8 @@ function nScrf(m,n,a,fw)
     a[:] = aout
 end
 
-function nScrb(n,lda,ml,mu,a)
+function nScrb(n,lda,ml,mu,a,fw)
     # Begin
-    fw = zeros(n)
     aout = zeros(a)
     m2 = ml + mu + 1
     for k = 1:n
@@ -228,7 +317,7 @@ function nScrb(n,lda,ml,mu,a)
             fw[k] = 1.0
         end
     end
-    return (aout,fw)
+    a[:] = aout
 end
 
 function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
@@ -269,17 +358,13 @@ function nSout(n, x, mode, opt, mPr, printIO, nIter, dLevF, sumX)
     qNorm = true
     if qNorm
         if mode == 1
-            write(printIO,@sprintf("%s\n%s%5i\n\n%s\n","  Start data:","  N =",n,
+            write(printIO,@sprintf("\n%s\n%s%5i\n\n%s\n","  Start data:","  N =",n,
                 "  Format: iteration-number, (x(i),i=1,...N) , Normf , Normx "))
             write(printIO,@sprintf("%s\n","  Initial data:"))
         elseif mode == 3
             write(printIO,@sprintf("%s\n","  Solution data:"))
-            # write(printIO,@sprintf(" %5i\n",nIter+1))
         elseif mode == 4
             write(printIO,@sprintf("%s\n","  Final data:"))
-            # write(printIO,@sprintf(" %5i\n",nIter))
-        # else
-        #     write(printIO,@sprintf(" %5i\n",nIter))
         end
         write(printIO,@sprintf(" %5i\n",nIter))
         l2 = 0

@@ -158,7 +158,6 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         setOption!(opt, OPT_IRANK, iRank)
     end
 
-    epMach = 1e-17
     cond = getOption!(opt, OPT_COND, 1.0/epMach)
     if cond < 1.0
         cond = 1.0/epMach
@@ -294,10 +293,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     sumxa2  = getOption!(wkNLEQ2,"P_SUMXA2",0.0)
     d       = getOption!(wkNLEQ2,"P_D",zeros(n))
     p       = getOption!(wkNLEQ2,"P_P",zeros(Int64,n))
-    # --------------------------------------------------------------------------
-    # 0.3 Machine related constants
-    epMach  = 1e-17
-    small   = 1e-150
     # --------------------------------------------------------------------------
     # Begin
     # --------------------------------------------------------------------------

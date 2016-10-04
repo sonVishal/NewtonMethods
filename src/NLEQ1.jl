@@ -65,24 +65,11 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
     printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
 
-    # TODO: Remove this. The user has to be sensible enough. Only give ERROR
-    # if printIO == "FILE"
-    #     # If not STDOUT then print to file
-    #     # Default file name is log.txt and the file is opened for writing
-    #     printFileName   = getOption!(opt,OPT_PRINTFILENAME,"log.txt")
-    #     printFileMode   = getOption!(opt,OPT_PRINTFILEMODE,"w")
-    #     if printFileMode != "w" || printFileMode != "a"
-    #         throw(InvalidOption("OPT_PRINTFILEMODE",printFileMode))
-    #     end
-    #     f = open(printFileName,printFileMode)
-    # end
 #-------------------------------------------------------------------------------
 
     # First call or successive call
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
     qIniMon = (printMon >= 1 && !qSucc)
-
-    # TODO: Improve checkOptions and handle the errors properly!!
 
     # Check input parameters and options
     n = length(x)
@@ -280,10 +267,6 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         printStats(stats, printIOmon)
     end
 
-    # Copy the current workspace variable to the global container only if it was a success
-    # TODO: Find the correct way to handle this. That is, find the correct values of retCode.
-    #commonWk["NLEQ1"] = wkNLEQ1;
-
     # Assign the persistent variables back
     setOption!(wkNLEQ1, "P_XITER", xIter)
     setOption!(wkNLEQ1, "P_SUMXALL", sumXall)
@@ -354,10 +337,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     u       = getOption!(wkNLEQ1,"P_U",Float64[])
     p       = getOption!(wkNLEQ1,"P_P",Float64[])
     # --------------------------------------------------------------------------
-
-    epMach  = getMachineConstants(3)
-    small   = getMachineConstants(6)
-    n       = length(x)
     # Begin
     # --------------------------------------------------------------------------
     # 1 Initialization
@@ -479,19 +458,15 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # 1.7.1 Computation of residual vector
         try
             fcn(f,x)
-            # iFail = 0
         catch
             iFail = -1
             retCode = 82
             qIter   = false
-            #throw(EvaluationError(fcn,err))
         end
         nFcn += 1
         if length(f) != n
             retCode = 22
             qIter   = false
-            #=throw(DimensionMismatch("Dimension of the function output does not
-            match the input dimension. Please check the function \"$fcn\" again."))=#
         end
     else
         qIniSc = false
@@ -558,7 +533,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         qJcRfr = false
         # ----------------------------------------------------------------------
         # 2.3 Jacobian matrix
-        # TODO: Multiple dispatch for the Jacobian evaluation
         # ----------------------------------------------------------------------
         # 2.3.1 Jacobian generation by routine jac or difference approximation
         # if qGenJ == true
@@ -570,11 +544,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 jac = getOption(opt, OPT_JACFCN, 0)
                 try
                     jac(a,x)
-                    # iFail = 0
                 catch err
                     retCode = 82
                     iFail   = -1
-                    # throw(err)
                 end
             else
                 if mStor == 0
@@ -602,8 +574,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             end
             nJac += 1
 
-            #TODO: break if jacobian computation fails
-            # Use try catch method
             if jacGen == 1 && iFail < 0
                 retCode = 83
                 break
@@ -661,7 +631,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 if mStor == 0
                     nScrf(n,n,a,fw)
                 elseif mStor == 1
-                    (a,fw) = nScrb(n,m1,ml,mu,a)
+                    nScrb(n,m1,ml,mu,a,fw)
                 end
             else
                 fw = ones(n)
@@ -678,7 +648,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # ----------------------------------------------------------------------
         # 3.1.1 Decomposition of (n,n) matrix A
         if newt == 0 && (qLU || nIter == 0)
-            (l,u,p,iFail) = n1fact(n,m1,ml,mu,a,opt)
+            iFail = n1fact(n,m1,ml,mu,a,opt,l,u,p)
             if iFail != 0
                 if iFail == 1
                     retCode = 1
@@ -691,7 +661,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0
-            (t1,iFail) = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
+            iFail = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
             if iFail != 0
                 retCode = 81
                 break
@@ -715,9 +685,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # evaluation of (scaled) standard level function dlevf
         # and computation of ordinary Newton corrections dx[n]
         if !qSimpl
-            (dx,conv,sumX,dLevF) = nLvls(n,dx,t1,xw,f,mPrMon,newt == 0)
+            (conv,sumX,dLevF) = nLvls(n,dx,t1,xw,f,mPrMon,newt == 0)
         else
-            (dx,conv,sumX,dLevF) = nLvls(n,dx,t1,xwa,f,mPrMon,newt == 0)
+            (conv,sumX,dLevF) = nLvls(n,dx,t1,xwa,f,mPrMon,newt == 0)
         end
         wkNLEQ1.options[STATS_SUMX]   = sumX
         wkNLEQ1.options[STATS_DLEVF]  = dLevF
@@ -876,11 +846,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             # 3.6.1 Computation of the residual vector
             try
                 fcn(f,x)
-                # iFail = 0
             catch
                 iFail = -1
                 retCode = 82
-                # throw(EvaluationError(fcn,err))
             end
             nFcn += 1
             # TODO: Understand what is happening here
@@ -942,7 +910,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     t1 = f.*fw
                     # ------------------------------------------------------
                     # 3.6.3 Solution of linear (n,n) system
-                    (t1,iFail) = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
+                    iFail = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
                     if iFail != 0
                         retCode = 81
                         break
@@ -1145,18 +1113,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 setOption!(wkNLEQ1, STATS_NEW,    newt)
                 setOption!(wkNLEQ1, STATS_ICONV,  iConv)
 
-                # setOption!(wkNLEQ1, WK_A, a)
-                # setOption!(wkNLEQ1, WK_DXSAVE, dxSave)
-                # setOption!(wkNLEQ1, WK_DX, dx)
-                # setOption!(wkNLEQ1, WK_DXQ, dxQ)
-                # setOption!(wkNLEQ1, WK_DXQA, dxQa)
-                # setOption!(wkNLEQ1, WK_XA, xa)
-                # setOption!(wkNLEQ1, WK_XW, xw)
-                # setOption!(wkNLEQ1, WK_XWA, xwa)
-                # setOption!(wkNLEQ1, WK_F, f)
-                # setOption!(wkNLEQ1, WK_FA, fa)
-                # setOption!(wkNLEQ1, WK_FW, fw)
-                # setOption!(wkNLEQ1, WK_ETA, eta)
                 setOption!(wkNLEQ1, WK_SUMXA0, sumxa0)
                 setOption!(wkNLEQ1, WK_SUMXA1, sumxa1)
                 setOption!(wkNLEQ1, WK_FCMON, fcMon)
@@ -1177,9 +1133,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
-                # setOption!(wkNLEQ1, "P_L", l)
-                # setOption!(wkNLEQ1, "P_U", u)
-                # setOption!(wkNLEQ1, "P_P", p)
+
                 return (x, xScal, retCode)
             end
         end
@@ -1187,9 +1141,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     # End repeat
     # End of main iteration loop
     # --------------------------------------------------------------------------
-    # --------------------------------------------------------------------------
-
-    # TODO: Check which exit messages are not requried due to error()
     # --------------------------------------------------------------------------
     # 9 Exits
     # --------------------------------------------------------------------------
@@ -1366,7 +1317,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     # --------------------------------------------------------------------------
     # 10 Prepare all the variables for returning
     xScal[:] = xw
-    # TODO: Convert the setOptions to a function since it is called twice
+
     setOption!(opt, OPT_QSUCC, Int(qSucc))
     setOption!(opt, OPT_FCSTART, fc)
 
@@ -1379,18 +1330,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     setOption!(wkNLEQ1, STATS_NEW,    newt)
     setOption!(wkNLEQ1, STATS_ICONV,  iConv)
 
-    # setOption!(wkNLEQ1, WK_A, a)
-    # setOption!(wkNLEQ1, WK_DXSAVE, dxSave)
-    # setOption!(wkNLEQ1, WK_DX, dx)
-    # setOption!(wkNLEQ1, WK_DXQ, dxQ)
-    # setOption!(wkNLEQ1, WK_DXQA, dxQa)
-    # setOption!(wkNLEQ1, WK_XA, xa)
-    # setOption!(wkNLEQ1, WK_XW, xw)
-    # setOption!(wkNLEQ1, WK_XWA, xwa)
-    # setOption!(wkNLEQ1, WK_F, f)
-    # setOption!(wkNLEQ1, WK_FA, fa)
-    # setOption!(wkNLEQ1, WK_FW, fw)
-    # setOption!(wkNLEQ1, WK_ETA, eta)
     setOption!(wkNLEQ1, WK_SUMXA0, sumxa0)
     setOption!(wkNLEQ1, WK_SUMXA1, sumxa1)
     setOption!(wkNLEQ1, WK_FCMON, fcMon)
@@ -1411,9 +1350,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     setOption!(wkNLEQ1, "P_ALPHAA", alphaA)
     setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
-    # setOption!(wkNLEQ1, "P_L", l)
-    # setOption!(wkNLEQ1, "P_U", u)
-    # setOption!(wkNLEQ1, "P_P", p)
 
     return (x, xScal, retCode)
     # End of function n1int

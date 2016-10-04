@@ -556,7 +556,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        # @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -584,7 +583,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
                 iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p,iRankC)
-                # @bp
                 if iFail != 0
                     retCode = 81
                     qBreak = true
@@ -787,7 +785,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         break
                     end
                     #-----------------------------------------------------------
-                    # @bp
                     # 3.6.1 Computation of the residual vector
                     try
                         fcn(f,x)

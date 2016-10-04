@@ -931,10 +931,10 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     #       scaled maximum error norm conv and evaluation
                     #       of (scaled) standard level function dLevFn
                     if !qSimpl
-                        (dxQ,conv,sumX,dLevFn) =
+                        (conv,sumX,dLevFn) =
                         nLvls(n,dxQ,t1,xw,f,mPrMon,newt==0)
                     else
-                        (dxQ,conv,sumX,dLevFn) =
+                        (conv,sumX,dLevFn) =
                         nLvls(n,dxQ,t1,xwa,f,mPrMon,newt==0)
                     end
                     push!(sumXQall,sqrt(sumX/n))
@@ -1084,9 +1084,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                nSout(n,xa,2,opt,wkNLEQ1,mPrSol,printIOsol)
+                nSout(n,xa,2,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
             elseif mPrSol >= 1 && nIter == 0
-                nSout(n,xa,1,opt,wkNLEQ1,mPrSol,printIOsol)
+                nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
             end
             nIter += 1
             wkNLEQ1.options[STATS_NITER] = nIter
@@ -1293,9 +1293,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         if qOrdi
             mode = 3
         end
-        nSout(n,xa,mode,opt,wkNLEQ1,mPrSol,printIOsol)
+        nSout(n,xa,mode,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
     elseif mPrSol >= 1 && nIter == 0
-        nSout(n,xa,1,opt,wkNLEQ1,mPrSol,printIOsol)
+        nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
     end
     if !qOrdi
         if retCode != 4
@@ -1309,7 +1309,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             else
                 modefi = 4
             end
-            nSout(n,x,modefi,opt,wkNLEQ1,mPrSol,printIOsol)
+            nSout(n,x,modefi,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
         end
     end
     # End of exits

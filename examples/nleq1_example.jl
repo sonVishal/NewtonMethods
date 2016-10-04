@@ -31,6 +31,8 @@ for dim = 2:dimMax
     println("Calling the while loop for solving the Cheby Quad equation of dimension $dim")
     while retCode == -1
         (x0, stats, retCode) = nleq1(chebyQuad, x0, xScal, opt)
+		flush(fSol)
+	    flush(fRest)
     end
     println("Solution = $x0")
     flush(fSol)

@@ -370,7 +370,6 @@ end
 
 function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)
     # Begin
-    # @bp
     mCon = 0
     iRepeat = -iRepeat
     iRank = solcon(a,lda,n,mCon,n,n,z,b,iRankC,iRank,d,pivot,

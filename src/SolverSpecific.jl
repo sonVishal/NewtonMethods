@@ -1,4 +1,4 @@
-using Debug
+# using Debug
 function n2prjn(n, iRank, u, d, qe, p, v)
     # Begin
     v[:] = u[p]
@@ -236,7 +236,7 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     return (iRankC, iRank, cond, v[1], iFail)
 end
 
-@debug function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
+function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     kRed, ah)
     # Begin
     v = zeros(n)
@@ -282,7 +282,6 @@ end
     if iRank != n && iRank != iRankC
         # ----------------------------------------------------------------------
         # 3.2 Computation of the best constrained least squares-solution
-        @bp
         for j = iRk1:n
             s = sum(ah[1:j-1,j].*v[1:j-1])
             v[j] = -s/d[j]
@@ -290,6 +289,7 @@ end
         j1 = 1
         for jj = 1:n
             j = n-jj+1
+            s = 0.0
             if jj != 1
                 s = sum(ah[j,j1:n]'.*v[j1:n])
             end

@@ -1,4 +1,4 @@
-using Debug
+# using Debug
 # TODO: __init()__ function will initialize the Integer and Real workspace vars
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
@@ -227,7 +227,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x, stats, retCode);
 end
 
-@debug function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
+function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
     printIOsol, qBDamp)
@@ -993,7 +993,6 @@ end
             if qRedu
                 # --------------------------------------------------------------
                 # 3.11 Restore former values for repeating step
-                @bp
                 nRejR1 += 1
                 x[:]   = xa
                 f[:]   = fa
@@ -1139,7 +1138,7 @@ end
                     retCode = 5
                 end
             end
-            if mPrMon >= 1
+            if mPrMon >= 1 && retCode != 1
                 if retCode == 4
                     nOut = nIter
                 else

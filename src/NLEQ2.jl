@@ -245,6 +245,11 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 end
 
 """
+# Summary :
+n2int : Core routine for NLEQ2.
+    Damped Newton-algorithm with rank-strategy for systems of
+    highly nonlinear equations especially designed for
+    numerically sensitive problems.
 """
 function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,

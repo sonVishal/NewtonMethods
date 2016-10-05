@@ -1,6 +1,8 @@
-#Affine invariant Newton methods for nonlinear problems
+#Numerical solution of nonlinear (NL) equations (EQ) especially designed for numerically sensitive problems.
 
-Implementation of the Newton Methods from "Newton Methods for Nonlinear Problems -- Affine Invariance and Adaptive Algorithms" by P. Deufelhard
+```@docs
+NewtonMethods
+```
 
 ## Tutorials
 ```@contents

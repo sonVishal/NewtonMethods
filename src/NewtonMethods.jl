@@ -1,10 +1,6 @@
 # Precompile the module
 __precompile__(true)
 """
-# Title
-Numerical solution of nonlinear (NL) equations (EQ)
-especially designed for numerically sensitive problems.
-
 ## References:
  1. P. Deuflhard:
      Newton Methods for Nonlinear Problems. -

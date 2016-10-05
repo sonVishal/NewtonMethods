@@ -82,3 +82,7 @@ Statistics
 
 Return code
 ===========
+
+```@docs
+NewtonMethods.n1int
+```

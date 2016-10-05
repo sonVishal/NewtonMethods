@@ -254,6 +254,11 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 end
 
 """
+# Summary :
+n1int : Core routine for NLEQ1.
+    Damped Newton-algorithm for systems of highly nonlinear
+    equations especially designed for numerically sensitive
+    problems.
 """
 function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,

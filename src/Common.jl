@@ -239,7 +239,7 @@ printInitialization : Print a summary of the initialization.
 | nItmax     | Maximum permitted Newton iterations                |
 """
 function printInitialization(n::Int64, printIOmon, rTol::Float64, jacGen::Int64,
-    mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Bool, qRank1::Bool, nonLin::Int64,
+    mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Int64, qRank1::Bool, nonLin::Int64,
     qBDamp::Bool, fcBand::Float64, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
     # Begin
     message = ""

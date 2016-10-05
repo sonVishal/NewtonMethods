@@ -520,14 +520,14 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 end
             else
                 if jacGen == 3
-                    (a,eta,nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,
-                                            etaDif,conv,nFcnJ)
+                    (nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,
+                                            etaDif,conv,nFcnJ,a)
                 end
                 if jacGen == 2
-                    (a,nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ)
+                    (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
                 end
                 if jacGen == 4
-                    (a,iFail) = n2jacFAD(fcn,x)
+                    (nFcn,iFail) = nJacFAD(fcn,x,a,nFcn)
                 end
             end
             nJac += 1

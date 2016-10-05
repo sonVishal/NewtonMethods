@@ -148,8 +148,8 @@ initializeOptions : Initialization of options based on the solver input argument
 | m1        | In full mode = n and in band mode = 2*ml+mu+1                  |
 | nBroy     | Maximum number of possible consecutive iterative Broyden steps |
 | qRank1    | Decision parameter for Rank-1 updates                          |
-| solver = 1| Specifies the solver NLEQ1                                     |
-|        = 2| Specifies the solver NLEQ2                                     |
+| solver = 1| Specifies that the solver is NLEQ1                             |
+|        = 2| Specifies that the solver is NLEQ2                             |
 
 (* marks inout parameters)
 """

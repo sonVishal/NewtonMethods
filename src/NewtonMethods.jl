@@ -1,6 +1,29 @@
 # Precompile the module
 __precompile__(true)
+"""
+# Title
+Numerical solution of nonlinear (NL) equations (EQ)
+especially designed for numerically sensitive problems.
 
+## References:
+ 1. P. Deuflhard:
+     Newton Methods for Nonlinear Problems. -
+     Affine Invariance and Adaptive Algorithms.
+     Series Computational Mathematics 35, Springer (2004)
+ 2. U. Nowak, L. Weimann:
+     A Family of Newton Codes for Systems of Highly Nonlinear
+     Equations - Algorithm, Implementation, Application.
+     ZIB, Technical Report TR 90-10 (December 1990)
+
+ ### Note 1.
+ The machine dependent values SMALL, GREAT and EPMACH are
+ set as global variables over here. As delivered, this function is adapted
+ to use constants suitable for all machines with IEEE arithmetic.
+ If you use another type of machine, you have to change the DATA state-
+ ments for IEEE arithmetic suitable for your machine.
+
+ Please generate the documentation using the following steps
+"""
 module NewtonMethods
 
 # Export the required methods

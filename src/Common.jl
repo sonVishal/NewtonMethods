@@ -1,9 +1,28 @@
 """
 # Summary:
-checkOptions : Checking of input parameters and options for NLEQ1.
-"""
-function checkOptions(n, x, xScal, opt)
+checkOptions : Checking of common input parameters and options.
 
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+
+"""
+function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
+    opt::OptionsNLEQ)
+    # Begin
     # TODO: Get the type of elements in x
 
     # Check whether warnings need to be printed
@@ -115,14 +134,35 @@ function checkOptions(n, x, xScal, opt)
     return retCode
 end
 
-function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
-    # Initialize options
+"""
+# Summary:
+initializeOptions : Initialization of options based on the solver input argument.
+
+## Input parameters
+-------------------
+| Variables | Description                                                    |
+|-----------|----------------------------------------------------------------|
+| opt*      | Options set by the user                                        |
+| wk*       | Internal workspace specific to the solver                      |
+| n         | Size of the problem                                            |
+| m1        | In full mode = n and in band mode = 2*ml+mu+1                  |
+| nBroy     | Maximum number of possible consecutive iterative Broyden steps |
+| qRank1    | Decision parameter for Rank-1 updates                          |
+| solver = 1| Specifies the solver NLEQ1                                     |
+|        = 2| Specifies the solver NLEQ2                                     |
+
+(* marks inout parameters)
+"""
+function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ,
+    n::Int64, m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64)
+    # Begin
+    # Initialize options: OPT
     initOption!(opt, OPT_FCMIN,     0.0)
     initOption!(opt, OPT_SIGMA,     0.0)
     initOption!(opt, OPT_SIGMA2,    0.0)
     initOption!(opt, OPT_NOROWSCAL, 0)
 
-    # Workspace: WK
+    # Initialize workspace: WK
     if solver == 1
         initOption!(wk, WK_A, zeros(m1,n))
         if qRank1
@@ -138,7 +178,6 @@ function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
         end
     end
 
-    # Initialize temporary workspace
     initOption!(wk, WK_DX  , zeros(n))
     initOption!(wk, WK_DXQ , zeros(n))
     initOption!(wk, WK_XA  , zeros(n))
@@ -175,8 +214,34 @@ function initializeOptions(opt, wk, n, m1, nBroy, qRank1, solver)
     return nothing
 end
 
-function printInitialization(n, printIOmon, rTol, jacGen, mStor, ml, mu,
-    qNoRowScal, qRank1, nonLin, qBDamp, fcBand, qOrdi, qSimpl, nItmax)
+"""
+# Summary:
+printInitialization : Print a summary of the initialization.
+
+## Input parameters
+-------------------
+| Variables  | Description                                        |
+|------------|----------------------------------------------------|
+| n          | Size of the problem                                |
+| printIOmon | IO handle for printing                             |
+| rTol       | Relative tolerance                                 |
+| jacGen     | Method of Jacobian generation                      |
+| mStor      | Dense or band mode storage of Jacobian             |
+| ml         | Lower bandwidth in case of band storage            |
+| mu         | Upper bandwidth in case of band storage            |
+| qNoRowScal | Decision parameter for automatic row scaling       |
+| qRank1     | Decision parameter for Rank-1 updates              |
+| nonLin     | Problem type specification                         |
+| qBDamp     | Decision parameter for bounded damping strategy    |
+| fcBand     | Bounded damping strategy restriction factor        |
+| qOrdi      | Decision parameter for ordinary Newton iteration   |
+| qSimpl     | Decision parameter for simplified Newton iteration |
+| nItmax     | Maximum permitted Newton iterations                |
+"""
+function printInitialization(n::Int64, printIOmon, rTol::Float64, jacGen::Int64,
+    mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Bool, qRank1::Bool, nonLin::Int64,
+    qBDamp::Bool, fcBand::Float64, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
+    # Begin
     message = ""
     write(printIOmon,"\nINFO: ","N = $n\n")
     write(printIOmon,"\nINFO: ","Prescribed relative precision ",
@@ -242,7 +307,18 @@ function printInitialization(n, printIOmon, rTol, jacGen, mStor, ml, mu,
     "iteration steps : $nItmax\n")
 end
 
-function printStats(stats, printIOmon)
+"""
+# Summary:
+printStats : Print a summary of the statistics.
+
+## Input parameters
+-------------------
+| Variables  | Description                                      |
+|------------|--------------------------------------------------|
+| stats      | Dictionary variable containing solver statistics |
+| printIOmon | IO handle for printing                           |
+"""
+function printStats(stats::Dict{AbstractString,Any}, printIOmon)
     write(printIOmon,"\n",
     @sprintf("*************   Statistics   ************\n"),
     @sprintf("***  Newton-iterations     : %7i  ***\n", (stats[STATS_NITER])),
@@ -254,8 +330,35 @@ function printStats(stats, printIOmon)
     @sprintf("*****************************************\n"))
 end
 
-# TODO: Get printIO from call rather than inside function
-function nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
+"""
+# Summary :
+nScal : To be used in connection with NLEQ1 and NLEQ2.
+    Computation of the internal scaling vector XW used for the
+    Jacobian matrix, the iterate vector and it's related
+    vectors - especially for the solution of the linear system
+    and the computations of norms to avoid numerical overflow.
+
+## Input parameters
+-------------------
+| Variables | Description                                                                |
+|-----------|----------------------------------------------------------------------------|
+| n         | Size of the problem                                                        |
+| x         | Current iterate                                                            |
+| xa        | Previous iterate                                                           |
+| xScal     | Scaling vector                                                             |
+| iScal     | Decision parameter for scaling                                             |
+| mPr       | Decision parameter for printing                                            |
+| printIO   | IO handle for printing                                                     |
+
+## Output parameters
+-------------------
+| Variables | Description                                                                |
+|-----------|----------------------------------------------------------------------------|
+| xw        | Scaling vector computed by this routine<br>All components must be positive.|
+
+"""
+function nScal(n::Int64, x::Vector{Float64}, xa::Vector{Float64}, xScal::Vector{Float64},
+    iScal::Int64, mPr::Int64, printIO, xw::Vector{Float64})
     # Begin
     if iScal == 1
         xw[:] = xScal
@@ -265,9 +368,7 @@ function nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
         end
     end
 
-    mPr = opt.options[OPT_PRINTITERATION]
     if mPr >= 6
-        printIO = opt.options[OPT_PRINTIO]
         write(printIO,"\n\n",
         "+++++++++++++++++++++++++++++++++++++++++++++++++\n",
         "      x-components         scaling-components\n")
@@ -279,7 +380,27 @@ function nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
     return nothing
 end
 
-function nScrf(m,n,a,fw)
+"""
+# Summary :
+nScrf : Row scaling of a (m,n)-matrix in full storage mode
+
+## Input parameters
+-------------------
+| Variables | Description                    |
+|-----------|--------------------------------|
+| m         | Number of rows of the matrix   |
+| n         | Numer of columns of the matrix |
+| a[m,n]*   | Matrix to be scaled            |
+
+(* marks inout parameters)
+
+## Output parameters
+-------------------
+| Variables | Description                    |
+|-----------|--------------------------------|
+| fw        | Row scaling factors.           |
+"""
+function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
     # Begin
     if issparse(a)
         nza = nnz(a)
@@ -314,10 +435,33 @@ function nScrf(m,n,a,fw)
             end
         end
     end
-    a[:] = aout
+    a = aout[:,:]
 end
 
-function nScrb(n,lda,ml,mu,a,fw)
+"""
+# Summary :
+nScrb : Row scaling of a (n,n)-matrix in band storage mode
+
+## Input parameters
+-------------------
+| Variables | Description                              |
+|-----------|------------------------------------------|
+| n         | Number of rows and columns of the matrix |
+| lda       | Leading dimension of the matrix array    |
+| ml        | Lower bandwidth of the matrix            |
+| mu        | Upper bandwidth of the matrix            |
+| a[lda,n]* | Matrix to be scaled                      |
+
+(* marks inout parameters)
+
+## Output parameters
+-------------------
+| Variables | Description                              |
+|-----------|------------------------------------------|
+| fw        | Row scaling factors.                     |
+"""
+function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
+    fw::Vector{Float64})
     # Begin
     aout = zeros(a)
     m2 = ml + mu + 1
@@ -342,7 +486,33 @@ function nScrb(n,lda,ml,mu,a,fw)
     a[:] = aout
 end
 
-function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
+"""
+# Summary :
+nLvls : Provides descaled solution, error norm and level functions
+    To be used in connection with NLEQ1 and NLEQ2.
+
+## Input parameters
+-------------------
+| Variables | Description                                   |
+|-----------|-----------------------------------------------|
+| n         | Number of parameters to be estimated          |
+| dx1       | Scaled Newton correction                      |
+| xw        | Vector of scaling values                      |
+| f         | Residual vector                               |
+| qdscal    | true of descaling of dx1 required, else false |
+
+## Output parameters
+-------------------
+| Variables | Description                              |
+|-----------|------------------------------------------|
+| dxq       | Leading dimension of the matrix array    |
+| conv      | Scaled maximum norm of Newton correction |
+| sumX      | Scaled natural level function value      |
+| dLevF     | Standard level function value            |
+
+"""
+function nLvls(n::Int64, dxq::Vector{Float64}, dx1::Vector{Float64},
+    xw::Vector{Float64}, f::Vector{Float64}, qdscal::Bool)
     # Begin
     if qdscal
         # ----------------------------------------------------------------------
@@ -360,8 +530,23 @@ function nLvls(n,dxq,dx1,xw,f,mPr,qdscal)
     return (conv,sumx,dlevf)
 end
 
+"""
+# Summary :
+nPrv2 : Printing of intermediate values (Type 2 routine)
 
-function nPrv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
+## Input parameters
+-------------------
+| Variables | Description                                 |
+|-----------|---------------------------------------------|
+| dlevf     | Standard level function value               |
+| dlevx     | Standard level value                        |
+| fc        | Current damping factor                      |
+| niter     | Current number of Newton iterations         |
+| qMixIO    | Decision parameter for printing             |
+| cmark     | Marker character to be printed before dlevx |
+"""
+function nPrv2(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+    printIO, qMixIO::Bool, cmark::AbstractString)
     if qMixIO
         write(printIO,"  ******************************************************************",
         "\n");
@@ -375,41 +560,74 @@ function nPrv2(dlevf,dlevx,fc,niter,mPr,printIO,qMixIO,cmark)
     return nothing
 end
 
-function nSout(n, x, mode, opt, mPr, printIO, nIter, dLevF, sumX)
+"""
+# Summary :
+nSout : Printing of iterate (user customizable routine)
+## Input parameters
+-------------------
+| Variables | Description                                                     |
+|-----------|-----------------------------------------------------------------|
+| n         | Size of the problem                                             |
+| x         | Iterate vector                                                  |
+| mode = 1  | This routine is called before the first Newton iteration step   |
+|      = 2  | This routine is called with an intermediate iterate x           |
+|      = 3  | This is the last call with the solution vector x                |
+|      = 4  | This is the last call with the final, but not solution vector x |
+| mPr       | Decision parameter for printing                                 |
+| printIO   | IO handle for printing                                          |
+| nIter     | Current number of Newton iterations                             |
+| dLevF     | Standard level function value                                   |
+| sumX      | Scaled natural level function value                             |
+"""
+function nSout(n::Int64, x::Vector{Float64}, mode::Int64, mPr::Int64, printIO,
+    nIter::Int64, dLevF::Float64, sumX::Float64)
     # Begin
-    qNorm = true
-    if qNorm
-        if mode == 1
-            write(printIO,@sprintf("\n%s\n%s%5i\n\n%s\n","  Start data:","  N =",n,
-                "  Format: iteration-number, (x(i),i=1,...N) , Normf , Normx "))
-            write(printIO,@sprintf("%s\n","  Initial data:"))
-        elseif mode == 3
-            write(printIO,@sprintf("%s\n","  Solution data:"))
-        elseif mode == 4
-            write(printIO,@sprintf("%s\n","  Final data:"))
+    if mode == 1
+        write(printIO,@sprintf("\n%s\n%s%5i\n\n%s\n","  Start data:","  N =",n,
+            "  Format: iteration-number, (x(i),i=1,...N) , Normf , Normx "))
+        write(printIO,@sprintf("%s\n","  Initial data:"))
+    elseif mode == 3
+        write(printIO,@sprintf("%s\n","  Solution data:"))
+    elseif mode == 4
+        write(printIO,@sprintf("%s\n","  Final data:"))
+    end
+    write(printIO,@sprintf(" %5i\n",nIter))
+    l2 = 0
+    for l1 = 1:n
+        write(printIO,@sprintf("%18.10e ",x[l1]))
+        l2 += 1
+        if l2 == 3
+            write(printIO," \n")
+            l2 = 0
         end
-        write(printIO,@sprintf(" %5i\n",nIter))
-        l2 = 0
-        for l1 = 1:n
-            write(printIO,@sprintf("%18.10e ",x[l1]))
-            l2 += 1
-            if l2 == 3
-                write(printIO," \n")
-                l2 = 0
-            end
-        end
-        write(printIO,@sprintf("%18.10e %18.10e \n",dLevF,
-            sqrt(sumX/n)))
-        if mode == 1 && mPr >= 2
-            write(printIO,@sprintf("%s\n","  Intermediate data:"))
-        elseif mode >= 3
-            write(printIO,@sprintf("%s\n","  End data:"))
-        end
+    end
+    write(printIO,@sprintf("%18.10e %18.10e \n",dLevF,
+        sqrt(sumX/n)))
+    if mode == 1 && mPr >= 2
+        write(printIO,@sprintf("%s\n","  Intermediate data:"))
+    elseif mode >= 3
+        write(printIO,@sprintf("%s\n","  End data:"))
     end
     return nothing
 end
 
-function wnorm(n,z,xw)
+"""
+# Summary :
+wnorm : Return the norm to be used in exit (termination) criteria
+
+## Input parameters
+-------------------
+| Variables | Description                                                     |
+|-----------|-----------------------------------------------------------------|
+| n         | Size of the problem                                             |
+| z         | The vector of which norm is to be computed                      |
+| xw        | Scaling value of z                                              |
+
+## Output
+---------
+The mean square root norm of z subject to the scaling values in xw.
+"""
+function wnorm(n::Int64, z::Vector{Float64}, xw::Vector{Float64})
     # Begin
     return sqrt(sum((z./xw).^2)/n)
 end

@@ -23,6 +23,8 @@ pages:
 - Introduction: index.md
 - Tutorial:
   - NELQ1: tutorial/nleq1.md
+  - NELQ2: tutorial/nleq2.md
 - Functions:
   - NLEQ1: functions/nleq1.md
+  - NLEQ2: functions/nleq2.md
   - Common: functions/common.md

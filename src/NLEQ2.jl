@@ -1,4 +1,23 @@
 # TODO: __init()__ function will initialize the Integer and Real workspace vars
+"""
+## Summary:
+Damped Newton-algorithm with rank strategy for systems of
+highly nonlinear equations - damping strategy due to Ref.(1).
+
+(The iteration is done by function N2INT currently. NLEQ2
+itself does some house keeping and builds up workspace.)
+
+Jacobian approximation by numerical differences, user
+supplied function JAC or forward mode automatic differentation.
+
+The numerical solution of the arising linear equations is
+done by means of the subroutines DECCON and SOLCON (QR de-
+composition with subcondition estimation, rank decision and
+computation of the rank-deficient pseudoinverse) .
+For special purposes these routines may be substituted.
+
+This is a driver routine for the core solver N2INT.
+"""
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
@@ -11,14 +30,14 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 # Printing related stuff
 #-------------------------------------------------------------------------------
     # Print warning messages?
-    printWarn   = getOption(opt,OPT_PRINTWARNING,0)
+    printWarn   = getOption!(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
     printMon    = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
     # Defaults to STDOUT
-    printIOwarn = getOption(opt,OPT_PRINTIOWARN,STDOUT)
+    printIOwarn = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
     printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
     printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
 #-------------------------------------------------------------------------------
@@ -225,6 +244,8 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x, stats, retCode);
 end
 
+"""
+"""
 function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll, fc, fcMin,
     sigma, sigma2, mPrWarn, mPrMon, mPrSol, printIOwarn, printIOmon,
@@ -371,7 +392,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         nFcnJ  = 0
         nJac   = 0
         qGenJ   = true
-        qIniSc  = true
         fcKeep  = fc
         fcA     = fc
         fcPri   = fc
@@ -416,8 +436,6 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             retCode = 82
             qIter = false
         end
-    else
-        qIniSc = false
     end
 
     # --------------------------------------------------------------------------
@@ -429,8 +447,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            nScal(n, x, xa, xScal, iScal, qIniSc, opt, xw)
-            qIniSc = false
+            nScal(n, x, xa, xScal, iScal, mPrMon, printIOmon, xw)
             if nIter != 0
                 # Preliminary psuedo-rank
                 iRankA = iRank
@@ -609,7 +626,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # scaled maximum error norm conv
             # evaluation of (scaled) standard level function dlevf
             # and computation of ordinary Newton corrections dx[n]
-            (conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,mPrMon,newt == 0)
+            (conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,newt == 0)
             wkNLEQ2.options[STATS_SUMX]   = sumX
             wkNLEQ2.options[STATS_DLEVF]  = dLevF
             xa[:]    = x
@@ -863,7 +880,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         #       scaled maximum error norm conv and evaluation
                         #       of (scaled) standard level function dLevFn
                         (conv,sumX,dLevFn) =
-                            nLvls(n,dxQ,t2,xw,f,mPrMon,newt==0)
+                            nLvls(n,dxQ,t2,xw,f,newt==0)
 
                         push!(sumXQall,sqrt(sumX/n))
                         dxNrm = wnorm(n,dxQ,xw)
@@ -909,7 +926,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                             # --------------------------------------------------
                             # 3.8 Output of iterate
                             if mPrMon >= 3
-                                nPrv2(dLevFn,sqrt(sumX/n),fc,nIter,mPrMon,
+                                nPrv2(dLevFn,sqrt(sumX/n),fc,nIter,
                                     printIOmon,qMixIO,"*")
                             end
                             if qMStop
@@ -953,7 +970,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                             if !qRep && fcCor > sigma2*fc
                                 if mPrMon >= 3
                                     nPrv2(dLevFn,sqrt(sumX/n),fc,nIter,
-                                    mPrMon,printIOmon,qMixIO,"+")
+                                    printIOmon,qMixIO,"+")
                                 end
                                 fc = fcCor
 
@@ -1031,15 +1048,15 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # ------------------------------------------------------------------
             # Print values
             if mPrMon >= 3
-                nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPrMon,printIOmon,qMixIO,"*")
+                nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,printIOmon,qMixIO,"*")
             end
             # Print the natural level of the current iterate and
             # return it in one-step mode
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                nSout(n,xa,2,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+                nSout(n,xa,2,mPrSol,printIOsol,nIter,dLevF,sumX)
             elseif mPrSol >= 1 && nIter == 0
-                nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+                nSout(n,xa,1,mPrSol,printIOsol,nIter,dLevF,sumX)
             end
             nIter += 1
             wkNLEQ2.options[STATS_NITER] = nIter
@@ -1118,7 +1135,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             if mPrMon >= 2
                 if retCode == 0
                     nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
-                    mPrMon,printIOmon,qMixIO,"*")
+                    printIOmon,qMixIO,"*")
                 elseif iOrMon == 3
                     n2Prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
                     mPrMon,printIOmon,qMixIO,cond1,iRank)
@@ -1233,9 +1250,9 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
     rTol = aprec
     sumX = sumXa
     if mPrSol >= 2 && nIter != 0
-        nSout(n,xa,2,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+        nSout(n,xa,2,mPrSol,printIOsol,nIter,dLevF,sumX)
     elseif mPrSol >= 1 && nIter == 0
-        nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+        nSout(n,xa,1,mPrSol,printIOsol,nIter,dLevF,sumX)
     end
     if retCode != 4
         nIter += 1
@@ -1248,7 +1265,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         else
             modefi = 4
         end
-        nSout(n,x,modefi,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+        nSout(n,x,modefi,mPrSol,printIOsol,nIter,dLevF,sumX)
     end
     # End of exits
 

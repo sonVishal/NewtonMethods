@@ -2,15 +2,16 @@
 
 Implementation of the Newton Methods from "Newton Methods for Nonlinear Problems -- Affine Invariance and Adaptive Algorithms" by P. Deufelhard
 
-## Index of functions
-
-```@index
-```
-
 ## Tutorials
 ```@contents
 Pages = [
     "tutorials/nleq1.md",
+    "tutorials/nleq2.md"
     ]
 Depth = 2
+```
+
+## Index of functions
+
+```@index
 ```

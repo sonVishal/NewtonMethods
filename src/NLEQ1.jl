@@ -1,20 +1,6 @@
 # TODO: Make everything work with Float64 as well as BigFloat
 # Currently everything is assumed to be Float64
 """
-# Title
-Numerical solution of nonlinear (NL) equations (EQ)
-especially designed for numerically sensitive problems.
-
-## References:
- 1. P. Deuflhard:
-     Newton Methods for Nonlinear Problems. -
-     Affine Invariance and Adaptive Algorithms.
-     Series Computational Mathematics 35, Springer (2004)
- 2. U. Nowak, L. Weimann:
-     A Family of Newton Codes for Systems of Highly Nonlinear
-     Equations - Algorithm, Implementation, Application.
-     ZIB, Technical Report TR 90-10 (December 1990)
-
 ## Summary:
 Damped Newton-algorithm for systems of highly nonlinear
 equations - damping strategy due to Ref. (1).
@@ -33,17 +19,6 @@ subroutines into Julia code, in the band matrix case.
 For special purposes these routines may be substituted.
 
 This is a driver routine for the core solver N1INT.
-
-### Note 1.
-The machine dependent values SMALL, GREAT and EPMACH are
-gained from calls of the machine constants function
-getMachineConstants. As delivered, this function is adapted
-to use constants suitable for all machines with IEEE arithmetic.
-If you use another type of machine, you have to change the DATA state-
-ments for IEEE arithmetic in getMachineConstants
-suitable for your machine.
-
-Please generate the documentation using the following steps
 """
 function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
@@ -54,14 +29,14 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 # Printing related stuff
 #-------------------------------------------------------------------------------
     # Print warning messages?
-    printWarn   = getOption(opt,OPT_PRINTWARNING,0)
+    printWarn   = getOption!(opt,OPT_PRINTWARNING,0)
     # Print iteration summary?
     printMon    = getOption!(opt,OPT_PRINTITERATION,0)
     # Print solution summary?
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
     # Where to print?
     # Defaults to STDOUT
-    printIOwarn = getOption(opt,OPT_PRINTIOWARN,STDOUT)
+    printIOwarn = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
     printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
     printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
 
@@ -278,6 +253,8 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x, stats, retCode);
 end
 
+"""
+"""
 function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
     m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
     fc, fcMin, sigma, sigma2, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn,
@@ -434,7 +411,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         sumxa1  = 0.0
 
         qGenJ   = true
-        qIniSc  = true
         fcK2    = fc
 
         if jacGen == 3
@@ -468,8 +444,6 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             retCode = 22
             qIter   = false
         end
-    else
-        qIniSc = false
     end
     # --------------------------------------------------------------------------
     # Main iteration loop
@@ -481,8 +455,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            nScal(n , x, xa, xScal, iScal, qIniSc, opt, xw)
-            qIniSc = false
+            nScal(n , x, xa, xScal, iScal, mPrMon, printIOmon, xw)
             if nIter != 0
                 # --------------------------------------------------------------
                 # 2.2 Aposteriori estimate of damping factor
@@ -685,9 +658,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # evaluation of (scaled) standard level function dlevf
         # and computation of ordinary Newton corrections dx[n]
         if !qSimpl
-            (conv,sumX,dLevF) = nLvls(n,dx,t1,xw,f,mPrMon,newt == 0)
+            (conv,sumX,dLevF) = nLvls(n,dx,t1,xw,f,newt == 0)
         else
-            (conv,sumX,dLevF) = nLvls(n,dx,t1,xwa,f,mPrMon,newt == 0)
+            (conv,sumX,dLevF) = nLvls(n,dx,t1,xwa,f,newt == 0)
         end
         wkNLEQ1.options[STATS_SUMX]   = sumX
         wkNLEQ1.options[STATS_DLEVF]  = dLevF
@@ -932,10 +905,10 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     #       of (scaled) standard level function dLevFn
                     if !qSimpl
                         (conv,sumX,dLevFn) =
-                        nLvls(n,dxQ,t1,xw,f,mPrMon,newt==0)
+                        nLvls(n,dxQ,t1,xw,f,newt==0)
                     else
                         (conv,sumX,dLevFn) =
-                        nLvls(n,dxQ,t1,xwa,f,mPrMon,newt==0)
+                        nLvls(n,dxQ,t1,xwa,f,newt==0)
                     end
                     push!(sumXQall,sqrt(sumX/n))
                     dxNrm = wnorm(n,dxQ,xw)
@@ -982,7 +955,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     # ------------------------------------------------------
                     # 3.8 Output of iterate
                     if mPrMon >= 3
-                        nPrv2(dLevFn,sqrt(sumX/n),fc,nIter,mPrMon,printIOmon,qMixIO,"*")
+                        nPrv2(dLevFn,sqrt(sumX/n),fc,nIter,printIOmon,qMixIO,"*")
                     end
                     if qMStop
                         retCode = 4
@@ -1030,7 +1003,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     if !qOrdi && !qRep && fcCor > sigma2*fc
                         if mPrMon >= 3
                             nPrv2(dLevFn,sqrt(sumX/n),fc,nIter,
-                            mPrMon,printIOmon,qMixIO,"+")
+                            printIOmon,qMixIO,"+")
                         end
                         fc = fcCor
 
@@ -1077,16 +1050,16 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             # ------------------------------------------------------------------
             # Print values
             if mPrMon >= 3 && !qOrdi
-                nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,mPrMon,printIOmon,qMixIO,"*")
+                nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,printIOmon,qMixIO,"*")
             end
             # Print the natural level of the current iterate and
             # return it in one-step mode
             sumXs = sumX
             sumX = sumXa
             if mPrSol >= 2 && nIter != 0
-                nSout(n,xa,2,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+                nSout(n,xa,2,mPrSol,printIOsol,nIter,dLevF,sumX)
             elseif mPrSol >= 1 && nIter == 0
-                nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+                nSout(n,xa,1,mPrSol,printIOsol,nIter,dLevF,sumX)
             end
             nIter += 1
             wkNLEQ1.options[STATS_NITER] = nIter
@@ -1165,7 +1138,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                 if mPrMon >= 2
                     if retCode == 0
                         nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
-                        mPrMon,printIOmon,qMixIO,"*")
+                        printIOmon,qMixIO,"*")
                     elseif iOrMon == 3
                         n1Prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
                         mPrMon,printIOmon,qMixIO)
@@ -1293,9 +1266,9 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         if qOrdi
             mode = 3
         end
-        nSout(n,xa,mode,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+        nSout(n,xa,mode,mPrSol,printIOsol,nIter,dLevF,sumX)
     elseif mPrSol >= 1 && nIter == 0
-        nSout(n,xa,1,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+        nSout(n,xa,1,mPrSol,printIOsol,nIter,dLevF,sumX)
     end
     if !qOrdi
         if retCode != 4
@@ -1309,7 +1282,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
             else
                 modefi = 4
             end
-            nSout(n,x,modefi,opt,mPrSol,printIOsol,nIter,dLevF,sumX)
+            nSout(n,x,modefi,mPrSol,printIOsol,nIter,dLevF,sumX)
         end
     end
     # End of exits

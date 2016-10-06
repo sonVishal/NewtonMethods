@@ -1,4 +1,3 @@
-# TODO: Make everything work with Float64 as well as BigFloat
 """
 function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 

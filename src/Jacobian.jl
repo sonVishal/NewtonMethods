@@ -1,7 +1,6 @@
 using ForwardDiff
 
 # Evaluation of Jacobian using Automatic differentiation
-# TODO: this is not working
 """
 function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,
     chunkSize = ForwardDiff.pickchunk(x))

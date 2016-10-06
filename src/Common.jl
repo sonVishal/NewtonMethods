@@ -214,6 +214,16 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
     initOption!(wk, STATS_DLEVF,  0.0)
     initOption!(wk, STATS_RTOL,   0.0)
 
+    # TODO: Create an option to check whether these things should be stored or not
+    # They might take up a lot of memory.
+
+    initOption!(wk, "P_XITER", Vector{Vector{Float64}}())
+    initOption!(wk, "P_SUMXALL", Vector{Float64}())
+    initOption!(wk, "P_DLEVFALL", Vector{Float64}())
+    initOption!(wk, "P_SUMXQALL", Vector{Float64}())
+    initOption!(wk, "P_TOLALL", Vector{Float64}())
+    initOption!(wk, "P_FCALL", Vector{Float64}())
+
     return nothing
 end
 

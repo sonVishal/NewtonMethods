@@ -1,7 +1,7 @@
 # TODO: Make everything work with Float64 as well as BigFloat
-# Currently everything is assumed to be Float64
 """
-## Summary:
+function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+
 Damped Newton-algorithm for systems of highly nonlinear
 equations - damping strategy due to Ref. (1).
 
@@ -87,12 +87,6 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         nBroy = 0
     end
 
-    xIter    = getOption!(wkNLEQ1, "P_XITER", [])
-    sumXall  = getOption!(wkNLEQ1, "P_SUMXALL", [])
-    dLevFall = getOption!(wkNLEQ1, "P_DLEVFALL", [])
-    sumXQall = getOption!(wkNLEQ1, "P_SUMXQALL", [])
-    tolAll   = getOption!(wkNLEQ1, "P_TOLALL", [])
-    fcAll    = getOption!(wkNLEQ1, "P_FCALL", [])
     # Check if this is a first call or successive call to nleq1
     # If first call then reset the workspace and persistent variables
     if !qSucc
@@ -209,12 +203,10 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     end
 
     # Call to n1int
-    (x, xScal, retCode) = n1int(n, fcn, x, xScal,
-    opt.options[OPT_RTOL], nItmax, nonLin, opt, retCode, m1, m2, nBroy,
-    xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
-    opt.options[OPT_FCSTART], opt.options[OPT_FCMIN], opt.options[OPT_SIGMA],
-    opt.options[OPT_SIGMA2], mStor, printWarn,
-    printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
+    (x, xScal, retCode) = n1int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
+        nonLin, opt, retCode, m1, m2, nBroy, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
+        opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], mStor, printWarn,
+        printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
     # set stats variable
     stats = Dict{AbstractString,Any}()
@@ -224,12 +216,12 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     else
         stats[STATS_RTOL] = opt.options[OPT_RTOL]
     end
-    stats[STATS_XITER]      = xIter
-    stats[STATS_NATLEVEL]   = sumXall
-    stats[STATS_SIMLEVEL]   = sumXQall
-    stats[STATS_STDLEVEL]   = dLevFall
-    stats[STATS_PRECISION]  = tolAll
-    stats[STATS_DAMPINGFC]  = fcAll
+    stats[STATS_XITER]      = wkNLEQ1.options["P_XITER"]
+    stats[STATS_NATLEVEL]   = wkNLEQ1.options["P_SUMXALL"]
+    stats[STATS_SIMLEVEL]   = wkNLEQ1.options["P_DLEVFALL"]
+    stats[STATS_STDLEVEL]   = wkNLEQ1.options["P_SUMXQALL"]
+    stats[STATS_PRECISION]  = wkNLEQ1.options["P_TOLALL"]
+    stats[STATS_DAMPINGFC]  = wkNLEQ1.options["P_FCALL"]
     stats[STATS_NITER]      = wkNLEQ1.options[STATS_NITER]
     stats[STATS_NCORR]      = wkNLEQ1.options[STATS_NCORR]
     stats[STATS_NREJR1]     = wkNLEQ1.options[STATS_NREJR1]
@@ -242,62 +234,67 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         printStats(stats, printIOmon)
     end
 
-    # Assign the persistent variables back
-    setOption!(wkNLEQ1, "P_XITER", xIter)
-    setOption!(wkNLEQ1, "P_SUMXALL", sumXall)
-    setOption!(wkNLEQ1, "P_DLEVFALL", dLevFall)
-    setOption!(wkNLEQ1, "P_SUMXQALL", sumXQall)
-    setOption!(wkNLEQ1, "P_TOLALL", tolAll)
-    setOption!(wkNLEQ1, "P_FCALL", fcAll)
-
     return (x, stats, retCode);
 end
 
 """
-# Summary :
-n1int : Core routine for NLEQ1.
-    Damped Newton-algorithm for systems of highly nonlinear
-    equations especially designed for numerically sensitive
-    problems.
+function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
+    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ, retCode::Int64,
+    m1::Int64, m2::Int64, nBroy::Int64, fc::Float64, fcMin::Float64,
+    sigma::Float64, sigma2::Float64, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,
+    mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
+
+Core routine for NLEQ1.
+
+Damped Newton-algorithm for systems of highly nonlinear
+equations especially designed for numerically sensitive
+problems.
 """
-function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
-    m1, m2, nBroy, xIter, sumXall, dLevFall, sumXQall, tolAll, fcAll,
-    fc, fcMin, sigma, sigma2, mStor, mPrWarn, mPrMon, mPrSol, printIOwarn,
-    printIOmon, printIOsol, qBDamp)
+function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
+    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ, retCode::Int64,
+    m1::Int64, m2::Int64, nBroy::Int64, fc::Float64, fcMin::Float64,
+    sigma::Float64, sigma2::Float64, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,
+    mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
 
     # --------------------------------------------------------------------------
     # Since wkNLEQ1 is module global
     # Create the local variables here rather than taking them as arguments
-    a       = wkNLEQ1.options[WK_A]
-    dxSave  = wkNLEQ1.options[WK_DXSAVE]
-    dx      = wkNLEQ1.options[WK_DX]
-    dxQ     = wkNLEQ1.options[WK_DXQ]
-    xa      = wkNLEQ1.options[WK_XA]
-    xwa     = wkNLEQ1.options[WK_XWA]
-    f       = wkNLEQ1.options[WK_F]
-    fa      = wkNLEQ1.options[WK_FA]
-    eta     = wkNLEQ1.options[WK_ETA]
-    xw      = wkNLEQ1.options[WK_XW]
-    fw      = wkNLEQ1.options[WK_FW]
-    dxQa    = wkNLEQ1.options[WK_DXQA]
-    sumxa0  = wkNLEQ1.options[WK_SUMXA0]
-    sumxa1  = wkNLEQ1.options[WK_SUMXA1]
-    fcMon   = wkNLEQ1.options[WK_FCMON]
-    fcA     = wkNLEQ1.options[WK_FCA]
-    fcKeep  = wkNLEQ1.options[WK_FCKEEP]
-    fcPri   = wkNLEQ1.options[WK_FCPRI]
-    dMyCor  = wkNLEQ1.options[WK_DMYCOR]
-    conv    = wkNLEQ1.options[STATS_CONV]
-    sumXs   = wkNLEQ1.options[WK_SUMXS]
-    dLevF   = wkNLEQ1.options[STATS_DLEVF]
-    nIter   = wkNLEQ1.options[STATS_NITER]
-    nCorr   = wkNLEQ1.options[STATS_NCORR]
-    nFcn    = wkNLEQ1.options[STATS_NFCN]
-    nFcnJ   = wkNLEQ1.options[STATS_NFCNJ]
-    nJac    = wkNLEQ1.options[STATS_NJAC]
-    nRejR1  = wkNLEQ1.options[STATS_NREJR1]
-    newt    = wkNLEQ1.options[STATS_NEW]
-    iConv   = wkNLEQ1.options[STATS_ICONV]
+    a        = wkNLEQ1.options[WK_A]
+    dxSave   = wkNLEQ1.options[WK_DXSAVE]
+    dx       = wkNLEQ1.options[WK_DX]
+    dxQ      = wkNLEQ1.options[WK_DXQ]
+    xa       = wkNLEQ1.options[WK_XA]
+    xwa      = wkNLEQ1.options[WK_XWA]
+    f        = wkNLEQ1.options[WK_F]
+    fa       = wkNLEQ1.options[WK_FA]
+    eta      = wkNLEQ1.options[WK_ETA]
+    xw       = wkNLEQ1.options[WK_XW]
+    fw       = wkNLEQ1.options[WK_FW]
+    dxQa     = wkNLEQ1.options[WK_DXQA]
+    sumxa0   = wkNLEQ1.options[WK_SUMXA0]
+    sumxa1   = wkNLEQ1.options[WK_SUMXA1]
+    fcMon    = wkNLEQ1.options[WK_FCMON]
+    fcA      = wkNLEQ1.options[WK_FCA]
+    fcKeep   = wkNLEQ1.options[WK_FCKEEP]
+    fcPri    = wkNLEQ1.options[WK_FCPRI]
+    dMyCor   = wkNLEQ1.options[WK_DMYCOR]
+    conv     = wkNLEQ1.options[STATS_CONV]
+    sumXs    = wkNLEQ1.options[WK_SUMXS]
+    dLevF    = wkNLEQ1.options[STATS_DLEVF]
+    nIter    = wkNLEQ1.options[STATS_NITER]
+    nCorr    = wkNLEQ1.options[STATS_NCORR]
+    nFcn     = wkNLEQ1.options[STATS_NFCN]
+    nFcnJ    = wkNLEQ1.options[STATS_NFCNJ]
+    nJac     = wkNLEQ1.options[STATS_NJAC]
+    nRejR1   = wkNLEQ1.options[STATS_NREJR1]
+    newt     = wkNLEQ1.options[STATS_NEW]
+    iConv    = wkNLEQ1.options[STATS_ICONV]
+    xIter    = wkNLEQ1.options["P_XITER"]
+    sumXall  = wkNLEQ1.options["P_SUMXALL"]
+    dLevFall = wkNLEQ1.options["P_DLEVFALL"]
+    sumXQall = wkNLEQ1.options["P_SUMXQALL"]
+    tolAll   = wkNLEQ1.options["P_TOLALL"]
+    fcAll    = wkNLEQ1.options["P_FCALL"]
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.

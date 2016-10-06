@@ -19,10 +19,6 @@ NewtonMethods.n2solv
 ```
 
 ```@docs
-NewtonMethods.n2Prv1
-```
-
-```@docs
 NewtonMethods.nleq2
 ```
 

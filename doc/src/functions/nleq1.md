@@ -15,10 +15,6 @@ NewtonMethods.n1solv
 ```
 
 ```@docs
-NewtonMethods.n1Prv1
-```
-
-```@docs
 NewtonMethods.nleq1
 ```
 Input parameters of NLEQ1

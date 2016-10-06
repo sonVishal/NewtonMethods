@@ -273,8 +273,8 @@ deccon : Constrained QR-decomposition of (m,n)-system  with
 | d             | Diagonal elements of the upper triangular matrix              |
 | pivot         | Index vector storing permutation of columns due to pivoting   |
 | ah[nCol,nCol] | In case of rank-defect used to compute the psuedo-inverse     |
-| retCode = 0   | deccon computation was successful                             |
-| retCode = -2  | Numerically negative diagonal element encountered during computation of pseudo-inverse due to extremely bad conditioned matrix a. deccon is unable to continue rank-reduction |
+| iFail = 0     | deccon computation was successful                             |
+| iFail = -2    | Numerically negative diagonal element encountered during computation of pseudo-inverse due to extremely bad conditioned matrix a. deccon is unable to continue rank-reduction |
 """
 function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
     m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::Float64,
@@ -590,30 +590,39 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
     return iRank
 end
 
+# TODO: n1fact and n2fact = nFact multiple dispatch
+# TODO: n1solv and n2solv = nSolv multiple dispatch
+
 """
 # Summary:
-n1fact : Checking of common input parameters and options.
+n1fact : Call linear algebra subprogram for factorization of a (n,n)-matrix.
 
 ## Input parameters
 -------------------
-| Variable | Description             |
-|----------|-------------------------|
-| n        | Size of the problem     |
-| x        | Initial guess           |
-| xScal*   | Initial scaling vector  |
-| opt*     | Options set by the user |
-
-(* marks inout parameters)
+| Variable  | Description                                             |
+|-----------|---------------------------------------------------------|
+| n         | Order of the linear system                              |
+| lda       | Leading dimension of the matrix a                       |
+| ml        | Lower bandwidth of the matrix (only for banded systems) |
+| mu        | Upper bandwidth of the matrix (only for banded systems) |
+| a[lda,n]  | Matrix to be factorized                                 |
+| mStor = 0 | Full storage mode for matrix                            |
+| mStor = 1 | Band storage mode for matrix                            |
 
 ## Output parameters
 --------------------
-| Variable | Description                 |
-|----------|-----------------------------|
-| retCode  | Exit code in case of errors |
+| Variable | Description                                        |
+|----------|----------------------------------------------------|
+| iFail    | Exit code in case of errors                        |
+| = 0      | Matrix decomposition successful                    |
+| = 1      | Decomposition failed - matrix numerically singular |
+| l[lda,n] | Lower triangular part of decomposed matrix in case of full mode. The complete LU-decomposition in band mode |
+| u[lda,n] | Upper triangular part of decomposed matrix in case of full mode. Unused in case of band mode. |
+| p        | Vector of pivot indices                            |
 """
-function n1fact(n,lda,ml,mu,a,opt,l,u,p)
+function n1fact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
+    mStor::Int64, l::Array{Float64,2}, u::Array{Float64,2}, p::Vector{Int64})
     # Begin
-    mStor = opt.options[OPT_MSTOR]
     if mStor == 0
         try
             (l,u,p) = lu(a)
@@ -637,26 +646,38 @@ end
 
 """
 # Summary:
-n2fact : Checking of common input parameters and options.
+n2fact : Call linear algebra subprogram for factorization of a (n,n)-matrix
+    with rank decision and casual computation of the rank deficient
+    pseudo-inverse matrix.
 
 ## Input parameters
 -------------------
-| Variable | Description             |
-|----------|-------------------------|
-| n        | Size of the problem     |
-| x        | Initial guess           |
-| xScal*   | Initial scaling vector  |
-| opt*     | Options set by the user |
-
-(* marks inout parameters)
+| Variable  | Description                                             |
+|-----------|---------------------------------------------------------|
+| n         | Order of the linear system                              |
+| lda       | Leading dimension of the matrix a                       |
+| ldaInv    | Leading dimension of the matrix aInv                    |
+| ml        | Lower bandwidth of the matrix (only for banded systems) |
+| mu        | Upper bandwidth of the matrix (only for banded systems) |
+| a[lda,n]  | Matrix to be factorized                                 |
+| cond*     | Maximum permitted subcondition for the prescribed rank  |
+| opt       | User prescribed options                                 |
+| iRankC, iRank, cond | Refer to input and output parameters of deccon |
+| iRank*    | Prescribed maximum pseudo-rank of matrix a              |
+| cond*     | Permitted upper bound for the subcondition of leastsquares part of a |
 
 ## Output parameters
 --------------------
-| Variable | Description                 |
-|----------|-----------------------------|
-| retCode  | Exit code in case of errors |
+| Variable       | Description                                        |
+|----------------|----------------------------------------------------|
+| aInv[ldaInv,n] | If matrix a is rank deficient this array holds the pseudo-inverse of a |
+| iFail = 0      | Matrix decomposition successful                    |
+| p              | Vector of pivot indices                            |
+| d              | Refer to deccon                                    |
 """
-function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat,iRankC)
+function n2fact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{Float64,2}, aInv::Array{Float64,2}, cond::Float64, iRank::Int64,
+    opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{Float64}, iRepeat::Int64, iRankC::Int64)
     # Begin
     mPrWarn = opt.options[OPT_PRINTWARNING]
     printIO = opt.options[OPT_PRINTIOWARN]
@@ -679,34 +700,22 @@ function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat,iRankC)
         cond = 1.0
         setOption!(wkNLEQ2, WK_SENS1, 0.0)
     end
-    # TODO: Reassign output variables either here or where the function is called
     return (cond, iRankC, iFail)
 end
 
 """
 # Summary:
-n1solv : Checking of common input parameters and options.
+n1solv : Call linear algebra subprogram for solution of the linear system a*z = b
 
-## Input parameters
+## Parameters
 -------------------
 | Variable | Description             |
 |----------|-------------------------|
-| n        | Size of the problem     |
-| x        | Initial guess           |
-| xScal*   | Initial scaling vector  |
-| opt*     | Options set by the user |
-
-(* marks inout parameters)
-
-## Output parameters
---------------------
-| Variable | Description                 |
-|----------|-----------------------------|
-| retCode  | Exit code in case of errors |
+| n, lda, ml, mu, l, u, p, b, mStor, iFail | Refer n1fact |
 """
-function n1solv(n,lda,ml,mu,l,u,p,b,opt)
+function n1solv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
+    u::Array{Float64,2}, p::Vector{Int64}, b::Vector{Float64}, mStor::Int64)
     # Begin
-    mStor = opt.options[OPT_MSTOR]
     if mStor == 0
         x = b[p]
         x = l\x
@@ -724,22 +733,23 @@ n2solv : Checking of common input parameters and options.
 
 ## Input parameters
 -------------------
-| Variable | Description             |
-|----------|-------------------------|
-| n        | Size of the problem     |
-| x        | Initial guess           |
-| xScal*   | Initial scaling vector  |
-| opt*     | Options set by the user |
+| Variable | Description                          |
+|----------|--------------------------------------|
+| b[n]*    | Right hand side of the linear system |
+| n, lda, ldaInv, ml, mu, a, aInv, iRank, iRepeat, d, pivot, iRankC | Refer n2fact |
 
 (* marks inout parameters)
 
 ## Output parameters
 --------------------
-| Variable | Description                 |
-|----------|-----------------------------|
-| retCode  | Exit code in case of errors |
+| Variable | Description                                                       |
+|----------|-------------------------------------------------------------------|
+| b[n]*    | RHS transformed to the upper triangular part of the linear system |
 """
-function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)
+function n2solv(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{Float64,2}, aInv::Array{Float64,2}, b::Vector{Float64},
+    z::Vector{Float64}, iRank::Int64, iRepeat::Int64, d::Vector{Float64},
+    pivot::Vector{Int64}, iRankC::Int64)
     # Begin
     mCon = 0
     iRepeat = -iRepeat
@@ -747,98 +757,4 @@ function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)
                 iRepeat,aInv)
     iFail = 0
     return iFail
-end
-
-"""
-# Summary:
-n1Prv1 : Checking of common input parameters and options.
-
-## Input parameters
--------------------
-| Variable | Description             |
-|----------|-------------------------|
-| n        | Size of the problem     |
-| x        | Initial guess           |
-| xScal*   | Initial scaling vector  |
-| opt*     | Options set by the user |
-
-(* marks inout parameters)
-
-## Output parameters
---------------------
-| Variable | Description                 |
-|----------|-----------------------------|
-| retCode  | Exit code in case of errors |
-"""
-function n1Prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
-    # Begin
-    if qMixIO
-        write(printIO,"  ******************************************************************",
-        "\n");
-        if mPr >= 3
-            write(printIO,"        It       Normf           Normx                     New\n")
-        end
-        if mPr == 2
-            write(printIO,"        It       Normf           Normx         Damp.Fct.   New\n")
-        end
-    end
-    if mPr >= 3 || niter == 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e                 %2i\n",niter,dlevf,dlevx,newt))
-    end
-    if mPr == 2 && niter != 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e      %7.5f    %2i\n",niter,dlevf,dlevx,fc,newt))
-    end
-    if qMixIO
-        write(printIO,"  ******************************************************************",
-        "\n");
-    end
-    return nothing
-end
-
-"""
-# Summary:
-n2Prv1 : Checking of common input parameters and options.
-
-## Input parameters
--------------------
-| Variable | Description             |
-|----------|-------------------------|
-| n        | Size of the problem     |
-| x        | Initial guess           |
-| xScal*   | Initial scaling vector  |
-| opt*     | Options set by the user |
-
-(* marks inout parameters)
-
-## Output parameters
---------------------
-| Variable | Description                 |
-|----------|-----------------------------|
-| retCode  | Exit code in case of errors |
-"""
-function n2Prv1(dlevf,dlevx,fc,niter,newt,iRank,mPr,printIO,qMixIO,cond1)
-    # Begin
-    if qMixIO
-        write(printIO,"  ******************************************************************",
-        "\n");
-        if mPr >= 3
-            write(printIO,"        It       Normf           Normx                     New      Rank        Cond\n")
-        end
-        if mPr == 2
-            write(printIO,"        It       Normf           Normx         Damp.Fct.   New      Rank        Cond\n")
-        end
-    end
-    if mPr >= 3 || niter == 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e",niter,dlevf,dlevx),
-        @sprintf("                 %2i      %4i          %10.3e\n",newt,iRank,cond1))
-    end
-    if mPr == 2 && niter != 0
-        write(printIO,@sprintf("      %4i     %10.3e      %10.3e",niter,dlevf,dlevx),
-        @sprintf("      %7.5f    %2i      %4i          %10.3e\n",fc,newt,iRank,cond1))
-    end
-    if qMixIO
-        write(printIO,"  ******************************************************************",
-        "\n");
-    end
-    return nothing
 end

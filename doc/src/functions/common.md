@@ -31,6 +31,10 @@ NewtonMethods.nLvls
 ```
 
 ```@docs
+NewtonMethods.nPrv1
+```
+
+```@docs
 NewtonMethods.nPrv2
 ```
 

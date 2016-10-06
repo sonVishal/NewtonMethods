@@ -530,6 +530,74 @@ function nLvls(n::Int64, dxq::Vector{Float64}, dx1::Vector{Float64},
 end
 
 """
+# Summary:
+nPrv1 : Printing of intermediate values (Type 1 routine) for nleq1
+
+## Parameters
+-------------
+For all the parameters check n1int or n2int
+"""
+function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+    newt::Int64, mPr::Int64, printIO, qMixIO::Bool)
+    # Begin
+    if qMixIO
+        write(printIO,"  ******************************************************************",
+        "\n");
+        if mPr >= 3
+            write(printIO,"        It       Normf           Normx                     New\n")
+        end
+        if mPr == 2
+            write(printIO,"        It       Normf           Normx         Damp.Fct.   New\n")
+        end
+    end
+    if mPr >= 3 || niter == 0
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e                 %2i\n",niter,dlevf,dlevx,newt))
+    end
+    if mPr == 2 && niter != 0
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e      %7.5f    %2i\n",niter,dlevf,dlevx,fc,newt))
+    end
+    if qMixIO
+        write(printIO,"  ******************************************************************",
+        "\n");
+    end
+    return nothing
+end
+
+# Summary: Multiple dispatch
+# nPrv1 : Printing of intermediate values (Type 1 routine) for nleq2
+
+## Parameters
+# -------------
+# For all the parameters check n2int
+function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::Int64,
+    iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::Float64)
+    # Begin
+    if qMixIO
+        write(printIO,"  ******************************************************************",
+        "\n");
+        if mPr >= 3
+            write(printIO,"        It       Normf           Normx                     New      Rank        Cond\n")
+        end
+        if mPr == 2
+            write(printIO,"        It       Normf           Normx         Damp.Fct.   New      Rank        Cond\n")
+        end
+    end
+    if mPr >= 3 || niter == 0
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e",niter,dlevf,dlevx),
+        @sprintf("                 %2i      %4i          %10.3e\n",newt,iRank,cond1))
+    end
+    if mPr == 2 && niter != 0
+        write(printIO,@sprintf("      %4i     %10.3e      %10.3e",niter,dlevf,dlevx),
+        @sprintf("      %7.5f    %2i      %4i          %10.3e\n",fc,newt,iRank,cond1))
+    end
+    if qMixIO
+        write(printIO,"  ******************************************************************",
+        "\n");
+    end
+    return nothing
+end
+
+"""
 # Summary :
 nPrv2 : Printing of intermediate values (Type 2 routine)
 

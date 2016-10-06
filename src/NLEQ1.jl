@@ -627,7 +627,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # ----------------------------------------------------------------------
         # 3.1.1 Decomposition of (n,n) matrix A
         if newt == 0 && (qLU || nIter == 0)
-            iFail = n1fact(n,m1,ml,mu,a,opt,l,u,p)
+            iFail = n1fact(n,m1,ml,mu,a,mStor,l,u,p)
             if iFail != 0
                 if iFail == 1
                     retCode = 1
@@ -640,7 +640,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0
-            iFail = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
+            iFail = n1solv(n,m1,ml,mu,l,u,p,t1,mStor)
             if iFail != 0
                 retCode = 81
                 break
@@ -800,7 +800,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # and print iterate
         fcNumK = sumX
         if mPrMon >= 2
-            n1Prv1(dLevF,dLevXa,fcKeep,nIter,newt,mPrMon,printIOmon,qMixIO)
+            nPrv1(dLevF,dLevXa,fcKeep,nIter,newt,mPrMon,printIOmon,qMixIO)
         end
         nRed    = 0
         qNext   = false
@@ -889,7 +889,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     t1 = f.*fw
                     # ------------------------------------------------------
                     # 3.6.3 Solution of linear (n,n) system
-                    iFail = n1solv(n,m1,ml,mu,l,u,p,t1,opt)
+                    iFail = n1solv(n,m1,ml,mu,l,u,p,t1,mStor)
                     if iFail != 0
                         retCode = 81
                         break
@@ -1146,7 +1146,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                         nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
                         printIOmon,qMixIO,"*")
                     elseif iOrMon == 3
-                        n1Prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
+                        nPrv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
                         mPrMon,printIOmon,qMixIO)
                     end
                 end

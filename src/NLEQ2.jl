@@ -604,7 +604,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
-                iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p,iRankC)
+                iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,iRepeat,d,p,iRankC)
                 if iFail != 0
                     retCode = 81
                     qBreak = true
@@ -780,7 +780,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
             fcMon = fc
 
             if mPrMon >= 2
-                n2Prv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
+                nPrv1(dLevF, dLevXa, fcKeep, nIter, newt, iRank, mPrMon,
                     printIOmon, qMixIO, cond1)
             end
 
@@ -863,7 +863,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         else
                             iRepeat = 0
                         end
-                        iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,opt,iRepeat,d,p,iRankC)
+                        iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,iRepeat,d,p,iRankC)
                         if iFail != 0
                             retCode = 81
                             qBreak = true
@@ -1142,7 +1142,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                     nPrv2(dLevFn,sqrt(sumX/n),fc,nIter+1,
                     printIOmon,qMixIO,"*")
                 elseif iOrMon == 3
-                    n2Prv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
+                    nPrv1(dLevFn,sqrt(sumXa/n),fc,nIter,newt,
                     mPrMon,printIOmon,qMixIO,cond1,iRank)
                 end
             end

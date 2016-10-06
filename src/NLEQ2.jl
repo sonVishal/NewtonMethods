@@ -51,7 +51,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 
     # Check input parameters and options
     n = length(x)
-    retCode = checkOptions(n,x,xScal,opt)
+    retCode = checkOptions(n, x, xScal, opt)
 
     # Exit if any parameter error was detected
     if retCode != 0
@@ -195,8 +195,11 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     # to complete the Newton iterations
     retCode = -1
 
+    # Create a copy inside so that the original variable is untouched
+    x0 = x[:]
+
     # Call to n2int
-    (x, xScal, retCode) = n2int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
+    retCode = n2int(n, fcn, x0, xScal, opt.options[OPT_RTOL], nItmax,
         nonLin, iRank, cond, opt, retCode, m1, m2, nBroy, opt.options[OPT_FCSTART],
         opt.options[OPT_FCMIN], opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2],
         printWarn, printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
@@ -221,6 +224,8 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     stats[STATS_NJAC]       = wkNLEQ2.options[STATS_NJAC]
     stats[STATS_NFCN]       = wkNLEQ2.options[STATS_NFCN]
     stats[STATS_NFCNJ]      = wkNLEQ2.options[STATS_NFCNJ]
+    stats[STATS_SUBCOND]    = wkNLEQ2.options[STATS_SUBCOND]
+    stats[STATS_SENS]       = wkNLEQ2.options[STATS_SENS]
 
     # Print statistics
     if printMon >= 2 && retCode != -1 && retCode != 10
@@ -1086,6 +1091,8 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 setOption!(wkNLEQ2, STATS_NREJR1, nRejR1)
                 setOption!(wkNLEQ2, STATS_NEW,    newt)
                 setOption!(wkNLEQ2, STATS_ICONV,  iConv)
+                setOption!(wkNLEQ2, STATS_SUBCOND, cond1)
+                setOption!(wkNLEQ2, STATS_SENS, sens1)
 
                 setOption!(wkNLEQ2, WK_SUMXA0, sumxa0)
                 setOption!(wkNLEQ2, WK_SUMXA1, sumxa1)
@@ -1107,7 +1114,7 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
 
-                return (x, xScal, retCode)
+                return retCode
             end
         end
     end
@@ -1288,6 +1295,8 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     setOption!(wkNLEQ2, STATS_NREJR1, nRejR1)
     setOption!(wkNLEQ2, STATS_NEW,    newt)
     setOption!(wkNLEQ2, STATS_ICONV,  iConv)
+    setOption!(wkNLEQ2, STATS_SUBCOND, cond1)
+    setOption!(wkNLEQ2, STATS_SENS, sens1)
 
     setOption!(wkNLEQ2, WK_SUMXA0, sumxa0)
     setOption!(wkNLEQ2, WK_SUMXA1, sumxa1)
@@ -1309,6 +1318,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
 
-    return (x, xScal, retCode)
+    return retCode
     # End of function n2int
 end

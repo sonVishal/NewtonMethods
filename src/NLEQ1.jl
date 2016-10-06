@@ -19,6 +19,22 @@ subroutines into Julia code, in the band matrix case.
 For special purposes these routines may be substituted.
 
 This is a driver routine for the core solver N1INT.
+
+## Input parameters
+| Variable   | Description                                                                              |
+|------------|------------------------------------------------------------------------------------------|
+| fcn        | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
+| x[1:n]     | Initial estimate of the solution.                                                        |
+| xScal[1:n] | User scaling (lower threshold) of the iteration vector x                                 |
+| opt        | Options for solving the nonlinear system. Valid options are listed below.                |
+
+## Output parameters
+| Variable | Description                                                                                   |
+|----------|-----------------------------------------------------------------------------------------------|
+| x0[1:n]  | Solution values (or final values if exit before solution is reached).                         |
+| stats    | A dictionary variable of additional output values. The fields are discussed below.            |
+| retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
+
 """
 function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
@@ -48,7 +64,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 
     # Check input parameters and options
     n = length(x)
-    retCode = checkOptions(n,x,xScal,opt)
+    retCode = checkOptions(n, x, xScal, opt)
 
     # Exit if any parameter error was detected
     if retCode != 0
@@ -202,8 +218,11 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         nBroy = 1
     end
 
+    # Create a copy inside so that the original variable is untouched
+    x0 = x[:]
+
     # Call to n1int
-    (x, xScal, retCode) = n1int(n, fcn, x, xScal, opt.options[OPT_RTOL], nItmax,
+    retCode = n1int(n, fcn, x0, xScal, opt.options[OPT_RTOL], nItmax,
         nonLin, opt, retCode, m1, m2, nBroy, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
         opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], mStor, printWarn,
         printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
@@ -234,7 +253,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         printStats(stats, printIOmon)
     end
 
-    return (x, stats, retCode);
+    return (x0, stats, retCode);
 end
 
 """
@@ -1110,7 +1129,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
 
-                return (x, xScal, retCode)
+                return retCode
             end
         end
     end
@@ -1327,6 +1346,6 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     setOption!(wkNLEQ1, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ1, "P_SUMXA2", sumxa2)
 
-    return (x, xScal, retCode)
+    return retCode
     # End of function n1int
 end

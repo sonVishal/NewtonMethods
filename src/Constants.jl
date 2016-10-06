@@ -55,6 +55,8 @@ const STATS_ICONV               = "convergenceMonitorState"
 const STATS_CONV                = "conv"
 const STATS_SUMX                = "sumx"
 const STATS_DLEVF               = "dlevf"
+const STATS_SUBCOND             = "subcondition"
+const STATS_SENS                = "sensitivity"
 
 # Temporary Workspace variables
 const WK_A                      = "a"

@@ -9,18 +9,10 @@ NewtonMethods.dgbsl
 ```@docs
 NewtonMethods.nleq1
 ```
-Input parameters of NLEQ1
-=========================
-| Name       | Type                      | Description|
-|:-----------|:--------------------------|:-----------|
-| fcn        | Function                  | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
-| x[1:n]     | Vector&#123;Float64&#125; | Initial estimate of the solution.                                                        |
-| xScal[1:n] | Vector&#123;Float64&#125; | User scaling (lower threshold) of the iteration vector x                                 |
-| opt        | OptionsNLEQ               | Options for solving the nonlinear system. Valid options are listed below.                |
 
 Options
 =======
-| Name               | Default value   | Meaning |
+| Name               | Default value   | Meaning     |
 |:-------------------|:----------------|:------------|
 | OPT_RTOL           | 1e-6 |  |
 | OPT_QSUCC          |  |  |
@@ -55,14 +47,6 @@ Options
 | OPT_NBROY          |  |  |
 | OPT_FCSTART        |  |  |
 | OPT_FCMIN          |  |  |
-
-Output parameters of NLEQ1
-==========================
-| Name    | Type                            | Description |
-|:--------|:--------------------------------|:------------|
-| x       | Vector&#123;Float64&#125;       | Solution values (or final values if exit before solution is reached). |
-| stats   | Dict&#123;AbstractString,Any&#125; | A dictionary variable of additional output values. The fields are discussed below. |
-| retCode | Int64                           | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 
 Statistics
 ==========

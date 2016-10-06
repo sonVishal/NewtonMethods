@@ -529,13 +529,15 @@ function nLvls(n::Int64, dxq::Vector{Float64}, dx1::Vector{Float64},
     return (conv,sumx,dlevf)
 end
 
+# The following function nPrv1 is a multiple dispatch function
+# The first one corresponds to nleq1 and the second corresponds to nleq2
 """
-# Summary:
-nPrv1 : Printing of intermediate values (Type 1 routine) for nleq1
+# Summary : for nleq1
+nPrv1 : Printing of intermediate values (Type 1 routine)
 
 ## Parameters
 -------------
-For all the parameters check n1int or n2int
+For all the parameters check n1int
 """
 function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
     newt::Int64, mPr::Int64, printIO, qMixIO::Bool)
@@ -563,12 +565,14 @@ function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
     return nothing
 end
 
-# Summary: Multiple dispatch
-# nPrv1 : Printing of intermediate values (Type 1 routine) for nleq2
+"""
+# Summary : for nleq2
+nPrv1 : Printing of intermediate values (Type 1 routine)
 
-## Parameters
-# -------------
-# For all the parameters check n2int
+Parameters
+-------------
+For all the parameters check n2int
+"""
 function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::Int64,
     iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::Float64)
     # Begin

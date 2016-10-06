@@ -24,11 +24,7 @@ __precompile__(true)
 """
 module NewtonMethods
 
-function __init__()
-    if !("ForwardDiff" in keys(Pkg.installed()))
-        Pkg.add("ForwardDiff")
-    end
-end
+using ForwardDiff
 
 # Export the required methods
 export nleq1, nleq2, n1int, n2int, OptionsNLEQ, clearWorkspace, clearAllWorkspaces

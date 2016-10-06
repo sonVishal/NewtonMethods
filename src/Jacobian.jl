@@ -1,5 +1,3 @@
-using ForwardDiff
-
 # Evaluation of Jacobian using Automatic differentiation
 """
 function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,

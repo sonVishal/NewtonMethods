@@ -28,3 +28,6 @@ pages:
   - NLEQ1: functions/nleq1.md
   - NLEQ2: functions/nleq2.md
   - Common: functions/common.md
+- Solver Options: options.md
+- Solver Statistics: stats.md
+- Solver Return codes: returnCodes.md

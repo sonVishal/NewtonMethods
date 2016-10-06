@@ -223,7 +223,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 
     # Call to n1int
     retCode = n1int(n, fcn, x0, xScal, opt.options[OPT_RTOL], nItmax,
-        nonLin, opt, retCode, m1, m2, nBroy, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
+        nonLin, opt, m1, m2, nBroy, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
         opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], mStor, printWarn,
         printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
@@ -258,7 +258,7 @@ end
 
 """
 function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
-    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ, retCode::Int64,
+    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ,
     m1::Int64, m2::Int64, nBroy::Int64, fc::Float64, fcMin::Float64,
     sigma::Float64, sigma2::Float64, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,
     mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
@@ -268,9 +268,47 @@ Core routine for NLEQ1.
 Damped Newton-algorithm for systems of highly nonlinear
 equations especially designed for numerically sensitive
 problems.
+
+## Input parameters
+| Variable     | Description                                                                              |
+|--------------|------------------------------------------------------------------------------------------|
+| n            | Number of vector components                                                              |
+| fcn          | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
+| x[1:n]*      | Initial estimate of the solution.                                                        |
+| xScal[1:n]   | User scaling (lower threshold) of the iteration vector x                                 |
+| rTol         | Required relative precision of solution components                                       |
+| nItmax       | Maximum number of allowed iterations                                                     |
+| nonLin       | Problem type specification. See OPT_NONLIN field in solver options                       |
+| opt          | Options for solving the nonlinear system. Valid options are listed below.                |
+| m1           | Leading dimension of Jacobian array a                                                    |
+| m2 = n       | For full mode                                                                            |
+| = ml+mu+1    | For band mode                                                                            |
+| nBroy        | Maximum possible consecutive iterative Broyden steps.                                    |
+| fc           | Current Newton iteration damping factor.                                                 |
+| fcMin        | Minimum permitted damping factor. fc < fcMin results in either of the following          |
+|              | a. Recomputation of the Jacobian using difference approximation                          |
+|              | b. Fail exit                                                                             |
+| sigma        | Decision parameter for rank1-updates                                                     |
+| sigma2       | Decision parameter for damping factor increasing to corrector                            |
+| mStor        | Decision parameter for matrix storage. See option OPT_MSTOR in solver options.           |
+| mPrWarn      | Decision parameter for printing warning messages                                         |
+| mPrMon       | Decision parameter for printing iteration monitor                                        |
+| mPrSol       | Decision parameter for printing solution                                                 |
+| printIOwarn  | IO handle for printing warning                                                           |
+| printIOmon   | IO handle for printing iteration monitor                                                 |
+| printIOsol   | IO handle for printing solution                                                          |
+| qBDamp       | Decision parameter for matrix storage. See option OPT_MSTOR in solver options.           |
+
+(* marks inout parameters)
+
+## Output parameters
+| Variable | Description                                                                                   |
+|----------|-----------------------------------------------------------------------------------------------|
+| x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
+| retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 """
 function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
-    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ, retCode::Int64,
+    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ,
     m1::Int64, m2::Int64, nBroy::Int64, fc::Float64, fcMin::Float64,
     sigma::Float64, sigma2::Float64, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,
     mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
@@ -843,7 +881,6 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 fcn(f,x)
             catch
                 iFail = -1
-                retCode = 82
             end
             nFcn += 1
             # TODO: Understand what is happening here

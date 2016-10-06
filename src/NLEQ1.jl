@@ -346,12 +346,15 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     nRejR1   = wkNLEQ1.options[STATS_NREJR1]
     newt     = wkNLEQ1.options[STATS_NEW]
     iConv    = wkNLEQ1.options[STATS_ICONV]
-    xIter    = wkNLEQ1.options["P_XITER"]
-    sumXall  = wkNLEQ1.options["P_SUMXALL"]
-    dLevFall = wkNLEQ1.options["P_DLEVFALL"]
-    sumXQall = wkNLEQ1.options["P_SUMXQALL"]
-    tolAll   = wkNLEQ1.options["P_TOLALL"]
-    fcAll    = wkNLEQ1.options["P_FCALL"]
+
+    if opt.options[OPT_STORE] == 1
+        xIter    = wkNLEQ1.options["P_XITER"]
+        sumXall  = wkNLEQ1.options["P_SUMXALL"]
+        dLevFall = wkNLEQ1.options["P_DLEVFALL"]
+        sumXQall = wkNLEQ1.options["P_SUMXQALL"]
+        tolAll   = wkNLEQ1.options["P_TOLALL"]
+        fcAll    = wkNLEQ1.options["P_FCALL"]
+    end
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
@@ -450,7 +453,9 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     # --------------------------------------------------------------------------
     # 1.5.2 Miscellaneous preparations of the first iteration step
     if !qSucc
-        push!(xIter,x)
+        if opt.options[OPT_STORE] == 1
+            push!(xIter,x)
+        end
 
         nIter  = 0
         wkNLEQ1.options[STATS_NITER] = nIter
@@ -729,8 +734,10 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         dLevXa   = sqrt(sumXa/n)
         conva    = conv
         dxANrm   = wnorm(n,dx,xw)
-        push!(sumXall,dLevXa)
-        push!(dLevFall,dLevF)
+        if opt.options[OPT_STORE] == 1
+            push!(sumXall,dLevXa)
+            push!(dLevFall,dLevF)
+        end
 
         # ----------------------------------------------------------------------
         # 3.3 A - priori estimate of damping factor fc
@@ -868,7 +875,9 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             # ------------------------------------------------------------------
             # 3.5 Preliminary new iterate
             x = xa + dx*fc
-            push!(fcAll,fc)
+            if opt.options[OPT_STORE] == 1
+                push!(fcAll,fc)
+            end
             # ------------------------------------------------------------------
             # 3.5.2 Exit, if problem is specified as being linear
             if nonLin == 1
@@ -932,7 +941,9 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 if qOrdi
                     # ----------------------------------------------------------
                     # 3.6.2 Convergence test for ordinary Newton iteration
-                    push!(tolAll,dxANrm)
+                    if opt.options[OPT_STORE] == 1
+                        push!(tolAll,dxANrm)
+                    end
                     if dxANrm <= rTol
                         retCode = 0
                         iCnv    = 1
@@ -969,11 +980,13 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (conv,sumX,dLevFn) =
                         nLvls(n,dxQ,t1,xwa,f,newt==0)
                     end
-                    push!(sumXQall,sqrt(sumX/n))
                     dxNrm = wnorm(n,dxQ,xw)
+                    if opt.options[OPT_STORE] == 1
+                        push!(sumXQall,sqrt(sumX/n))
+                        push!(tolAll,dxNrm)
+                    end
                     # ------------------------------------------------------
                     # 3.6.5 Convergence test
-                    push!(tolAll,dxNrm)
                     if dxNrm <= rTol && dxANrm <= rSmall && fc == 1.0
                         retCode = 0
                         iCnv = 1
@@ -1122,7 +1135,9 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             end
             nIter += 1
             wkNLEQ1.options[STATS_NITER] = nIter
-            push!(xIter,x)
+            if opt.options[OPT_STORE] == 1
+                push!(xIter,x)
+            end
             dLevF = dLevFn
             if nIter >= nItmax
                 retCode = 2
@@ -1185,12 +1200,16 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 if retCode == 0
                     aprec = sqrt(sumX/n)
                     x += dxQ
-                    push!(xIter,x)
+                    if opt.options[OPT_STORE] == 1
+                        push!(xIter,x)
+                    end
                 else
                     aprec = sqrt(sumXa/n)
                     if alphaA > 0.0 && iOrMon == 3
                         x += dx
-                        push!(xIter,x)
+                        if opt.options[OPT_STORE] == 1
+                            push!(xIter,x)
+                        end
                     end
                 end
                 # Print final monitor output
@@ -1259,8 +1278,6 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         if iConv == 3
             ctyp = "quadratic"
         end
-        # TODO: write a wrapper for error(), warn(), info() such that it prints
-        # either on STDOUT or in file
         if qMStop
             write(printIOwarn,"\nWARNING: Monotonicity test failed after ",ctyp,
             " convergence was already checked\nrTol requirement may be too",

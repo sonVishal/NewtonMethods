@@ -62,8 +62,6 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
     qIniMon = (printMon >= 1 && !qSucc)
 
-    # TODO: Improve checkOptions and handle the errors properly!!
-
     # Check input parameters and options
     n = length(x)
     retCode = checkOptions(n, x, xScal, opt)
@@ -473,7 +471,9 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         sumxa0 = 0.0
         sumxa1 = 0.0
 
-        push!(xIter,x)
+        if opt.options[OPT_STORE] == 1
+            push!(xIter,x)
+        end
         wkNLEQ2.options[STATS_NITER] = nIter
 
         qMStop = false
@@ -644,7 +644,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             # 3.1.1 Decomposition of (n,n) matrix A
             if newt == 0
                 cond1 = cond
-                # TODO: Check if this is required or not
                 if qRepeat
                     iRepeat = 1
                 else
@@ -698,8 +697,10 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             dLevXa   = sqrt(sumXa/n)
             conva    = conv
             dxANrm   = wnorm(n,dx,xw)
-            push!(sumXall,dLevXa)
-            push!(dLevFall,dLevF)
+            if opt.options[OPT_STORE] == 1
+                push!(sumXall,dLevXa)
+                push!(dLevFall,dLevF)
+            end
             # ------------------------------------------------------------------
             # 3.3 A-priori estimate of damping factor FC
             qRedu = false
@@ -857,7 +858,9 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     # ----------------------------------------------------------
                     # 3.5 Preliminary new iterate
                     x = xa + dx*fc
-                    push!(fcAll,fc)
+                    if opt.options[OPT_STORE] == 1
+                        push!(fcAll,fc)
+                    end
                     # ----------------------------------------------------------
                     # 3.5.2 Exit, if problem is specified as being linear
                     if nonLin == 1
@@ -946,11 +949,14 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (conv,sumX,dLevFn) =
                             nLvls(n,dxQ,t2,xw,f,newt==0)
 
-                        push!(sumXQall,sqrt(sumX/n))
                         dxNrm = wnorm(n,dxQ,xw)
+
+                        if opt.options[OPT_STORE] == 1
+                            push!(sumXQall,sqrt(sumX/n))
+                            push!(tolAll,dxNrm)
+                        end
                         # ------------------------------------------------------
                         # 3.6.4 Convergence test
-                        push!(tolAll,dxNrm)
                         if dxNrm <= rTol && dxANrm <= rSmall && fc == 1.0
                             retCode = 0
                             qBreak = true
@@ -1124,7 +1130,9 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             end
             nIter += 1
             wkNLEQ2.options[STATS_NITER] = nIter
-            push!(xIter,x)
+            if opt.options[OPT_STORE] == 1
+                push!(xIter,x)
+            end
             dLevF = dLevFn
             if nIter >= nItmax
                 retCode = 2
@@ -1187,12 +1195,16 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             if retCode == 0
                 aprec = sqrt(sumX/n)
                 x += dxQ
-                push!(xIter,x)
+                if opt.options[OPT_STORE] == 1
+                    push!(xIter,x)
+                end
             else
                 aprec = sqrt(sumXa/n)
                 if alphaA > 0.0 && iOrMon == 3
                     x += dx
-                    push!(xIter,x)
+                    if opt.options[OPT_STORE] == 1
+                        push!(xIter,x)
+                    end
                 end
             end
             if iRank < n
@@ -1339,7 +1351,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     # --------------------------------------------------------------------------
     # 10 Prepare all the variables for returning
     xScal[:] = xw
-    # TODO: Convert the setOptions to a function since it is called twice
     setOption!(opt, OPT_QSUCC, Int(qSucc))
     setOption!(opt, OPT_FCSTART, fc)
     setOption!(opt, OPT_IRANK, iRank)

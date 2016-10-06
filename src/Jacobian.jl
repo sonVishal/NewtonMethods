@@ -41,7 +41,7 @@ function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,
     nFcn += 1
     if iFail == 0
         try
-            a = ForwardDiff.jacobian(fcn,y,x,chunk;usecache=true)
+            a = ForwardDiff.jacobian(fcn,y,x,chunk)
         catch
             iFail = -1
         end

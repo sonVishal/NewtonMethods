@@ -696,7 +696,6 @@ function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
     printIO = opt.options[OPT_PRINTIOWARN]
     mCon = 0
     iRepeat = -iRepeat
-    # TODO: This next line is not clear tmp = IWK(2) which is the variable iRankC from deccon
     if iRepeat == 0
         iRankC = mCon
     end

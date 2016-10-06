@@ -627,7 +627,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # ----------------------------------------------------------------------
         # 3.1.1 Decomposition of (n,n) matrix A
         if newt == 0 && (qLU || nIter == 0)
-            iFail = n1fact(n,m1,ml,mu,a,mStor,l,u,p)
+            iFail = nFact(n,m1,ml,mu,a,mStor,l,u,p)
             if iFail != 0
                 if iFail == 1
                     retCode = 1
@@ -640,7 +640,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         # ----------------------------------------------------------------------
         # 3.1.2 Solution of (n,n) system
         if newt == 0
-            iFail = n1solv(n,m1,ml,mu,l,u,p,t1,mStor)
+            iFail = nSolv(n,m1,ml,mu,l,u,p,t1,mStor)
             if iFail != 0
                 retCode = 81
                 break
@@ -889,7 +889,7 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
                     t1 = f.*fw
                     # ------------------------------------------------------
                     # 3.6.3 Solution of linear (n,n) system
-                    iFail = n1solv(n,m1,ml,mu,l,u,p,t1,mStor)
+                    iFail = nSolv(n,m1,ml,mu,l,u,p,t1,mStor)
                     if iFail != 0
                         retCode = 81
                         break
@@ -1237,14 +1237,14 @@ function n1int(n, fcn, x, xScal, rTol, nItmax, nonLin, opt, retCode,
         @sprintf("      length(x0) = %5i,     length(fcn(x0)) = %5i\n",n,length(f)))
     end
     # --------------------------------------------------------------------------
-    # 9.2.6 Error exit due to linear solver routine n1fact
+    # 9.2.6 Error exit due to linear solver routine nFact
     if retCode == 80 && mPrWarn == 1
-        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n1fact\n")
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver nFact\n")
     end
     # --------------------------------------------------------------------------
-    # 9.2.7 Error exit due to linear solver routine n1solv
+    # 9.2.7 Error exit due to linear solver routine nSolv
     if retCode == 81 && mPrWarn == 1
-        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n1solv\n")
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver nSolv\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.8 Error exit due to fail of user function fcn

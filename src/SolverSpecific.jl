@@ -590,12 +590,9 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
     return iRank
 end
 
-# TODO: n1fact and n2fact = nFact multiple dispatch
-# TODO: n1solv and n2solv = nSolv multiple dispatch
-
 """
-# Summary:
-n1fact : Call linear algebra subprogram for factorization of a (n,n)-matrix.
+# Summary : for function related to nleq1
+nFact : Call linear algebra subprogram for factorization of a (n,n)-matrix.
 
 ## Input parameters
 -------------------
@@ -620,7 +617,7 @@ n1fact : Call linear algebra subprogram for factorization of a (n,n)-matrix.
 | u[lda,n] | Upper triangular part of decomposed matrix in case of full mode. Unused in case of band mode. |
 | p        | Vector of pivot indices                            |
 """
-function n1fact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
+function nFact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
     mStor::Int64, l::Array{Float64,2}, u::Array{Float64,2}, p::Vector{Int64})
     # Begin
     if mStor == 0
@@ -645,8 +642,8 @@ function n1fact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
 end
 
 """
-# Summary:
-n2fact : Call linear algebra subprogram for factorization of a (n,n)-matrix
+# Summary : for function related to nleq2
+nFact : Call linear algebra subprogram for factorization of a (n,n)-matrix
     with rank decision and casual computation of the rank deficient
     pseudo-inverse matrix.
 
@@ -675,7 +672,7 @@ n2fact : Call linear algebra subprogram for factorization of a (n,n)-matrix
 | p              | Vector of pivot indices                            |
 | d              | Refer to deccon                                    |
 """
-function n2fact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
     a::Array{Float64,2}, aInv::Array{Float64,2}, cond::Float64, iRank::Int64,
     opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{Float64}, iRepeat::Int64, iRankC::Int64)
     # Begin
@@ -704,16 +701,16 @@ function n2fact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
 end
 
 """
-# Summary:
-n1solv : Call linear algebra subprogram for solution of the linear system a*z = b
+# Summary : for function related to nleq1
+nSolv : Call linear algebra subprogram for solution of the linear system a*z = b
 
 ## Parameters
 -------------------
 | Variable | Description             |
 |----------|-------------------------|
-| n, lda, ml, mu, l, u, p, b, mStor, iFail | Refer n1fact |
+| n, lda, ml, mu, l, u, p, b, mStor, iFail | Refer nFact |
 """
-function n1solv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
+function nSolv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
     u::Array{Float64,2}, p::Vector{Int64}, b::Vector{Float64}, mStor::Int64)
     # Begin
     if mStor == 0
@@ -728,15 +725,15 @@ function n1solv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
 end
 
 """
-# Summary:
-n2solv : Checking of common input parameters and options.
+# Summary : for function related to nleq2
+nSolv : Checking of common input parameters and options.
 
 ## Input parameters
 -------------------
 | Variable | Description                          |
 |----------|--------------------------------------|
 | b[n]*    | Right hand side of the linear system |
-| n, lda, ldaInv, ml, mu, a, aInv, iRank, iRepeat, d, pivot, iRankC | Refer n2fact |
+| n, lda, ldaInv, ml, mu, a, aInv, iRank, iRepeat, d, pivot, iRankC | Refer nFact |
 
 (* marks inout parameters)
 
@@ -746,7 +743,7 @@ n2solv : Checking of common input parameters and options.
 |----------|-------------------------------------------------------------------|
 | b[n]*    | RHS transformed to the upper triangular part of the linear system |
 """
-function n2solv(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+function nSolv(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
     a::Array{Float64,2}, aInv::Array{Float64,2}, b::Vector{Float64},
     z::Vector{Float64}, iRank::Int64, iRepeat::Int64, d::Vector{Float64},
     pivot::Vector{Int64}, iRankC::Int64)

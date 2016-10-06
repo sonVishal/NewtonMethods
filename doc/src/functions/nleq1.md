@@ -7,14 +7,6 @@ NewtonMethods.dgbsl
 ```
 
 ```@docs
-NewtonMethods.n1fact
-```
-
-```@docs
-NewtonMethods.n1solv
-```
-
-```@docs
 NewtonMethods.nleq1
 ```
 Input parameters of NLEQ1

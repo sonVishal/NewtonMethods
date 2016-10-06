@@ -591,20 +591,20 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                 else
                     iRepeat = 0
                 end
-                (cond1,iRankC,iFail) = n2fact(n,m1,n,1,1,a,qa,cond1,iRank,
+                (cond1,iRankC,iFail) = nFact(n,m1,n,1,1,a,qa,cond1,iRank,
                                         opt,p,d,iRepeat,iRankC)
                 if iFail != 0
                     retCode = 80
                     qBreak = true
                     break
                 end
-                # Get the sensitivity of the Jacobian as estimated by n2fact
+                # Get the sensitivity of the Jacobian as estimated by nFact
                 sens1 = wkNLEQ2.options[WK_SENS1]
             end
             # ------------------------------------------------------------------
             # 3.1.2 Solution of linear (n,n) system
             if newt == 0
-                iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,iRepeat,d,p,iRankC)
+                iFail = nSolv(n,m1,n,1,1,a,qa,t1,t2,iRank,iRepeat,d,p,iRankC)
                 if iFail != 0
                     retCode = 81
                     qBreak = true
@@ -863,7 +863,7 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
                         else
                             iRepeat = 0
                         end
-                        iFail = n2solv(n,m1,n,1,1,a,qa,t1,t2,iRank,iRepeat,d,p,iRankC)
+                        iFail = nSolv(n,m1,n,1,1,a,qa,t1,t2,iRank,iRepeat,d,p,iRankC)
                         if iFail != 0
                             retCode = 81
                             qBreak = true
@@ -1220,14 +1220,14 @@ function n2int(n, fcn, x, xScal, rTol, nItmax, nonLin, iRank, cond, opt, retCode
         "         as indicated by the standard error estimate\n")
     end
     # --------------------------------------------------------------------------
-    # 9.2.5 Error exit due to linear solver routine n2fact
+    # 9.2.5 Error exit due to linear solver routine nFact
     if retCode == 80 && mPrWarn == 1
-        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n2fact\n")
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver nFact\n")
     end
     # --------------------------------------------------------------------------
-    # 9.2.6 Error exit due to linear solver routine n2solv
+    # 9.2.6 Error exit due to linear solver routine nSolv
     if retCode == 81 && mPrWarn == 1
-        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver n2solv\n")
+        write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver nSolv\n")
     end
     # --------------------------------------------------------------------------
     # 9.2.7 Error exit due to fail of user function fcn

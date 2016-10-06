@@ -1,4 +1,24 @@
 ```@docs
+NewtonMethods.dgbfa
+```
+
+```@docs
+NewtonMethods.dgbsl
+```
+
+```@docs
+NewtonMethods.n1fact
+```
+
+```@docs
+NewtonMethods.n1solv
+```
+
+```@docs
+NewtonMethods.n1Prv1
+```
+
+```@docs
 NewtonMethods.nleq1
 ```
 Input parameters of NLEQ1

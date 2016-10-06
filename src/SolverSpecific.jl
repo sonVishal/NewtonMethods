@@ -1,15 +1,66 @@
-# Factors a double precision band matrix by elimination
-function dgbfa(abd,lda,n,ml,mu)
+"""
+# Summary:
+dgbfa : Factors a double precision band matrix by elimination.
+
+This function is similar to the function gbtrf! provided in Base.LinAlg.LAPACK.
+Julia documentation mentions the following:
+
+*Note that the LAPACK API provided by Julia can and will change in the future. Since this API is not user-facing, there is no commitment to support/deprecate this specific set of functions in future releases.*
+
+Due to this reason dgbfa function has been written as per the one provided in
+LINPACK written for Matlab by Cleve Moler, University of New Mexico, Argonne National Lab.
+
+## Input parameters
+-------------------
+| Variable    | Description                                                  |
+|-------------|--------------------------------------------------------------|
+| abd[lda,n]* | Contains the matrix in band storage. See the comments below. |
+| lda         | Leading dimension of the matrix. lda >= 2*ml + mu + 1        |
+| n           | Order of the original matrix                                 |
+| ml          | Number of diagonals below the main diagonal. 0 <= ml < n     |
+| mu          | Number of diagonals above the main diagonal. 0 <= mu < n     |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable    | Description                                                  |
+|-------------|--------------------------------------------------------------|
+| abd[lda,n]* | An upper triangular matrix in band storage and the multipliers which were used to obtain it. Factorization can be written as a = l*u where l is a product of permutation and unit lower triangular matrices and u is upper triangular. |
+| ipvt        | Vector containing the pivot indices                          |
+| info = 0    | Normal value                                                 |
+| info = k    | if u(k,k) = 0.0. This only indicates that dgbsl will divide by zero if called. |
+
+## Band storage
+If a is a band matrix, the following program segment will set up input matrix abd
+```
+ml = (bandwidth below the diagonal)
+mu = (bandwidth above the diagonal)
+m = ml + mu + 1
+for j = 1:n
+    i1 = max(1,j-mu)
+    i2 = min(n,j+ml)
+    for i = i1:i2
+        k = i - j + m
+        abd[k,j] = a[i,j]
+    end
+end
+```
+"""
+function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
+    # Begin
+    # Copy the matrix so that it remains unchanged at exit
+    ipvt = zeros(Int64,n)
+    a = abd[:,:]
     m = ml + mu + 1
     info = 0
-    ipvt = zeros(n)
     # zero intial fill-in columns
     j0 = mu + 2
     j1 = min(n,m) - 1
     if j1 >= j0
         for jz = j0:j1
             i0 = m + 1 - jz
-            abd[i0:ml,jz] = zeros(ml-i0+1,1)
+            a[i0:ml,jz] = zeros(ml-i0+1,1)
         end
     end
     jz = j1
@@ -22,23 +73,23 @@ function dgbfa(abd,lda,n,ml,mu)
             # zero next fill-in column
             jz += 1
             if jz <= n && ml >= 1
-                abd[1:ml,jz] = zeros(ml)
+                a[1:ml,jz] = zeros(ml)
             end
             # find l = pivot index
             lm = min(ml,n-k)
-            l = maxabs(abd[m:m+lm,k]) + m - 1
+            l = maxabs(a[m:m+lm,k]) + m - 1
             ipvt[k] = l + k - m
             # zero pivot implies this column already triangularized
-            if abd[l,k] != 0.0
+            if a[l,k] != 0.0
                 # interchange if necessary
                 if l != m
-                    t = abd[l,k]
-                    abd[l,k] = abd[m,k]
-                    abd[m,k] = t
+                    t = a[l,k]
+                    a[l,k] = a[m,k]
+                    a[m,k] = t
                 end
                 # compute multipliers
-                t = -1.0/abd[m,k]
-                abd[m+1:m+lm,k] *= t
+                t = -1.0/a[m,k]
+                a[m+1:m+lm,k] *= t
                 # row elimintaion with column indexing
                 ju = min(max(ju,mu+ipvt[k]),n)
                 mm = m
@@ -46,12 +97,12 @@ function dgbfa(abd,lda,n,ml,mu)
                     for j = kp1:ju
                         l = l - 1
                         mm = mm - 1
-                        t = abd[l,j]
+                        t = a[l,j]
                         if l!= mm
-                            abd[l,j] = abd[mm,j]
-                            abd[mm,j] = t
+                            a[l,j] = a[mm,j]
+                            a[mm,j] = t
                         end
-                        abd[mm+1:mm+lm,j] += t*abd[m+1:m+lm,k]
+                        a[mm+1:mm+lm,j] += t*a[m+1:m+lm,k]
                     end
                 end
             else
@@ -60,15 +111,40 @@ function dgbfa(abd,lda,n,ml,mu)
         end
     end
     ipvt[n] = n
-    if abs[m,n] == 0.0
+    if a[m,n] == 0.0
         info = n
     end
-    return (abd,ipvt,info)
+    return (a,ipvt,info)
 end
 
-# Solves the double precision band system
-# a*x = b or transpose(a)*x = b depending on flag
-function dgbsl(abd,lda,n,ml,mu,ipvt,b,flag)
+"""
+# Summary:
+dgbsl : Solves the double precision band system using the factors computed by dgbfa.
+
+## Input parameters
+-------------------
+| Variable    | Description                                                  |
+|-------------|--------------------------------------------------------------|
+| abd[lda,n]  | Matrix output from dgbfa                                     |
+| lda         | Leading dimension of the matrix abd                          |
+| n           | Order of the original matrix                                 |
+| ml          | Number of diagonals below the main diagonal                  |
+| mu          | Number of diagonals above the main diagonal                  |
+| ipvt        | Vector containing the pivot indices from dgbfa               |
+| b           | Right hand side vector                                       |
+| info = 0    | Solve a*x = b                                                |
+| info != 0   | Solve trans(a)*x = b                                         |
+
+## Output parameters
+--------------------
+| Variable    | Description                                                  |
+|-------------|--------------------------------------------------------------|
+| x           | Solution vector                                              |
+"""
+function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
+    ipvt::Vector{Int64}, b::Vector{Float64}, flag::Int64)
+    # Begin
+    x = b[:]
     m = mu + ml + 1
     nm1 = n - 1
     if flag == 0
@@ -78,23 +154,23 @@ function dgbsl(abd,lda,n,ml,mu,ipvt,b,flag)
             for k = 1:nm1
                 lm = min(ml,n-k)
                 l = ipvt[k]
-                t = b[l]
+                t = x[l]
                 if l != k
-                    b[l] = b[k]
-                    b[k] = t
+                    x[l] = x[k]
+                    x[k] = t
                 end
-                b[k+1:k+lm] += t*abd[m+1:m+lm,k]
+                x[k+1:k+lm] += t*abd[m+1:m+lm,k]
             end
         end
         # now solve u*x = y
         for kb = 1:n
             k = n + 1 - kb
-            b[k] = b[k]/abd[m,k]
+            x[k] = x[k]/abd[m,k]
             lm = min(k,m) - 1
             la = m - lm
             lb = k - lm
-            t = -b[k]
-            b[lb:lb+lm-1] += t*abd[la:la+lm-1,k]
+            t = -x[k]
+            x[lb:lb+lm-1] += t*abd[la:la+lm-1,k]
         end
     else
         # flag = nonzero => solve transpose(a)*x = b
@@ -104,28 +180,51 @@ function dgbsl(abd,lda,n,ml,mu,ipvt,b,flag)
             la = m - lm
             lb = k - lm
             t = Base.LinAlg.BLAS.dot(lm,abd[la:la+lm-1,k],1,b[lb:lb+lm-1],1)
-            b[k] = (b[k]-t)/abd[m,k]
+            x[k] = (x[k]-t)/abd[m,k]
         end
         # now solve transpose(l)*x = y
         if ml != 0 && nm1 >= 1
             for kb = 1:n
                 k = n - kb
                 lm = min(ml,n-k)
-                b[k] += Base.LinAlg.BLAS.dot(lm,abd[m+1:m+lm,k],1,b[k+1:k+lm],1)
+                x[k] += Base.LinAlg.BLAS.dot(lm,abd[m+1:m+lm,k],1,b[k+1:k+lm],1)
                 l = ipvt[k]
                 if l != k
-                    t = b[l]
-                    b[l] = b[k]
-                    b[k] = t
+                    t = x[l]
+                    x[l] = x[k]
+                    x[k] = t
                 end
             end
         end
     end
-    x = b
     return x
 end
 
-function n2prjn(n, iRank, u, d, qe, p, v)
+"""
+# Summary:
+n2prjn : Provides the projection to the appropriate subspace in case
+    of rank - reduction. To be used in connection with DECCON/SOLCON.
+
+## Input parameters
+-------------------
+| Variable | Description                                      |
+|----------|--------------------------------------------------|
+| n        | Number of parameters to be estimated             |
+| iRank    | Pseudo rank of decomposed Jacobian matrix        |
+| u[n]     | Scaled Newton correction                         |
+| d[n]     | Diagonal elements of upper triangular matrix     |
+| qe[n]    | Part of pseudoinverse Jacobian matrix            |
+| p[n]     | Pivot vector resulting from matrix decomposition |
+| v[n]     | Temporary work array                             |
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| del      | Defect                      |
+"""
+function n2prjn(n::Int64, iRank::Int64, u::Vector{Float64}, d::Vector{Float64},
+    qe::Array{Float64,2}, p::Vector{Int64}, v::Vector{Float64})
     # Begin
     v[:] = u[p]
     iRk1 = iRank + 1
@@ -139,8 +238,47 @@ function n2prjn(n, iRank, u, d, qe, p, v)
     return del
 end
 
-function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
-    kRed, ah)
+"""
+# Summary:
+deccon : Constrained QR-decomposition of (m,n)-system  with
+    computation of pseudoinverse in case of rank-defeciency.
+    First mcon rows belong to equality constraints.
+
+## Input parameters
+-------------------
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| a[nRow,nCol]* | Array holding the (m,n) matrix to be decomposed               |
+| nRow          | Declared number of rows of array a                            |
+| nCol          | Declared number of columns of array a and rows and columns of ah |
+| mCon          | Number of equality constraints. mCon <= n. Internally reduced if equality constraints are linearly dependent |
+| m             | Current number of rows of array a                             |
+| n             | Current number of columns of array a                          |
+| iRankC*       | Prescribed maximum pseudo-rank of constrained part of a. iRankC <= mCon |
+| iRank*        | Prescribed maximum pseudo-rank of matrix a. iRank <= n        |
+| cond*         | Permitted upper bound for the subcondition of least squares part of a |
+| kRed >= 0     | Householder triangularization. Build up pseudo-inverse if iRank < n |
+| kRed < 0      | Reduction of pseudo-rank of matrix a, skipping Householder triangularization, build-up new pseudo-inverse |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| a[nRow,nCol]* | Upper triangular part consisting of transformed matrix and lower triangular part consisting of Householder transformations |
+| iRankC*       | New pseudo-rank of constrained part of a such that abs(d[1]/d[iRankC]) < 1/epMach |
+| iRank*        | New pseudo-rank of matrix a such that abs(d[iRankC+1]/d[iRank]) < cond |
+| cond*         | The subcondition number belonging to the least squares part of A. In case of rank reduction: subcondition number which led to rank reduction |
+| d             | Diagonal elements of the upper triangular matrix              |
+| pivot         | Index vector storing permutation of columns due to pivoting   |
+| ah[nCol,nCol] | In case of rank-defect used to compute the psuedo-inverse     |
+| retCode = 0   | deccon computation was successful                             |
+| retCode = -2  | Numerically negative diagonal element encountered during computation of pseudo-inverse due to extremely bad conditioned matrix a. deccon is unable to continue rank-reduction |
+"""
+function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
+    m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::Float64,
+    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
     # Begin
     # --------------------------------------------------------------------------
     # 1 Initialization
@@ -358,8 +496,31 @@ function deccon(a, nRow, nCol, mCon, m, n, iRankC, iRank, cond, d, pivot,
     return (iRankC, iRank, cond, v[1], iFail)
 end
 
-function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
-    kRed, ah)
+"""
+# Summary:
+solcon : Best constrained linear least squares solution of (M,N)-
+    system . First mcon rows comprise mcon equality constraints.
+    To be used in connection with subroutine deccon
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| a[m,n], nRow, nCol, m, n, mCon, iRankC, iRank, d[n], pivot[n], ah[n,n], kRed | Refer to input and output parameters of deccon     |
+| b[m]*    | Right hand side of the linear system if kRed >= 0. Right hand side of the upper linear system if kRed < 0 |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                        |
+|----------|------------------------------------|
+| x[n]     | Best LSQ-solution of linear system |
+| b[m]*    | Right-hand side of upper triangular system (transformed right-hand side of linear system) |
+"""
+function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
+    n::Int64, x::Vector{Float64}, b::Vector{Float64}, iRankC::Int64, iRank::Int64,
+    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
     # Begin
     v = zeros(n)
     s = 0.0
@@ -429,6 +590,27 @@ function solcon(a, nRow, nCol, mCon, m, n, x, b, iRankC, iRank, d, pivot,
     return iRank
 end
 
+"""
+# Summary:
+n1fact : Checking of common input parameters and options.
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+"""
 function n1fact(n,lda,ml,mu,a,opt,l,u,p)
     # Begin
     mStor = opt.options[OPT_MSTOR]
@@ -453,6 +635,27 @@ function n1fact(n,lda,ml,mu,a,opt,l,u,p)
     return iFail
 end
 
+"""
+# Summary:
+n2fact : Checking of common input parameters and options.
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+"""
 function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat,iRankC)
     # Begin
     mPrWarn = opt.options[OPT_PRINTWARNING]
@@ -480,6 +683,27 @@ function n2fact(n,lda,ldaInv,ml,mu,a,aInv,cond,iRank,opt,p,d,iRepeat,iRankC)
     return (cond, iRankC, iFail)
 end
 
+"""
+# Summary:
+n1solv : Checking of common input parameters and options.
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+"""
 function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     # Begin
     mStor = opt.options[OPT_MSTOR]
@@ -494,6 +718,27 @@ function n1solv(n,lda,ml,mu,l,u,p,b,opt)
     return iFail
 end
 
+"""
+# Summary:
+n2solv : Checking of common input parameters and options.
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+"""
 function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)
     # Begin
     mCon = 0
@@ -504,6 +749,27 @@ function n2solv(n,lda,ldaInv,ml,mu,a,aInv,b,z,iRank,opt,iRepeat,d,pivot,iRankC)
     return iFail
 end
 
+"""
+# Summary:
+n1Prv1 : Checking of common input parameters and options.
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+"""
 function n1Prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
     # Begin
     if qMixIO
@@ -529,6 +795,27 @@ function n1Prv1(dlevf,dlevx,fc,niter,newt,mPr,printIO,qMixIO)
     return nothing
 end
 
+"""
+# Summary:
+n2Prv1 : Checking of common input parameters and options.
+
+## Input parameters
+-------------------
+| Variable | Description             |
+|----------|-------------------------|
+| n        | Size of the problem     |
+| x        | Initial guess           |
+| xScal*   | Initial scaling vector  |
+| opt*     | Options set by the user |
+
+(* marks inout parameters)
+
+## Output parameters
+--------------------
+| Variable | Description                 |
+|----------|-----------------------------|
+| retCode  | Exit code in case of errors |
+"""
 function n2Prv1(dlevf,dlevx,fc,niter,newt,iRank,mPr,printIO,qMixIO,cond1)
     # Begin
     if qMixIO

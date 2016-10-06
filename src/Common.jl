@@ -18,7 +18,6 @@ checkOptions : Checking of common input parameters and options.
 | Variable | Description                 |
 |----------|-----------------------------|
 | retCode  | Exit code in case of errors |
-
 """
 function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     opt::OptionsNLEQ)

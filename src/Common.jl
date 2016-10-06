@@ -130,7 +130,36 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
         opt.options[OPT_JACGEN] = jacGen
     end
 
-    # TODO: Add check for IO
+    # Check the IO
+    pIOwarn = getOption!(opt, OPT_PRINTIOWARN, 0)
+    if pIOwarn == 0
+        setOption!(opt, OPT_PRINTIOWARN, STDOUT)
+    elseif typeof(pIOwarn) != IOStream
+        retCode = 99
+        write(STDOUT, "ERROR: Please provide a file stream for writing warnings or\n",
+        "use the default option.")
+        return retCode
+    end
+
+    pIOmon = getOption!(opt, OPT_PRINTIOMON, 0)
+    if pIOmon == 0
+        setOption!(opt, OPT_PRINTIOMON, STDOUT)
+    elseif typeof(pIOmon) != IOStream
+        retCode = 99
+        write(STDOUT, "ERROR: Please provide a file stream for writing iterations or\n",
+        "use the default option.")
+        return retCode
+    end
+
+    pIOsol = getOption!(opt, OPT_PRINTIOSOL, 0)
+    if pIOsol == 0
+        setOption!(opt, OPT_PRINTIOSOL, STDOUT)
+    elseif typeof(pIOsol) != IOStream
+        retCode = 99
+        write(STDOUT, "ERROR: Please provide a file stream for writing solution or\n",
+        "use the default option.")
+        return retCode
+    end
 
     return retCode
 end

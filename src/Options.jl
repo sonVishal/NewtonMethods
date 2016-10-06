@@ -51,17 +51,17 @@ type OptionsNLEQ <: AbstractOptionsNLEQ
 end
 
 """
-function OptionsNLEQ(name::AbstractString,copyOptionsFrom::AbstractOptionsNLEQ)
+function OptionsNLEQ(name::AbstractString, copyOptionsFrom::AbstractOptionsNLEQ)
 Copy constructor for OptionsNLEQ type object
 """
-function OptionsNLEQ(name::AbstractString,copyOptionsFrom::AbstractOptionsNLEQ)
+function OptionsNLEQ(name::AbstractString, copyOptionsFrom::AbstractOptionsNLEQ)
     opt = OptionsNLEQ(name)
     copyOptions!(opt,copyOptionsFrom)
     return opt
 end
 
 """
-function OptionsNLEQ(name::AbstractString,copyOptionsFrom::AbstractOptionsNLEQ)
+function OptionsNLEQ(name::AbstractString, copyOptionsFrom::AbstractOptionsNLEQ)
 Copy constructor for OptionsNLEQ type object
 """
 function OptionsNLEQ(copyOptionsFrom::AbstractOptionsNLEQ)
@@ -69,17 +69,17 @@ function OptionsNLEQ(copyOptionsFrom::AbstractOptionsNLEQ)
 end
 
 """
-function OptionsNLEQ(name::AbstractString,copyOptionsFrom::AbstractOptionsNLEQ)
+function OptionsNLEQ(name::AbstractString, copyOptionsFrom::AbstractOptionsNLEQ)
 Constructor for OptionsNLEQ type object
 """
-function OptionsNLEQ(name::AbstractString,pairs::Pair...)
+function OptionsNLEQ(name::AbstractString, pairs::Pair...)
     opt = OptionsNLEQ(name)
     setOptions!(opt,pairs...)
     return opt
 end
 
 """
-function OptionsNLEQ(name::AbstractString,copyOptionsFrom::AbstractOptionsNLEQ)
+function OptionsNLEQ(name::AbstractString, copyOptionsFrom::AbstractOptionsNLEQ)
 Constructor for OptionsNLEQ type object
 """
 function OptionsNLEQ(pairs::Pair...)
@@ -87,25 +87,25 @@ function OptionsNLEQ(pairs::Pair...)
 end
 
 """
-function getOption(opt::AbstractOptionsNLEQ,name::AbstractString,
-default::Any=nothing)
+function getOption(opt::AbstractOptionsNLEQ, name::AbstractString,
+    default::Any=nothing)
 
 get saved value of option with given `name` or set option to
 `default` if option is unknown.
 """
-function getOption(opt::AbstractOptionsNLEQ,name::AbstractString,
+function getOption(opt::AbstractOptionsNLEQ, name::AbstractString,
     default::Any=nothing)
     return haskey(opt.options,name)?opt.options[name]:default
 end
 
 """
-function getOption!(opt::AbstractOptionsNLEQ,name::AbstractString,
+function getOption!(opt::AbstractOptionsNLEQ, name::AbstractString,
     default::Any=nothing)
 
 function to get value and set default value in case no value was present
 This avoids the recursive calls to setOption and getOption
 """
-function getOption!(opt::AbstractOptionsNLEQ,name::AbstractString,
+function getOption!(opt::AbstractOptionsNLEQ, name::AbstractString,
     default::Any=nothing)
     if haskey(opt.options,name)
         return opt.options[name]
@@ -116,12 +116,12 @@ function getOption!(opt::AbstractOptionsNLEQ,name::AbstractString,
 end
 
 """
-function setOption!(opt::AbstractOptionsNLEQ,name::AbstractString,value::Any)
+function setOption!(opt::AbstractOptionsNLEQ, name::AbstractString, value::Any)
 
 set NLEQ-Option with given `name` and return old value
 (or `nothing` if there was no old value).
 """
-function setOption!(opt::AbstractOptionsNLEQ,name::AbstractString,value::Any)
+function setOption!(opt::AbstractOptionsNLEQ, name::AbstractString, value::Any)
     oldValue = getOption(opt,name)
     opt.options[name]=value
     opt.lastchanged=now()
@@ -129,21 +129,21 @@ function setOption!(opt::AbstractOptionsNLEQ,name::AbstractString,value::Any)
 end
 
 """
-function setOption!(opt::AbstractOptionsNLEQ,pair::Pair)
+function setOption!(opt::AbstractOptionsNLEQ, pair::Pair)
 
 set NLEQ-Option with given (`name`,`value`) pair and return old value
 (or `nothing` if there was no old value).
 """
-function setOption!(opt::AbstractOptionsNLEQ,pair::Pair)
+function setOption!(opt::AbstractOptionsNLEQ, pair::Pair)
     return setOption!(opt,pair.first,pair.second)
 end
 
 """
-function setOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
+function setOptions!(opt::AbstractOptionsNLEQ, pairs::Pair...)
 
 set many NLEQ-Options and return an array with the old option values.
 """
-function setOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
+function setOptions!(opt::AbstractOptionsNLEQ, pairs::Pair...)
     oldValues=Any[]
     for (name,value) in pairs
         push!(oldValues, setOption!(opt,name,value))
@@ -152,31 +152,31 @@ function setOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
 end
 
 """
-function initOption!(opt::AbstractOptionsNLEQ,name::AbstractString,value::Any)
+function initOption!(opt::AbstractOptionsNLEQ, name::AbstractString, value::Any)
 
 initialize NLEQ-Option with given `name` only if it does not exist already and return the old value if changed
 (or `nothing` if there was an old value).
 """
-function initOption!(opt::AbstractOptionsNLEQ,name::AbstractString,value::Any)
+function initOption!(opt::AbstractOptionsNLEQ, name::AbstractString, value::Any)
     return haskey(opt.options,name)?nothing:setOption!(opt,name,value);
 end
 
 """
-function initOption!(opt::AbstractOptionsNLEQ,pair::Pair)
+function initOption!(opt::AbstractOptionsNLEQ, pair::Pair)
 
 initialize NLEQ-Option with given (`name`,`value`) pair only if it does not exist already and return the old value if changed
 (or `nothing` if there was an old value).
 """
-function initOption!(opt::AbstractOptionsNLEQ,pair::Pair)
+function initOption!(opt::AbstractOptionsNLEQ, pair::Pair)
     return initOption!(opt,pair.first,pair.second);
 end
 
 """
-function initOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
+function initOptions!(opt::AbstractOptionsNLEQ, pairs::Pair...)
 
 initialize many NLEQ-Options and return an array with the old option values if the options did not exist before
 """
-function initOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
+function initOptions!(opt::AbstractOptionsNLEQ, pairs::Pair...)
     oldValues=Any[]
     for (name,value) in pairs
         push!(oldValues, initOption!(opt,name,value))
@@ -185,11 +185,11 @@ function initOptions!(opt::AbstractOptionsNLEQ,pairs::Pair...)
 end
 
 """
-function copyOptions!(dest::AbstractOptionsNLEQ,source::AbstractOptionsNLEQ)
+function copyOptions!(dest::AbstractOptionsNLEQ, source::AbstractOptionsNLEQ)
 
 copy all options from other NLEQ-Option object.
 """
-function copyOptions!(dest::AbstractOptionsNLEQ,source::AbstractOptionsNLEQ)
+function copyOptions!(dest::AbstractOptionsNLEQ, source::AbstractOptionsNLEQ)
     merge!(dest.options,source.options)
     dest.lastchanged=now()
     return dest

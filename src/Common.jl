@@ -1,6 +1,8 @@
 """
-# Summary:
-checkOptions : Checking of common input parameters and options.
+function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
+    opt::OptionsNLEQ)
+
+Checking of common input parameters and options.
 
 ## Input parameters
 -------------------
@@ -134,8 +136,10 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
 end
 
 """
-# Summary:
-initializeOptions : Initialization of options based on the solver input argument.
+function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
+    m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64)
+
+Initialization of options based on the solver input argument.
 
 ## Input parameters
 -------------------
@@ -152,8 +156,8 @@ initializeOptions : Initialization of options based on the solver input argument
 
 (* marks inout parameters)
 """
-function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ,
-    n::Int64, m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64)
+function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
+    m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64)
     # Begin
     # Initialize options: OPT
     initOption!(opt, OPT_FCMIN,     0.0)
@@ -214,8 +218,11 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ,
 end
 
 """
-# Summary:
-printInitialization : Print a summary of the initialization.
+function printInitialization(n::Int64, printIOmon, rTol::Float64, jacGen::Int64,
+    mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Int64, qRank1::Bool, nonLin::Int64,
+    qBDamp::Bool, fcBand::Float64, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
+
+Print a summary of the initialization.
 
 ## Input parameters
 -------------------
@@ -307,8 +314,9 @@ function printInitialization(n::Int64, printIOmon, rTol::Float64, jacGen::Int64,
 end
 
 """
-# Summary:
-printStats : Print a summary of the statistics.
+function printStats(stats::Dict{AbstractString,Any}, printIOmon)
+
+Print a summary of the statistics.
 
 ## Input parameters
 -------------------
@@ -330,12 +338,14 @@ function printStats(stats::Dict{AbstractString,Any}, printIOmon)
 end
 
 """
-# Summary :
-nScal : To be used in connection with NLEQ1 and NLEQ2.
-    Computation of the internal scaling vector XW used for the
-    Jacobian matrix, the iterate vector and it's related
-    vectors - especially for the solution of the linear system
-    and the computations of norms to avoid numerical overflow.
+function nScal(n::Int64, x::Vector{Float64}, xa::Vector{Float64}, xScal::Vector{Float64},
+    iScal::Int64, mPr::Int64, printIO, xw::Vector{Float64})
+
+To be used in connection with NLEQ1 and NLEQ2.
+Computation of the internal scaling vector XW used for the
+Jacobian matrix, the iterate vector and it's related
+vectors - especially for the solution of the linear system
+and the computations of norms to avoid numerical overflow.
 
 ## Input parameters
 -------------------
@@ -380,8 +390,9 @@ function nScal(n::Int64, x::Vector{Float64}, xa::Vector{Float64}, xScal::Vector{
 end
 
 """
-# Summary :
-nScrf : Row scaling of a (m,n)-matrix in full storage mode
+function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
+
+Row scaling of a (m,n)-matrix in full storage mode
 
 ## Input parameters
 -------------------
@@ -438,8 +449,10 @@ function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
 end
 
 """
-# Summary :
-nScrb : Row scaling of a (n,n)-matrix in band storage mode
+function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
+    fw::Vector{Float64})
+
+Row scaling of a (n,n)-matrix in band storage mode
 
 ## Input parameters
 -------------------
@@ -486,9 +499,11 @@ function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
 end
 
 """
-# Summary :
-nLvls : Provides descaled solution, error norm and level functions
-    To be used in connection with NLEQ1 and NLEQ2.
+function nLvls(n::Int64, dxq::Vector{Float64}, dx1::Vector{Float64},
+    xw::Vector{Float64}, f::Vector{Float64}, qdscal::Bool)
+
+Provides descaled solution, error norm and level functions
+To be used in connection with NLEQ1 and NLEQ2.
 
 ## Input parameters
 -------------------
@@ -532,8 +547,10 @@ end
 # The following function nPrv1 is a multiple dispatch function
 # The first one corresponds to nleq1 and the second corresponds to nleq2
 """
-# Summary : for nleq1
-nPrv1 : Printing of intermediate values (Type 1 routine)
+function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+    newt::Int64, mPr::Int64, printIO, qMixIO::Bool)
+
+Printing of intermediate values (Type 1 routine)
 
 ## Parameters
 -------------
@@ -566,8 +583,10 @@ function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
 end
 
 """
-# Summary : for nleq2
-nPrv1 : Printing of intermediate values (Type 1 routine)
+function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::Int64,
+    iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::Float64)
+
+Printing of intermediate values (Type 1 routine)
 
 Parameters
 -------------
@@ -602,8 +621,10 @@ function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::
 end
 
 """
-# Summary :
-nPrv2 : Printing of intermediate values (Type 2 routine)
+function nPrv2(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+    printIO, qMixIO::Bool, cmark::AbstractString)
+
+Printing of intermediate values (Type 2 routine)
 
 ## Input parameters
 -------------------
@@ -632,8 +653,11 @@ function nPrv2(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
 end
 
 """
-# Summary :
-nSout : Printing of iterate (user customizable routine)
+function nSout(n::Int64, x::Vector{Float64}, mode::Int64, mPr::Int64, printIO,
+    nIter::Int64, dLevF::Float64, sumX::Float64)
+
+Printing of iterate (user customizable routine)
+
 ## Input parameters
 -------------------
 | Variables | Description                                                     |
@@ -683,8 +707,9 @@ function nSout(n::Int64, x::Vector{Float64}, mode::Int64, mPr::Int64, printIO,
 end
 
 """
-# Summary :
-wnorm : Return the norm to be used in exit (termination) criteria
+function wnorm(n::Int64, z::Vector{Float64}, xw::Vector{Float64})
+
+Return the norm to be used in exit (termination) criteria
 
 ## Input parameters
 -------------------

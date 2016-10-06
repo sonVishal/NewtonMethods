@@ -3,9 +3,11 @@ using ForwardDiff
 # Evaluation of Jacobian using Automatic differentiation
 # TODO: this is not working
 """
-# Summary:
-nJacFAD : Evaluation of Jacobian matrix using forward mode automatic
-    differentiation for use in nonlinear systems solver.
+function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,
+    chunkSize = ForwardDiff.pickchunk(x))
+
+Evaluation of Jacobian matrix using forward mode automatic differentiation
+for use in nonlinear systems solver.
 
 ## Input parameters
 -------------------
@@ -48,9 +50,12 @@ function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,
 end
 
 """
-# Summary:
-nJac : Evaluation of a dense Jacobian matrix using finite difference
-    approximation adapted for use in nonlinear systems solver.
+function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
+    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Float64,
+    a::Array{Float64,2})
+
+Evaluation of a dense Jacobian matrix using finite difference approximation
+adapted for use in nonlinear systems solver.
 
 ## Input parameters
 -------------------
@@ -106,10 +111,12 @@ function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64}
 end
 
 """
-# Summary:
+function nJacb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
+    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Int64, ajmin::Int64,
+    nFcn::Int64, a::Array{Float64,2})
 
-nJacb : Evaluation of a banded Jacobian matrix using finite difference
-    approximation adapted for use in nonlinear systems solver
+Evaluation of a banded Jacobian matrix using finite difference approximation
+adapted for use in nonlinear systems solver
 
 ## Input parameters
 -------------------
@@ -176,10 +183,12 @@ function nJacb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
 end
 
 """
-# Summary:
+function nJcf(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
+    yscal::Vector{Float64}, eta::Vector{Float64}, etamin::Float64, etamax::Float64,
+    etadif::Float64, conv::Float64, nFcn::Int64, a::Array{Float64,2})
 
-nJcf : Approximation of dense Jacobian matrix for nonlinear systems solver
-    with feed-back control of discretization and rounding errors
+Approximation of dense Jacobian matrix for nonlinear systems solver with
+feed-back control of discretization and rounding errors
 
 ## Input parameters
 -------------------
@@ -264,10 +273,13 @@ function nJcf(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64}
 end
 
 """
-# Summary:
+function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
+    fx::Vector{Float64}, yscal::Vector{Float64}, eta::Vector{Float64},
+    etamin::Float64, etamax::Float64, etadif::Float64, conv::Float64,
+    nFcn::Int64, a::Array{Float64,2})
 
-nJcfb : Approximation of banded Jacobian matrix for nonlinear systems solver
-    with feed-back control of discretization and rounding errors
+Approximation of banded Jacobian matrix for nonlinear systems solver with
+feed-back control of discretization and rounding errors
 
 ## Input parameters
 -------------------

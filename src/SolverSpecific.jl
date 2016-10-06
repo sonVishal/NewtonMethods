@@ -1,14 +1,17 @@
 """
 # Summary:
-dgbfa : Factors a double precision band matrix by elimination.
+function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
 
 This function is similar to the function gbtrf! provided in Base.LinAlg.LAPACK.
 Julia documentation mentions the following:
 
-*Note that the LAPACK API provided by Julia can and will change in the future. Since this API is not user-facing, there is no commitment to support/deprecate this specific set of functions in future releases.*
+*Note that the LAPACK API provided by Julia can and will change in the future.*
+*Since this API is not user-facing, there is no commitment to support/deprecate*
+*this specific set of functions in future releases.*
 
-Due to this reason dgbfa function has been written as per the one provided in
-LINPACK written for Matlab by Cleve Moler, University of New Mexico, Argonne National Lab.
+Due to this reason dgbfa function has been written as per the one provided in the
+original version of these solvers at: [NewtonLib](http://elib.zib.de/pub/elib/codelib/NewtonLib/index.html)
+based on LINPACK written for Matlab by Cleve Moler, University of New Mexico, Argonne National Lab.
 
 ## Input parameters
 -------------------
@@ -118,8 +121,10 @@ function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
 end
 
 """
-# Summary:
-dgbsl : Solves the double precision band system using the factors computed by dgbfa.
+function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
+    ipvt::Vector{Int64}, b::Vector{Float64}, flag::Int64)
+
+Solves the double precision band system using the factors computed by dgbfa.
 
 ## Input parameters
 -------------------
@@ -201,8 +206,10 @@ function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
 end
 
 """
-# Summary:
-n2prjn : Provides the projection to the appropriate subspace in case
+function n2prjn(n::Int64, iRank::Int64, u::Vector{Float64}, d::Vector{Float64},
+    qe::Array{Float64,2}, p::Vector{Int64}, v::Vector{Float64})
+
+Provides the projection to the appropriate subspace in case
     of rank - reduction. To be used in connection with DECCON/SOLCON.
 
 ## Input parameters
@@ -239,10 +246,12 @@ function n2prjn(n::Int64, iRank::Int64, u::Vector{Float64}, d::Vector{Float64},
 end
 
 """
-# Summary:
-deccon : Constrained QR-decomposition of (m,n)-system  with
-    computation of pseudoinverse in case of rank-defeciency.
-    First mcon rows belong to equality constraints.
+function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
+    m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::Float64,
+    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
+
+Constrained QR-decomposition of (m,n)-system  with computation of pseudoinverse
+in case of rank-defeciency. First mcon rows belong to equality constraints.
 
 ## Input parameters
 -------------------
@@ -497,10 +506,12 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
 end
 
 """
-# Summary:
-solcon : Best constrained linear least squares solution of (M,N)-
-    system . First mcon rows comprise mcon equality constraints.
-    To be used in connection with subroutine deccon
+function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
+    n::Int64, x::Vector{Float64}, b::Vector{Float64}, iRankC::Int64, iRank::Int64,
+    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
+
+Best constrained linear least squares solution of (m,n)-system. First mcon rows
+comprise mcon equality constraints. To be used in connection with subroutine deccon.
 
 ## Input parameters
 -------------------
@@ -591,8 +602,10 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
 end
 
 """
-# Summary : for function related to nleq1
-nFact : Call linear algebra subprogram for factorization of a (n,n)-matrix.
+function nFact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
+    mStor::Int64, l::Array{Float64,2}, u::Array{Float64,2}, p::Vector{Int64})
+
+Call linear algebra subprogram for factorization of a (n,n)-matrix.
 
 ## Input parameters
 -------------------
@@ -642,10 +655,13 @@ function nFact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
 end
 
 """
-# Summary : for function related to nleq2
-nFact : Call linear algebra subprogram for factorization of a (n,n)-matrix
-    with rank decision and casual computation of the rank deficient
-    pseudo-inverse matrix.
+function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{Float64,2}, aInv::Array{Float64,2}, cond::Float64, iRank::Int64,
+    opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{Float64}, iRepeat::Int64, iRankC::Int64)
+
+Call linear algebra subprogram for factorization of a (n,n)-matrix
+with rank decision and casual computation of the rank deficient
+pseudo-inverse matrix.
 
 ## Input parameters
 -------------------
@@ -701,8 +717,10 @@ function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
 end
 
 """
-# Summary : for function related to nleq1
-nSolv : Call linear algebra subprogram for solution of the linear system a*z = b
+function nSolv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
+    u::Array{Float64,2}, p::Vector{Int64}, b::Vector{Float64}, mStor::Int64)
+
+Call linear algebra subprogram for solution of the linear system a*z = b
 
 ## Parameters
 -------------------
@@ -725,8 +743,12 @@ function nSolv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
 end
 
 """
-# Summary : for function related to nleq2
-nSolv : Checking of common input parameters and options.
+function nSolv(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{Float64,2}, aInv::Array{Float64,2}, b::Vector{Float64},
+    z::Vector{Float64}, iRank::Int64, iRepeat::Int64, d::Vector{Float64},
+    pivot::Vector{Int64}, iRankC::Int64)
+
+Checking of common input parameters and options.
 
 ## Input parameters
 -------------------

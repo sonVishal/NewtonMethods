@@ -12,7 +12,7 @@ for use in nonlinear systems solver.
 |-----------|-----------------------------------------------------------------|
 | fcn       | Function of the form fcn(f, x) to provide right-hand side       |
 | x[n]      | Current scaled vector                                           |
-| nFcn*     | fcn evaluation count                                            |
+| f[n]      | Vector containing fcn(x)                                        |
 | chunkSize | Chunk size for computing the Jacobian. Refer doc of ForwardDiff |
 
 (* marks inout parameters)
@@ -25,25 +25,17 @@ for use in nonlinear systems solver.
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,
+function nJacFAD(fcn, x::Vector{Float64}, f::Vector{Float64}, a::Array{Float64,2},
     chunkSize = ForwardDiff.pickchunk(x))
     # Begin
-    y = zeros(x)
     iFail = 0
+    nFcn += 1
     try
-        fcn(y,x)
+        a = ForwardDiff.jacobian(fcn,f,x,chunk)
     catch
         iFail = -1
     end
-    nFcn += 1
-    if iFail == 0
-        try
-            a = ForwardDiff.jacobian(fcn,y,x,chunk)
-        catch
-            iFail = -1
-        end
-    end
-    return (nFcn, iFail)
+    return iFail
 end
 
 """

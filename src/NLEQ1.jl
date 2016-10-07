@@ -222,11 +222,10 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     end
 
     # Create a copy inside so that the original variable is untouched
-    x0     = x[:]
-    xScal0 = xScal[:]
+    x0 = x[:]
 
     # Call to n1int
-    retCode = n1int(n, fcn, x0, xScal0, opt.options[OPT_RTOL], nItmax,
+    retCode = n1int(n, fcn, x0, xScal, opt.options[OPT_RTOL], nItmax,
         nonLin, opt, m1, m2, nBroy, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
         opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], mStor, printWarn,
         printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
@@ -598,7 +597,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
                     end
                     if jacGen == 4
-                        (nFcn,iFail) = nJacFAD(fcn,x,a,nFcn)
+                        (nFcn,iFail) = nJacFAD(fcn,x,f,a)
                     end
                 elseif mStor == 1
                     if jacGen == 3
@@ -609,7 +608,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (nFcnJ,iFail) = nJacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ,a)
                     end
                     if jacGen == 4
-                        (nFcn,iFail) = nJacFAD(fcn,x,a,nFcn)
+                        (nFcn,iFail) = nJacFAD(fcn,x,f,a)
                     end
                 end
             end

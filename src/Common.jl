@@ -453,6 +453,7 @@ function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
         for j = 1:nza
             aout[row[j],col[j]] = a[row[j],col[j]]*fw[row[j]]
         end
+        a[:,:] = aout
     else
         aout = zeros(a)
         for k = 1:m
@@ -466,8 +467,8 @@ function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
                 aout[k,1:n] = a[k,1:n]
             end
         end
+        a[:,:] = aout
     end
-    a = aout[:,:]
 end
 
 """

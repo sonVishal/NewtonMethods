@@ -1,7 +1,7 @@
 using NewtonMethods
 include("ChebyQuad.jl")
-# fSol = open("nleq2.dat","w")
-# fRest = open("nleq2.out","w")
+fSol = open("nleq2.dat","w")
+fRest = open("nleq2.out","w")
 
 refSol = Dict{Int64,Vector}()
 
@@ -27,12 +27,12 @@ dim = 2
     # Initialize the options
     opt = OptionsNLEQ(OPT_MODE              => 1,
                       OPT_JACGEN            => 1,
-                    #   OPT_PRINTWARNING      => 1,
-                    #   OPT_PRINTITERATION    => 3,
-                    #   OPT_PRINTSOLUTION     => 2,
-                    #   OPT_PRINTIOWARN       => fRest,
-                    #   OPT_PRINTIOMON        => fRest,
-                    #   OPT_PRINTIOSOL        => fSol,
+                      OPT_PRINTWARNING      => 1,
+                      OPT_PRINTITERATION    => 3,
+                      OPT_PRINTSOLUTION     => 2,
+                      OPT_PRINTIOWARN       => fRest,
+                      OPT_PRINTIOMON        => fRest,
+                      OPT_PRINTIOSOL        => fSol,
                       OPT_JACFCN            => chebyQuadJac,
                       OPT_MSTOR             => 0,
                       OPT_NOROWSCAL         => 0,
@@ -48,13 +48,13 @@ dim = 2
 
     while retCode == -1
         (x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
-        write(STDOUT, @sprintf("Returned from call %4i of NLEQ2\n",i))
-        # flush(fSol)
-        # flush(fRest)
+        write(fRest, @sprintf("Returned from call %4i of NLEQ2\n",i))
+        flush(fSol)
+        flush(fRest)
         i += 1
     end
     err = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf)
     println("Relative error in Inf norm = $err")
 # end
-# close(fSol)
-# close(fRest)
+close(fSol)
+close(fRest)

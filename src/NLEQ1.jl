@@ -249,6 +249,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     stats[STATS_NJAC]       = wkNLEQ1.options[STATS_NJAC]
     stats[STATS_NFCN]       = wkNLEQ1.options[STATS_NFCN]
     stats[STATS_NFCNJ]      = wkNLEQ1.options[STATS_NFCNJ]
+    stats[STATS_IFAIL]      = wkNLEQ1.options[STATS_IFAIL]
 
     # Print statistics
     if printMon >= 2 && retCode != -1 && retCode != 10
@@ -1158,6 +1159,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 setOption!(wkNLEQ1, STATS_NREJR1, nRejR1)
                 setOption!(wkNLEQ1, STATS_NEW,    newt)
                 setOption!(wkNLEQ1, STATS_ICONV,  iConv)
+                setOption!(wkNLEQ1, STATS_IFAIL,  iFail)
 
                 setOption!(wkNLEQ1, WK_SUMXA0, sumxa0)
                 setOption!(wkNLEQ1, WK_SUMXA1, sumxa1)
@@ -1377,6 +1379,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     setOption!(wkNLEQ1, STATS_NREJR1, nRejR1)
     setOption!(wkNLEQ1, STATS_NEW,    newt)
     setOption!(wkNLEQ1, STATS_ICONV,  iConv)
+    setOption!(wkNLEQ1, STATS_IFAIL,  iFail)
 
     setOption!(wkNLEQ1, WK_SUMXA0, sumxa0)
     setOption!(wkNLEQ1, WK_SUMXA1, sumxa1)

@@ -58,6 +58,7 @@ const STATS_SUMX                = "sumx"
 const STATS_DLEVF               = "dlevf"
 const STATS_SUBCOND             = "subcondition"
 const STATS_SENS                = "sensitivity"
+const STATS_IFAIL               = "failureIndicator"
 
 # Temporary Workspace variables
 const WK_A                      = "a"

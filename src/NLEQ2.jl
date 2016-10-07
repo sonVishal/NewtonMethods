@@ -208,7 +208,8 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     retCode = -1
 
     # Create a copy inside so that the original variable is untouched
-    x0 = x[:]
+    x0     = x[:]
+    xScal0 = xScal[:]
 
     # Call to n2int
     retCode = n2int(n, fcn, x0, xScal, opt.options[OPT_RTOL], nItmax,
@@ -224,12 +225,14 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     else
         stats[STATS_RTOL] = opt.options[OPT_RTOL]
     end
-    stats[STATS_XITER]      = wkNLEQ2.options["P_XITER"]
-    stats[STATS_NATLEVEL]   = wkNLEQ2.options["P_SUMXALL"]
-    stats[STATS_SIMLEVEL]   = wkNLEQ2.options["P_DLEVFALL"]
-    stats[STATS_STDLEVEL]   = wkNLEQ2.options["P_SUMXQALL"]
-    stats[STATS_PRECISION]  = wkNLEQ2.options["P_TOLALL"]
-    stats[STATS_DAMPINGFC]  = wkNLEQ2.options["P_FCALL"]
+    if opt.options[OPT_STORE] == 1
+        stats[STATS_XITER]      = wkNLEQ2.options["P_XITER"]
+        stats[STATS_NATLEVEL]   = wkNLEQ2.options["P_SUMXALL"]
+        stats[STATS_SIMLEVEL]   = wkNLEQ2.options["P_DLEVFALL"]
+        stats[STATS_STDLEVEL]   = wkNLEQ2.options["P_SUMXQALL"]
+        stats[STATS_PRECISION]  = wkNLEQ2.options["P_TOLALL"]
+        stats[STATS_DAMPINGFC]  = wkNLEQ2.options["P_FCALL"]
+    end
     stats[STATS_NITER]      = wkNLEQ2.options[STATS_NITER]
     stats[STATS_NCORR]      = wkNLEQ2.options[STATS_NCORR]
     stats[STATS_NREJR1]     = wkNLEQ2.options[STATS_NREJR1]

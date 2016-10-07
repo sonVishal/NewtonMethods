@@ -383,10 +383,7 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     qSucc       = Bool(opt.options[OPT_QSUCC])
     qScale      = opt.options[OPT_NOROWSCAL] != 1
     qRank1      = Bool(opt.options[OPT_QRANK1])
-    iOrMon      = getOption!(opt, OPT_IORMON, 0)
-    if iOrMon == 0
-        iOrMon = 2
-    end
+    iOrMon      = getOption!(opt, OPT_IORMON, 2)
     iScal       = getOption!(opt, OPT_ISCAL, 0)
     mode        = getOption!(opt, OPT_MODE,  0)
     jacGen      = opt.options[OPT_JACGEN]

@@ -50,8 +50,7 @@ Common options
 | OPT_BOUNDEDDAMP    | 0             | 0 | The default bounded damping strategy switch takes place, dependent on the setting of OPT_NONLIN :<br>OPT_NONLIN = 0,1,2,3 -> OPT_BOUNDEDDAMP = off,<br>OPT_NONLIN = 4 -> OPT_BOUNDEDDAMP = on |
 |                    |               | 1 | means always OPT_BOUNDEDDAMP = on |
 |                    |               | 2 | means always OPT_BOUNDEDDAMP = off |
-| OPT_IORMON         | 0             | Convergence order monitor<br>=0 Standard option is IORMON=2 |
-|                    |               | 1 | Convergence order is not checked, the iteration will be always proceeded until the solution has the required precision OPT_RTOL (or some error condition occured) |
+| OPT_IORMON         | 2             | 1 | Convergence order is not checked, the iteration will be always proceeded until the solution has the required precision OPT_RTOL (or some error condition occured) |
 |                    |               | 2 | Use additional 'weak stop' criterion: Convergence order is monitored and termination due to slowdown of the convergence may occur. |
 |                    |               | 3 | Use additional 'hard stop' criterion: Convergence order is monitored and termination due to superlinear convergence slowdown may occur. |
 |                    |               |   | In case of termination due to convergence slowdown, the warning code retCode=4 will be set. In cases, where the Newton iteration converges but superlinear convergence order has never been detected, the warning code retCode=5 is returned. |

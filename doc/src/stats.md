@@ -1,25 +1,25 @@
 Statistics
 ==========
-| Name            | Type            | Description |
-|:----------------|:----------------|:------------|
-| STATS_XSCAL     | Array{Float64}  |             |
-| STATS_XITER     | Vector{Float64} |             |
-| STATS_NATLEVEL  | Vector{Float64} |             |
-| STATS_SIMLEVEL  | Vector{Float64} |             |
-| STATS_STDLEVEL  | Vector{Float64} |             |
-| STATS_PRECISION | Vector{Float64} |             |
-| STATS_DAMPINGFC | Vector{Float64} |             |
-| STATS_RTOL      | Float64         |             |
-| STATS_CONV      | Float64         |             |
-| STATS_SUMX      | Float64         |             |
-| STATS_DLEVF     | Float64         |             |
-| STATS_SUBCOND   | Float64         |             |
-| STATS_SENS      | Float64         |             |
-| STATS_NITER     | Int64           |             |
-| STATS_NCORR     | Int64           |             |
-| STATS_NFCN      | Int64           |             |
-| STATS_NFCNJ     | Int64           |             |
-| STATS_NJAC      | Int64           |             |
-| STATS_NREJR1    | Int64           |             |
-| STATS_NEW       | Int64           |             |
-| STATS_ICONV     | Int64           |             |
+| Name            | Description |
+|:----------------|:------------|
+| STATS_XSCAL     |             |
+| STATS_XITER     |             |
+| STATS_NATLEVEL  |             |
+| STATS_SIMLEVEL  |             |
+| STATS_STDLEVEL  |             |
+| STATS_PRECISION |             |
+| STATS_DAMPINGFC |             |
+| STATS_RTOL      |             |
+| STATS_CONV      |             |
+| STATS_SUMX      |             |
+| STATS_DLEVF     |             |
+| STATS_SUBCOND   |             |
+| STATS_SENS      |             |
+| STATS_NITER     |             |
+| STATS_NCORR     |             |
+| STATS_NFCN      |             |
+| STATS_NFCNJ     |             |
+| STATS_NJAC      |             |
+| STATS_NREJR1    |             |
+| STATS_NEW       |             |
+| STATS_ICONV     |             |

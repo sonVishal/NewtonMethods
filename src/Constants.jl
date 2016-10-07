@@ -34,6 +34,7 @@ const OPT_FCSTART               = "initialDampingFactor"
 const OPT_FCMIN                 = "minimumDampingFactor"
 const OPT_IRANK                 = "initialRank"
 const OPT_COND                  = "subConditionNumber"
+const OPT_STORE                 = "storeIntermediateValues"
 
 # Statistics
 const STATS_NITER               = "numberOfNewtonIterations"

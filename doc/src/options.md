@@ -65,6 +65,8 @@ Common options
 | OPT_NBROY          | |  | Maximum number of possible consecutive iterative Broyden steps. Default is n if OPT_MSTOR=0, and OPT_ML+OPT_MU+1 if OPT_MSTOR=1 (but minimum is always 10) provided that Broyden is allowed. If Broyden is inhibited, NBROY is always set to zero.|
 | OPT_FCSTART        |  |  | Damping factor for first Newton iteration: overrides option OPT_NONLIN, if set (see note 4) |
 | OPT_FCMIN          |  |  | Minimal allowed damping factor (see note 4) |
+| OPT_STORE          | 0 | 0 | (false) Do not store intermediate iteration vectors and the norm values |
+|                    |   | 1 | (true) Store intermediate iteration vectors and the norm values. (Check statistics for more details) |
 
 Options specific to NLEQ2
 =========================

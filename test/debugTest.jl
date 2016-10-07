@@ -1,7 +1,7 @@
 using NewtonMethods
 include("ChebyQuad.jl")
-fSol = open("nleq2.dat","w")
-fRest = open("nleq2.out","w")
+# fSol = open("nleq2.dat","w")
+# fRest = open("nleq2.out","w")
 
 refSol = Dict{Int64,Vector}()
 
@@ -20,18 +20,19 @@ refSol[9] = [0.4420534614e-1, 0.1994906723, 0.2356191085, 0.4160469079,
                 0.5000000000, 0.5839530921, 0.7643808915, 0.8005093277,
                 0.9557946539]
 
-for dim = 2:9
+# for dim = 2:9
+dim = 2
     n1 = dim + 1
 
     # Initialize the options
     opt = OptionsNLEQ(OPT_MODE              => 1,
                       OPT_JACGEN            => 1,
-                      OPT_PRINTWARNING      => 1,
-                      OPT_PRINTITERATION    => 3,
-                      OPT_PRINTSOLUTION     => 2,
-                      OPT_PRINTIOWARN       => fRest,
-                      OPT_PRINTIOMON        => fRest,
-                      OPT_PRINTIOSOL        => fSol,
+                    #   OPT_PRINTWARNING      => 1,
+                    #   OPT_PRINTITERATION    => 3,
+                    #   OPT_PRINTSOLUTION     => 2,
+                    #   OPT_PRINTIOWARN       => fRest,
+                    #   OPT_PRINTIOMON        => fRest,
+                    #   OPT_PRINTIOSOL        => fSol,
                       OPT_JACFCN            => chebyQuadJac,
                       OPT_MSTOR             => 0,
                       OPT_NOROWSCAL         => 0,
@@ -47,13 +48,13 @@ for dim = 2:9
 
     while retCode == -1
         (x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
-        write(fRest, @sprintf("Returned from call %4i of NLEQ2\n",i))
-        flush(fSol)
-        flush(fRest)
+        write(STDOUT, @sprintf("Returned from call %4i of NLEQ2\n",i))
+        # flush(fSol)
+        # flush(fRest)
         i += 1
     end
     err = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf)
     println("Relative error in Inf norm = $err")
-end
-close(fSol)
-close(fRest)
+# end
+# close(fSol)
+# close(fRest)

@@ -61,13 +61,17 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
     qIniMon = (printMon >= 1 && !qSucc)
 
+    # Create empty statistics variable to be returned
+    stats = Dict{AbstractString,Any}()
+
     # Check input parameters and options
     n = length(x)
     retCode = checkOptions(n, x, xScal, opt)
 
     # Exit if any parameter error was detected
     if retCode != 0
-        error("Exit with return code $retCode")
+        println("Exit with return code $retCode")
+        return (x, stats, retCode)
     end
 
     # Check if the Jacobian is Dense/Sparse or Banded matrix
@@ -218,10 +222,9 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         printWarn, printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
 
     # set stats variable
-    stats = Dict{AbstractString,Any}()
     stats[STATS_XSCAL] = xScal
     if retCode == -1
-        stats[STATS_RTOL] = tolAll[wkNLEQ2.options[STATS_NITER]]
+        stats[STATS_RTOL] = wkNLEQ2.options["P_TOLALL"][wkNLEQ2.options[STATS_NITER]]
     else
         stats[STATS_RTOL] = opt.options[OPT_RTOL]
     end
@@ -230,9 +233,9 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         stats[STATS_NATLEVEL]   = wkNLEQ2.options["P_SUMXALL"]
         stats[STATS_SIMLEVEL]   = wkNLEQ2.options["P_DLEVFALL"]
         stats[STATS_STDLEVEL]   = wkNLEQ2.options["P_SUMXQALL"]
-        stats[STATS_PRECISION]  = wkNLEQ2.options["P_TOLALL"]
         stats[STATS_DAMPINGFC]  = wkNLEQ2.options["P_FCALL"]
     end
+    stats[STATS_PRECISION]  = wkNLEQ2.options["P_TOLALL"]
     stats[STATS_NITER]      = wkNLEQ2.options[STATS_NITER]
     stats[STATS_NCORR]      = wkNLEQ2.options[STATS_NCORR]
     stats[STATS_NREJR1]     = wkNLEQ2.options[STATS_NREJR1]
@@ -349,15 +352,19 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     nRejR1   = wkNLEQ2.options[STATS_NREJR1]
     newt     = wkNLEQ2.options[STATS_NEW]
     iConv    = wkNLEQ2.options[STATS_ICONV]
-    xIter    = wkNLEQ2.options["P_XITER"]
-    sumXall  = wkNLEQ2.options["P_SUMXALL"]
-    dLevFall = wkNLEQ2.options["P_DLEVFALL"]
-    sumXQall = wkNLEQ2.options["P_SUMXQALL"]
     tolAll   = wkNLEQ2.options["P_TOLALL"]
-    fcAll    = wkNLEQ2.options["P_FCALL"]
+
+    if opt.options[OPT_STORE] == 1
+        xIter    = wkNLEQ2.options["P_XITER"]
+        sumXall  = wkNLEQ2.options["P_SUMXALL"]
+        dLevFall = wkNLEQ2.options["P_DLEVFALL"]
+        sumXQall = wkNLEQ2.options["P_SUMXQALL"]
+        fcAll    = wkNLEQ2.options["P_FCALL"]
+    end
     # --------------------------------------------------------------------------
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
+    retCode = -1
     fck2   = fc
     dLevFn = 0.0
     sumXa  = 0.0
@@ -950,10 +957,10 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                             nLvls(n,dxQ,t2,xw,f,newt==0)
 
                         dxNrm = wnorm(n,dxQ,xw)
+                        push!(tolAll,dxNrm)
 
                         if opt.options[OPT_STORE] == 1
                             push!(sumXQall,sqrt(sumX/n))
-                            push!(tolAll,dxNrm)
                         end
                         # ------------------------------------------------------
                         # 3.6.4 Convergence test

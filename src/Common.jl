@@ -35,7 +35,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     if n <= 0
         retCode = 20
         write(printIOwarn,"ERROR: Bad input to dimensional parameter n supplied","\n",
-            "Choose n positive, your input is: n = $n")
+            "Choose n positive, your input is: n = $n\n")
         return retCode
     end
 
@@ -47,7 +47,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     rTol = getOption!(opt,OPT_RTOL,1e-6)
     if rTol <= 0.0
         retCode = 21
-        write(printIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied")
+        write(printIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied\n")
         return retCode
     else
         tolMin = epMach*10.0*n
@@ -55,7 +55,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
             rTol = tolMin
             setOption!(opt,OPT_RTOL,rTol)
             if printWarn == 1
-                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol")
+                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol\n")
             end
         end
 
@@ -64,7 +64,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
             rTol = tolMax
             setOption!(opt,OPT_RTOL,rTol)
             if printWarn == 1
-                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol")
+                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol\n")
             end
         end
     end
@@ -81,7 +81,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
         # Positive scaling values give scale invariance
         if xScal[i] < 0.0
             retCode = 22
-            write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied")
+            write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied\n")
             return retCode
         end
 
@@ -91,14 +91,14 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
         # Avoid overflow due to division by xScal[i]
         if xScal[i] > 0.0 && xScal[i] < small
             if printWarn == 1
-                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small")
+                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small\n")
             end
             xScal[i] = small
         end
         # Avoid underflow due to division by xScal[i]
         if xScal[i] > great
             if printWarn == 1
-                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great")
+                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great\n")
             end
             xScal[i] = great
         end
@@ -113,39 +113,33 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
         if jacFcn == 0
             retCode = 30
             write(printIOwarn,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
-            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")
+            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.\n")
             return retCode
         end
     end
 
     # Check the IO
-    pIOwarn = getOption!(opt, OPT_PRINTIOWARN, 0)
-    if pIOwarn == 0
-        setOption!(opt, OPT_PRINTIOWARN, STDOUT)
-    elseif typeof(pIOwarn) != IOStream
+    pIOwarn = getOption!(opt, OPT_PRINTIOWARN, STDOUT)
+    if typeof(pIOwarn) != IOStream && pIOwarn != STDOUT
         retCode = 30
         write(STDOUT, "ERROR: Please provide a file stream for writing warnings or\n",
-        "use the default option.")
+        "use the default option.\n")
         return retCode
     end
 
-    pIOmon = getOption!(opt, OPT_PRINTIOMON, 0)
-    if pIOmon == 0
-        setOption!(opt, OPT_PRINTIOMON, STDOUT)
-    elseif typeof(pIOmon) != IOStream
+    pIOmon = getOption!(opt, OPT_PRINTIOMON, STDOUT)
+    if typeof(pIOmon) != IOStream && pIOmon != STDOUT
         retCode = 30
         write(STDOUT, "ERROR: Please provide a file stream for writing iterations or\n",
-        "use the default option.")
+        "use the default option.\n")
         return retCode
     end
 
-    pIOsol = getOption!(opt, OPT_PRINTIOSOL, 0)
-    if pIOsol == 0
-        setOption!(opt, OPT_PRINTIOSOL, STDOUT)
-    elseif typeof(pIOsol) != IOStream
+    pIOsol = getOption!(opt, OPT_PRINTIOSOL, STDOUT)
+    if typeof(pIOsol) != IOStream && pIOsol != STDOUT
         retCode = 30
         write(STDOUT, "ERROR: Please provide a file stream for writing solution or\n",
-        "use the default option.")
+        "use the default option.\n")
         return retCode
     end
 
@@ -230,6 +224,7 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
     initOption!(wk, STATS_SUMX,   0.0)
     initOption!(wk, STATS_DLEVF,  0.0)
     initOption!(wk, STATS_RTOL,   0.0)
+    initOption!(wk, "P_TOLALL", Vector{Float64}())
 
     # Check whether these iteration variables should be stored or not
     initOption!(opt, OPT_STORE, 0)
@@ -238,7 +233,6 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
         initOption!(wk, "P_SUMXALL", Vector{Float64}())
         initOption!(wk, "P_DLEVFALL", Vector{Float64}())
         initOption!(wk, "P_SUMXQALL", Vector{Float64}())
-        initOption!(wk, "P_TOLALL", Vector{Float64}())
         initOption!(wk, "P_FCALL", Vector{Float64}())
     end
 

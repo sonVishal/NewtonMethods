@@ -19,6 +19,7 @@ Statistics
 | STATS_NEW       | Count of consecutive rank-1 updates |
 | STATS_ICONV     | Current status of of the convergence monitor (only if convergence order monitor is on see OPT_IORMON)<br>=0: No convergence indicated yet<br>=1: Damping factor is 1.0<br>=2: Superlinear convergence in progress<br>=3: Quadratic convergence in progress |
 | STATS_IFAIL     | Failure code to be checked in case the return code is 80/81. |
+| STATS_PRECISION | The sequence of acheived precisions over the iteration steps. |
 
 Statistics stored only if OPT_STORE = 1
 ========================================
@@ -28,5 +29,4 @@ Statistics stored only if OPT_STORE = 1
 | STATS_NATLEVEL  | The sequence of natural levels of the Newton corrections over the iteration steps |
 | STATS_SIMLEVEL  | The sequence of natural levels of the simplified Newton corrections over the iteration steps |
 | STATS_STDLEVEL  | The sequence of standard levels over the iteration steps |
-| STATS_PRECISION | The sequence of acheived precisions over the iteration steps. |
 | STATS_DAMPINGFC | The sequence of accepted damping factors over the iteration steps. |

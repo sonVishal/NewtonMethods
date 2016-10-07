@@ -62,7 +62,7 @@ Common options
 | OPT_AJMIN          | 0.0 |  | Jacobian approximation without feedback: Threshold value. The absolute pertubation for component k is computed by delx := OPT_AJDEL*max(abs(x[k]),OPT_AJMIN) |
 | OPT_ETADIF         | 1e-6 |  | Jacobian approximation with feedback: Target value for relative pertubation eta of x |
 | OPT_ETAINI         | 1e-6 |  | Jacobian approximation with feedback: Initial value for denominator differences |
-| OPT_NBROY          | |  | Maximum number of possible consecutive iterative Broyden steps. Default is n if OPT_MSTOR=0, and OPT_ML+OPT_MU+1 if OPT_MSTOR=1 (but minimum is always 10) provided that Broyden is allowed. If Broyden is inhibited, NBROY is always set to zero.|
+| OPT_NBROY          | |  | Maximum number of possible consecutive iterative Broyden steps. Default is n if OPT_MSTOR=0, and OPT_ML+OPT_MU+1 if OPT_MSTOR=1 (but minimum is always 10) provided that Broyden is allowed. If Broyden is inhibited, OPT_NBROY is always set to zero.|
 | OPT_FCSTART        |  |  | Damping factor for first Newton iteration: overrides option OPT_NONLIN, if set (see note 4) |
 | OPT_FCMIN          |  |  | Minimal allowed damping factor (see note 4) |
 | OPT_STORE          | 0 | 0 | (false) Do not store intermediate iteration vectors and the norm values |

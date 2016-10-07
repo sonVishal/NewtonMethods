@@ -13,26 +13,32 @@ __precompile__(true)
      Equations - Algorithm, Implementation, Application.
      ZIB, Technical Report TR 90-10 (December 1990)
 
- Please generate the documentation using the following steps
+Currently the following two solvers are implemented:
+- NLEQ1: Damped Newton-algorithm for systems of highly nonlinear
+    equations - damping strategy due to Ref. (1).
+- NLEQ2: Damped Newton-algorithm with rank strategy for systems of
+    highly nonlinear equations - damping strategy due to Ref.(1).
 """
 module NewtonMethods
 
 using ForwardDiff
 
 # Export the required methods
-export nleq1, nleq2, n1int, n2int, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
-export OPT_RTOL, OPT_QSUCC, OPT_MODE, OPT_JACGEN, OPT_JACFCN, OPT_MSTOR, OPT_ML,
-        OPT_MU, OPT_ISCAL, OPT_PRINTWARNING, OPT_PRINTITERATION,
-        OPT_PRINTIOWARN, OPT_PRINTIOMON, OPT_PRINTIOSOL, OPT_PRINTSOLUTION,
-        OPT_NONLIN, OPT_QRANK1, OPT_QORDI, OPT_QSIMPL, OPT_NOROWSCAL,
-        OPT_BOUNDEDDAMP, OPT_IORMON, OPT_NITMAX, OPT_FCBAND, OPT_SIGMA,
-        OPT_SIGMA2, OPT_AJDEL, OPT_AJMIN, OPT_ETADIF, OPT_ETAINI, OPT_NBROY,
-        OPT_FCSTART, OPT_FCMIN, OPT_IRANK, OPT_COND, STATS_NITER, STATS_NCORR,
-        STATS_NFCN, STATS_NFCNJ, STATS_NJAC, STATS_NREJR1, STATS_XSCAL,
-        STATS_RTOL, STATS_XITER, STATS_NATLEVEL, STATS_SIMLEVEL, STATS_STDLEVEL,
-        STATS_PRECISION, STATS_DAMPINGFC, STATS_NEW, STATS_ICONV, STATS_CONV,
-        STATS_SUMX, STATS_DLEVF
+export nleq1, nleq2, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
 
+# Export the required options
+export OPT_RTOL, OPT_QSUCC, OPT_MODE, OPT_JACGEN, OPT_JACFCN, OPT_MSTOR, OPT_ML,
+    OPT_MU, OPT_ISCAL, OPT_PRINTWARNING, OPT_PRINTITERATION, OPT_PRINTIOWARN,
+    OPT_PRINTIOMON, OPT_PRINTIOSOL, OPT_PRINTSOLUTION, OPT_NONLIN, OPT_QRANK1,
+    OPT_QORDI, OPT_QSIMPL, OPT_NOROWSCAL, OPT_BOUNDEDDAMP, OPT_IORMON, OPT_NITMAX,
+    OPT_FCBAND, OPT_SIGMA, OPT_SIGMA2, OPT_AJDEL, OPT_AJMIN, OPT_ETADIF, OPT_ETAINI,
+    OPT_NBROY, OPT_FCSTART, OPT_FCMIN, OPT_IRANK, OPT_COND, OPT_STORE
+
+# Export the required statistics
+export STATS_NITER, STATS_NCORR, STATS_NFCN, STATS_NFCNJ, STATS_NJAC, STATS_NREJR1,
+    STATS_XSCAL, STATS_RTOL, STATS_XITER, STATS_NATLEVEL, STATS_SIMLEVEL,
+    STATS_STDLEVEL, STATS_PRECISION, STATS_DAMPINGFC, STATS_NEW, STATS_ICONV,
+    STATS_CONV, STATS_SUMX, STATS_DLEVF, STATS_SUBCOND, STATS_SENS, STATS_IFAIL
 # Include common files
 include("Jacobian.jl")
 include("Options.jl")

@@ -1,0 +1,3 @@
+julia make.jl
+mkdocs build --clean
+mkdocs serve

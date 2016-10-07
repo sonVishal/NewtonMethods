@@ -111,7 +111,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     if jacGen == 1
         jacFcn = getOption!(opt,OPT_JACFCN,0)
         if jacFcn == 0
-            retCode = 99
+            retCode = 30
             write(printIOwarn,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
             "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")
             return retCode
@@ -123,7 +123,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     if pIOwarn == 0
         setOption!(opt, OPT_PRINTIOWARN, STDOUT)
     elseif typeof(pIOwarn) != IOStream
-        retCode = 99
+        retCode = 30
         write(STDOUT, "ERROR: Please provide a file stream for writing warnings or\n",
         "use the default option.")
         return retCode
@@ -133,7 +133,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     if pIOmon == 0
         setOption!(opt, OPT_PRINTIOMON, STDOUT)
     elseif typeof(pIOmon) != IOStream
-        retCode = 99
+        retCode = 30
         write(STDOUT, "ERROR: Please provide a file stream for writing iterations or\n",
         "use the default option.")
         return retCode
@@ -143,7 +143,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     if pIOsol == 0
         setOption!(opt, OPT_PRINTIOSOL, STDOUT)
     elseif typeof(pIOsol) != IOStream
-        retCode = 99
+        retCode = 30
         write(STDOUT, "ERROR: Please provide a file stream for writing solution or\n",
         "use the default option.")
         return retCode

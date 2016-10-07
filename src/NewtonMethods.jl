@@ -13,13 +13,6 @@ __precompile__(true)
      Equations - Algorithm, Implementation, Application.
      ZIB, Technical Report TR 90-10 (December 1990)
 
- ### Note 1.
- The machine dependent values SMALL, GREAT and EPMACH are
- set as global variables over here. As delivered, this function is adapted
- to use constants suitable for all machines with IEEE arithmetic.
- If you use another type of machine, you have to change the DATA state-
- ments for IEEE arithmetic suitable for your machine.
-
  Please generate the documentation using the following steps
 """
 module NewtonMethods
@@ -50,6 +43,7 @@ include("Common.jl")
 # Machine Constants
 global epMach = 1e-17
 global small  = 1e-150
+global great  = 1.0/small
 
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()

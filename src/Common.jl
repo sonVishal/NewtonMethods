@@ -28,9 +28,6 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     printWarn = getOption!(opt,OPT_PRINTWARNING,0)
     printIOwarn = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
 
-    # Get the machine related constants
-    great   = 1.0/small
-
     # Initialize return code to 0
     retCode = 0
 
@@ -43,11 +40,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     end
 
     # Problem type specification by user
-    nonLin = getOption(opt,OPT_NONLIN,0)
-    if nonLin == 0
-        nonLin = 3
-        setOption!(opt,OPT_NONLIN,nonLin)
-    end
+    nonLin = getOption(opt,OPT_NONLIN,3)
 
     # Checking and conditional adaptation of user given RTOL
     # if RTOL is not set, set it to 1e-6
@@ -114,7 +107,7 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     # Assign the Jacobian depending on user input
     # Multiple dispatch calls the required function based on
     # the storage requirement of the user
-    jacGen = getOption!(opt,OPT_JACGEN,0)
+    jacGen = getOption!(opt,OPT_JACGEN,2)
     if jacGen == 1
         jacFcn = getOption!(opt,OPT_JACFCN,0)
         if jacFcn == 0
@@ -123,9 +116,6 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
             "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.")
             return retCode
         end
-    elseif jacGen == 0
-        jacGen = 2
-        opt.options[OPT_JACGEN] = jacGen
     end
 
     # Check the IO

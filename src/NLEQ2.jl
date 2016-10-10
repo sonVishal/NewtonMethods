@@ -367,8 +367,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     retCode = -1
     fck2   = fc
     dLevFn = 0.0
-    dLevF  = 0.0
-    conv   = 0.0
     sumXa  = 0.0
     conva  = 0.0
     cond1  = 0.0

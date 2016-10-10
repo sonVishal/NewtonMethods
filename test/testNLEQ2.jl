@@ -51,8 +51,8 @@ function testNLEQ2()
 
         relNormDiff = norm(x0-refSol[dim],Inf);
 
-        if norm(refSol[dim] != 0.0)
-            relNormDiff /= norm(refSol[dim]);
+        if norm(refSol[dim],Inf) != 0.0
+            relNormDiff /= norm(refSol[dim],Inf);
         end
 
         if dim == 2
@@ -60,6 +60,7 @@ function testNLEQ2()
         else
             testResult &= relNormDiff <= 1e-12;
         end
+        println(testResult)
     end
     return testResult
 end

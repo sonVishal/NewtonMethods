@@ -205,6 +205,7 @@
         @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]),
         @sprintf("\n\tInitial Jacobian pseudo-rank iRank\t\t= %6i", iRank),
         @sprintf("\n\tMaximum permitted subcondition cond\t\t= %1.2e\n", cond))
+        flush(printIOmon)
     end
 
     # If retCode is unmodified on exit, successive steps are required
@@ -470,7 +471,7 @@ end
             eta = etaIni*ones(n)
         end
 
-        xa[:] = x[:]
+        xa = x[:]
 
         iConv  = 0
 
@@ -491,6 +492,7 @@ end
             "  ******************************************************************",
             "\n",
             "        It       Normf           Normx         Damp.Fct.   New\n")
+            flush(printIOmon)
         end
         # ----------------------------------------------------------------------
         # 1.7 Startup step
@@ -556,6 +558,7 @@ end
                         @sprintf(" fcNumP = %18.10e\n",fcNumP),
                         @sprintf(" fcDnm  = %18.10e\n",fcDnm),
                         @sprintf("++++++++++++++++++++++++++++++\n"))
+                        flush(printIOmon)
                     end
                 end
                 fck2 = fcA
@@ -699,7 +702,7 @@ end
             (conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,newt == 0)
             wkNLEQ2.options[STATS_SUMX]   = sumX
             wkNLEQ2.options[STATS_DLEVF]  = dLevF
-            xa[:]    = x
+            xa       = x[:]
             sumXa    = sumX
             dLevXa   = sqrt(sumXa/n)
             conva    = conv
@@ -750,6 +753,7 @@ end
                         @sprintf(" fcNumP = %18.10e\n",fcNumP),
                         @sprintf(" fcDnm  = %18.10e\n",fcDnm),
                         @sprintf("++++++++++++++++++++++++++++++\n"))
+                        flush(printIOmon)
                     end
 
                     fc = fcPri
@@ -762,6 +766,7 @@ end
                             fc = fcbh
                             if mPrMon >= 4
                                 write(printIOmon, "*** Increase rest. act. (a priori)\n")
+                                flush(printIOmon)
                             end
                         end
                         fcbh = fcA/fcBand
@@ -769,6 +774,7 @@ end
                             fc = fcbh
                             if mPrMon >= 4
                                 write(printIOmon, "*** Decrease rest. act. (a priori)\n")
+                                flush(printIOmon)
                             end
                         end
                     end
@@ -832,6 +838,7 @@ end
                         @sprintf(" ** alpha-post: %9.2e",alphaK),
                         @sprintf("  check:       %9.2e",sumXte),
                         @sprintf("                    **\n"))
+                        flush(printIOmon)
                     end
                     if iConv >= 2 && alphaA < 0.9
                         if iOrMon == 3
@@ -855,16 +862,16 @@ end
                 # --------------------------------------------------------------
                 # 3.4 Save natural level for later computations of corrector
                 # and print iterate
-                fcNumK = sumX
-                nRed = 0
-                qRep = false
+                fcNumK   = sumX
+                nRed     = 0
+                qRep     = false
                 qDampRed = true
                 # Damping-factor reduction loop
                 # =============================
                 while qDampRed
                     # ----------------------------------------------------------
                     # 3.5 Preliminary new iterate
-                    x = xa + dx*fc
+                    x[:] = xa + dx*fc
                     if opt.options[OPT_STORE] == 1
                         push!(fcAll,fc)
                     end
@@ -903,6 +910,7 @@ end
                             write(printIOmon,
                             @sprintf("        %2i",nIter),
                             @sprintf(" %s could not be evaluated     %7.5f    %2i\n",fcn,fc,newt))
+                            flush(printIOmon)
                         end
                         fch = fc
                         fc  = fcRedu*fc
@@ -915,6 +923,7 @@ end
                                 fc = fcbh
                                 if mPrMon >= 4
                                     write(printIOmon," *** Decrease rest. act. (fcn redu.) ***\n")
+                                    flush(printIOmon)
                                 end
                             end
                         end
@@ -996,6 +1005,7 @@ end
                             @sprintf("  fcDnm    = %18.10e\n",fcDnm),
                             @sprintf("  fcA      = %18.10e\n",fcA),
                             @sprintf("++++++++++++++++++++++++++++++\n"))
+                            flush(printIOmon)
                         end
                         # ------------------------------------------------------
                         # 3.7 Natural monotonicity test
@@ -1022,6 +1032,7 @@ end
                                     if mPrMon >= 4
                                         write(printIOmon,
                                         " *** Decrease rest. act. (a posteriori) ***\n")
+                                        flush(printIOmon)
                                     end
                                 end
                             end
@@ -1032,6 +1043,7 @@ end
                                 " +++ corrector setting 1 +++\n",
                                 @sprintf("fc    = %18.10e\n",fc),
                                 " +++++++++++++++++++++++++++\n")
+                                flush(printIOmon)
                             end
 
                             qRep = true
@@ -1056,6 +1068,7 @@ end
                                     " +++ corrector setting 2 +++\n",
                                     @sprintf("fc    = %18.10e\n",fc),
                                     " +++++++++++++++++++++++++++\n")
+                                    flush(printIOmon)
                                 end
 
                                 qRep = true
@@ -1086,6 +1099,7 @@ end
                     write(printIOmon,
                     @sprintf("        %2i Not accepted damping factor         %7.5f",nIter,fc),
                     @sprintf("    %2i      %4i\n",newt,iRank))
+                    flush(printIOmon)
                 end
                 fc  = fcKeep
                 fcA = fck2
@@ -1185,7 +1199,7 @@ end
                 setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-
+                @bp
                 return retCode
             end
         end
@@ -1202,14 +1216,14 @@ end
         if nonLin != 1
             if retCode == 0
                 aprec = sqrt(sumX/n)
-                x += dxQ
+                x[:] += dxQ
                 if opt.options[OPT_STORE] == 1
                     push!(xIter,x)
                 end
             else
                 aprec = sqrt(sumXa/n)
                 if alphaA > 0.0 && iOrMon == 3
-                    x += dx
+                    x[:] += dx
                     if opt.options[OPT_STORE] == 1
                         push!(xIter,x)
                     end
@@ -1243,12 +1257,14 @@ end
                 @sprintf("Solution of nonlinear system of equations obtained within "),
                 @sprintf("%3i iteration steps\n\n",nOut),
                 @sprintf("Achieved relative accuracy %10.3e\n",aprec))
+                flush(printIOmon)
             end
         else
             if mPrMon >= 1
                 write(printIOmon,"\n\n\n ",
                 @sprintf("Solution of nonlinear system of equations obtained by NLEQ2\n"),
                 @sprintf("No estimate available for the achieved relative accuracy\n"))
+                flush(printIOmon)
             end
         end
     end
@@ -1258,18 +1274,21 @@ end
     # 9.2.1 Termination at stationary point
     if retCode == 1 && mPrWarn == 1
         write(printIOwarn,"\nIteration terminated at stationary point\n")
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.2 Termination after more than nItmax iterations
     if retCode == 2 && mPrWarn == 1
         write(printIOwarn,"\n",
         @sprintf("Iteration terminates after nItmax %3i iteration steps\n",nItmax))
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.3 Newton method fails to converge
     if retCode == 3 && mPrWarn == 1
         write(printIOwarn,"\n",
         @sprintf("Newton method fails to converge\n"))
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.4.1 Superlinear convergence slowed down
@@ -1284,9 +1303,11 @@ end
             write(printIOwarn,"\nWARNING: Monotonicity test failed after ",ctyp,
             " convergence was already checked\nrTol requirement may be too",
             " stringent\n")
+            flush(printIOwarn)
         else
             write(printIOwarn,"\nWARNING: ",ctyp, " convergence slowed down\n",
             "rTol requirement may be too stringent\n")
+            flush(printIOwarn)
         end
     end
     # --------------------------------------------------------------------------
@@ -1300,29 +1321,35 @@ end
         "WARNING: No quadratic or superlinear convergence established yet\n",
         "         your solution may perhaps be less accurate\n",
         "         as indicated by the standard error estimate\n")
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.5 Error exit due to linear solver routine nFact
     if retCode == 80 && mPrWarn == 1
         write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver nFact\n")
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.6 Error exit due to linear solver routine nSolv
     if retCode == 81 && mPrWarn == 1
         write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by linear solver nSolv\n")
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.7 Error exit due to fail of user function fcn
     if retCode == 82 && mPrWarn == 1
         write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by user function fcn\n")
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.2.8 Error exit due to fail of user function Jacobian
     if retCode == 83 && mPrWarn == 1
         write(printIOwarn,@sprintf("ERROR: %5i",iFail)," signalled by user function jac\n")
+        flush(printIOwarn)
     end
     if (retCode == 82 || retCode == 83) && nIter <= 1 && mPrWarn == 1
         write(printIOwarn,"Try to find a better initial guess for the solution\n")
+        flush(printIOwarn)
     end
     # --------------------------------------------------------------------------
     # 9.3 Common exit
@@ -1333,6 +1360,7 @@ end
     if mPrMon >= 1
         write(printIOmon,"\n",@sprintf("Subcondition ( 1, %4i ) %10.3e",iRank,cond1))
         write(printIOmon,"\n",@sprintf("Sensitivity  ( 1, %4i ) %10.3e",iRank,sens1))
+        flush(printIOmon)
     end
     rTol = aprec
     sumX = sumXa

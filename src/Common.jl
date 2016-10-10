@@ -600,8 +600,9 @@ function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
     end
     if qMixIO
         write(printIO,"  ******************************************************************",
-        "\n");
+        "\n")
     end
+    flush(printIO)
     return nothing
 end
 
@@ -638,8 +639,9 @@ function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::
     end
     if qMixIO
         write(printIO,"  ******************************************************************",
-        "\n");
+        "\n")
     end
+    flush(printIO)
     return nothing
 end
 
@@ -670,8 +672,9 @@ function nPrv2(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
     write(printIO,@sprintf("      %4i     %10.3e    %1s %10.3e      %7.5f\n",niter,dlevf,cmark,dlevx,fc))
     if qMixIO
         write(printIO,"  ******************************************************************",
-        "\n");
+        "\n")
     end
+    flush(printIO)
     return nothing
 end
 
@@ -726,6 +729,7 @@ function nSout(n::Int64, x::Vector{Float64}, mode::Int64, mPr::Int64, printIO,
     elseif mode >= 3
         write(printIO,@sprintf("%s\n","  End data:"))
     end
+    flush(printIO)
     return nothing
 end
 

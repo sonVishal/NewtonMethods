@@ -1,5 +1,5 @@
-using NewtonMethods
-include("ChebyQuad.jl")
+# using NewtonMethods
+# include("ChebyQuad.jl")
 fSol = open("nleq2.dat","w")
 fRest = open("nleq2.out","w")
 
@@ -22,11 +22,12 @@ refSol[9] = [0.044205346135779117, 0.19949067230774983, 0.23561910847320633,
                 0.41604690789257159, 0.5, 0.5839530921074283, 0.76438089152679367,
                 0.80050932769225014, 0.95579465386422091]
 
-dim = 2
+dim = 3
 n1 = dim + 1
 
 # Initialize the options
-opt = OptionsNLEQ(OPT_JACGEN            => 1,
+opt = OptionsNLEQ(OPT_MODE              => 1,
+                  OPT_JACGEN            => 1,
                   OPT_PRINTWARNING      => 1,
                   OPT_PRINTITERATION    => 3,
                   OPT_PRINTSOLUTION     => 2,
@@ -42,10 +43,17 @@ opt = OptionsNLEQ(OPT_JACGEN            => 1,
 x0    = collect(1:dim)./n1
 xScal = zeros(x0)
 
-(x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
+retCode = -1
 
-flush(fSol)
-flush(fRest)
+i = 1
+
+while retCode == -1
+    (x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
+    write(fRest,"Return from call $i of NLEQ2\n")
+    flush(fRest)
+    flush(fSol)
+    i += 1
+end
 
 err = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf)
 println("Dimension $dim, relative error in Inf norm = $err")

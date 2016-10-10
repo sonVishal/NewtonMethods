@@ -367,11 +367,14 @@ end
     retCode = -1
     fck2   = fc
     dLevFn = 0.0
+    dLevF  = 0.0
+    conv   = 0.0
     sumXa  = 0.0
     conva  = 0.0
     cond1  = 0.0
     sens1  = 0.0
     iRankC = 0
+    sumX   = 0.0
     t2     = zeros(n)
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
@@ -584,7 +587,7 @@ end
                 jac = getOption(opt, OPT_JACFCN, 0)
                 try
                     jac(a,x)
-                catch err
+                catch
                     iFail   = -1
                 end
             else
@@ -647,6 +650,7 @@ end
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
+        @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system

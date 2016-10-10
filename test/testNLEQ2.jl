@@ -1,7 +1,7 @@
 include("ChebyQuad.jl")
 
 function testNLEQ2()
-    refSol = Dict{Int32,Any}();
+    refSol = Dict{Int64,Vector}();
 
     refSol[2] = [0.21132486540517284, 0.78867513459482719];
 
@@ -32,8 +32,7 @@ function testNLEQ2()
         n1 = dim + 1
 
         # Initialize the options
-        opt = OptionsNLEQ(OPT_MODE              => 1,
-                          OPT_JACGEN            => 1,
+        opt = OptionsNLEQ(OPT_JACGEN            => 1,
                           OPT_JACFCN            => chebyQuadJac,
                           OPT_MSTOR             => 0,
                           OPT_NOROWSCAL         => 0,
@@ -43,11 +42,7 @@ function testNLEQ2()
         x0    = collect(1:dim)./n1
         xScal = zeros(x0)
 
-        retCode = -1
-
-        while retCode == -1
-            (x0, _, retCode) = nleq2(chebyQuad,x0,xScal,opt);
-        end
+        (x0, _, retCode) = nleq2(chebyQuad,x0,xScal,opt);
 
         relNormDiff = norm(x0-refSol[dim],Inf);
 

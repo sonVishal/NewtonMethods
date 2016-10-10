@@ -96,6 +96,13 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         nBroy = 0
     end
 
+    # If in stepwise mode and this is the first call then clear the workspace
+    initOption!(opt, OPT_MODE, 0)
+
+    if opt.options[OPT_MODE] == 1 && !qSucc
+        empty!(wkNLEQ2.options)
+    end
+
     # Check if this is a first call or successive call to nleq1
     # If first call then reset the workspace and persistent variables
     if !qSucc
@@ -397,7 +404,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     qRank1      = Bool(opt.options[OPT_QRANK1])
     iOrMon      = getOption!(opt, OPT_IORMON, 2)
     iScal       = getOption!(opt, OPT_ISCAL, 0)
-    mode        = getOption!(opt, OPT_MODE,  0)
     jacGen      = opt.options[OPT_JACGEN]
     qMixIO      = typeof(printIOmon) == typeof(printIOsol)
     if qMixIO && typeof(printIOmon) == IOStream && printIOmon.name != printIOsol.name
@@ -1165,7 +1171,7 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             fcKeep = fc
             # ------------------------------------------------------------------
             # 4.2 Return if in one-step mode
-            if mode == 1
+            if opt.options[OPT_MODE] == 1
                 qSucc = true
                 setOption!(opt, OPT_QSUCC, Int(qSucc))
                 setOption!(opt, OPT_FCSTART, fc)

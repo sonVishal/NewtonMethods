@@ -33,7 +33,7 @@
 # | stats    | A dictionary variable of additional output values. The fields are discussed below.            |
 # | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 # """
-@debug function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
     message = ""
@@ -307,7 +307,7 @@ end
 # | x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
 # | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 # """
-@debug function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
+function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     rTol::Float64, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::Float64,
     opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,
     fc::Float64, fcMin::Float64, sigma::Float64, sigma2::Float64, mPrWarn::Int64,
@@ -471,10 +471,10 @@ end
         fcK2    = fc
         conv   = 0.0
         if jacGen == 3
-            eta = etaIni*ones(n)
+            eta[:] = etaIni*ones(n)
         end
 
-        xa = x[:]
+        xa[:] = x
 
         iConv  = 0
 
@@ -516,7 +516,7 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    @bp
+    # @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -633,7 +633,7 @@ end
             if qScale
                 nScrf(n,n,a,fw)
             else
-                fw = ones(n)
+                fw[:] = ones(n)
             end
         end
         # ----------------------------------------------------------------------
@@ -650,7 +650,7 @@ end
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        @bp
+        # @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -695,8 +695,8 @@ end
                     dxSave[1:n,1] = dx
                 end
                 dxSave[1:n,newt+1] = t1
-                dx = t1
-                t1 = t1./xw
+                dx[:] = t1
+                t1[:] = t1./xw
             end
             # ------------------------------------------------------------------
             # 3.2 Evaluation of scaled natural level function sumX
@@ -706,7 +706,7 @@ end
             (conv,sumX,dLevF) = nLvls(n,dx,t2,xw,f,newt == 0)
             wkNLEQ2.options[STATS_SUMX]   = sumX
             wkNLEQ2.options[STATS_DLEVF]  = dLevF
-            xa       = x[:]
+            xa[:]    = x
             sumXa    = sumX
             dLevXa   = sqrt(sumXa/n)
             conva    = conv
@@ -872,6 +872,7 @@ end
                 qDampRed = true
                 # Damping-factor reduction loop
                 # =============================
+                # @bp
                 while qDampRed
                     # ----------------------------------------------------------
                     # 3.5 Preliminary new iterate
@@ -952,12 +953,12 @@ end
                             break
                         end
                         if newt > 0
-                            dxQ = t2.*xwa
+                            dxQ[:] = t2.*xwa
                             for iLoop = 1:newt
                                 sum1 = sum((dxQ.*dxSave[1:n,iLoop])./xw.^2)
                                 sum2 = sum((dxSave[1:n,iLoop]./xw).^2)
                                 beta = sum1/sum2
-                                dxQ = dxQ + beta*dxSave[1:n,iLoop+1]
+                                dxQ[:] = dxQ + beta*dxSave[1:n,iLoop+1]
                                 t2 = dxQ./xw
                             end
                         end
@@ -1203,7 +1204,7 @@ end
                 setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-                @bp
+                # @bp
                 return retCode
             end
         end
@@ -1426,7 +1427,7 @@ end
     setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
     setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-    @bp
+    # @bp
     return retCode
     # End of function n2int
 end

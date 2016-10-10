@@ -21,7 +21,7 @@ Currently the following two solvers are implemented:
 """
 module NewtonMethods
 
-using ForwardDiff, Debug
+using ForwardDiff
 
 # Export the required methods
 export nleq1, nleq2, OptionsNLEQ, clearWorkspace, clearAllWorkspaces

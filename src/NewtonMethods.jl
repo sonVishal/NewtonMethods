@@ -24,7 +24,7 @@ module NewtonMethods
 using ForwardDiff
 
 # Export the required methods
-export nleq2, nleq1, n2int, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
+export nleq2, nleq1, OptionsNLEQ, clearWorkspace, clearAllWorkspaces
 
 # Export the required options
 export OPT_RTOL, OPT_QSUCC, OPT_MODE, OPT_JACGEN, OPT_JACFCN, OPT_MSTOR, OPT_ML,

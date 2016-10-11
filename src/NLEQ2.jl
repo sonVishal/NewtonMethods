@@ -520,7 +520,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    # @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -654,7 +653,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        # @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -876,7 +874,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 qDampRed = true
                 # Damping-factor reduction loop
                 # =============================
-                # @bp
                 while qDampRed
                     # ----------------------------------------------------------
                     # 3.5 Preliminary new iterate
@@ -1208,7 +1205,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-                # @bp
                 return retCode
             end
         end
@@ -1431,7 +1427,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
     setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-    # @bp
     return retCode
     # End of function n2int
 end

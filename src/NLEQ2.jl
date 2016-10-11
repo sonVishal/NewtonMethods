@@ -314,7 +314,7 @@ end
 # | x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
 # | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 # """
-@debug function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
+function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     rTol::Float64, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::Float64,
     opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,
     fc::Float64, fcMin::Float64, sigma::Float64, sigma2::Float64, mPrWarn::Int64,
@@ -322,7 +322,6 @@ end
     # --------------------------------------------------------------------------
     # Since wkNLEQ2 is module global
     # Create the local variables here rather than taking them as arguments
-    @bp
     if nBroy == 0
         qa      = wkNLEQ2.options[WK_A]
         dxSave  = wkNLEQ2.options[WK_A]
@@ -521,7 +520,6 @@ end
     # --------------------------------------------------------------------------
     # Main iteration loop
     # Repeat
-    @bp
     while qIter
         # ----------------------------------------------------------------------
         # 2 Startup of iteration step
@@ -655,7 +653,6 @@ end
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -877,7 +874,6 @@ end
                 qDampRed = true
                 # Damping-factor reduction loop
                 # =============================
-                @bp
                 while qDampRed
                     # ----------------------------------------------------------
                     # 3.5 Preliminary new iterate
@@ -1209,7 +1205,6 @@ end
                 setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
                 setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
                 setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-                # @bp
                 return retCode
             end
         end
@@ -1432,7 +1427,6 @@ end
     setOption!(wkNLEQ2, "P_ALPHAA", alphaA)
     setOption!(wkNLEQ2, "P_QMSTOP", qMStop)
     setOption!(wkNLEQ2, "P_SUMXA2", sumxa2)
-    # @bp
     return retCode
     # End of function n2int
 end

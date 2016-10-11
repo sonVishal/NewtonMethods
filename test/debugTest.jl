@@ -1,5 +1,5 @@
-# using NewtonMethods
-# include("ChebyQuad.jl")
+using NewtonMethods
+include("ChebyQuad.jl")
 fSol = open("nleq2.dat","w")
 fRest = open("nleq2.out","w")
 

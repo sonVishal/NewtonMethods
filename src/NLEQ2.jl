@@ -1,38 +1,38 @@
-# """
-# function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
-#
-# Damped Newton-algorithm with rank strategy for systems of
-# highly nonlinear equations - damping strategy due to Ref.(1).
-#
-# (The iteration is done by function N2INT currently. NLEQ2
-# itself does some house keeping and builds up workspace.)
-#
-# Jacobian approximation by numerical differences, user
-# supplied function JAC or forward mode automatic differentation.
-#
-# The numerical solution of the arising linear equations is
-# done by means of the subroutines DECCON and SOLCON (QR de-
-# composition with subcondition estimation, rank decision and
-# computation of the rank-deficient pseudoinverse) .
-# For special purposes these routines may be substituted.
-#
-# This is a driver routine for the core solver N2INT.
-#
-# ## Input parameters
-# | Variable   | Description                                                                              |
-# |------------|------------------------------------------------------------------------------------------|
-# | fcn        | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
-# | x[1:n]     | Initial estimate of the solution.                                                        |
-# | xScal[1:n] | User scaling (lower threshold) of the iteration vector x                                 |
-# | opt        | Options for solving the nonlinear system. Valid options are listed below.                |
-#
-# ## Output parameters
-# | Variable | Description                                                                                   |
-# |----------|-----------------------------------------------------------------------------------------------|
-# | x0[1:n]  | Solution values (or final values if exit before solution is reached).                         |
-# | stats    | A dictionary variable of additional output values. The fields are discussed below.            |
-# | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
-# """
+"""
+function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+
+Damped Newton-algorithm with rank strategy for systems of
+highly nonlinear equations - damping strategy due to Ref.(1).
+
+(The iteration is done by function N2INT currently. NLEQ2
+itself does some house keeping and builds up workspace.)
+
+Jacobian approximation by numerical differences, user
+supplied function JAC or forward mode automatic differentation.
+
+The numerical solution of the arising linear equations is
+done by means of the subroutines DECCON and SOLCON (QR de-
+composition with subcondition estimation, rank decision and
+computation of the rank-deficient pseudoinverse) .
+For special purposes these routines may be substituted.
+
+This is a driver routine for the core solver N2INT.
+
+## Input parameters
+| Variable   | Description                                                                              |
+|------------|------------------------------------------------------------------------------------------|
+| fcn        | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
+| x[1:n]     | Initial estimate of the solution.                                                        |
+| xScal[1:n] | User scaling (lower threshold) of the iteration vector x                                 |
+| opt        | Options for solving the nonlinear system. Valid options are listed below.                |
+
+## Output parameters
+| Variable | Description                                                                                   |
+|----------|-----------------------------------------------------------------------------------------------|
+| x0[1:n]  | Solution values (or final values if exit before solution is reached).                         |
+| stats    | A dictionary variable of additional output values. The fields are discussed below.            |
+| retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
+"""
 function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
 
     # Initialize a common message string variable
@@ -261,59 +261,59 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     return (x0, stats, retCode);
 end
 
-# """
-# function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
-#     rTol::Float64, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::Float64,
-#     opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,
-#     fc::Float64, fcMin::Float64, sigma::Float64, sigma2::Float64, mPrWarn::Int64,
-#     mPrMon::Int64, mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
-#
-# Core routine for NLEQ2.
-#
-# Damped Newton-algorithm with rank-strategy for systems of
-# highly nonlinear equations especially designed for
-# numerically sensitive problems.
-#
-# ## Input parameters
-# | Variable     | Description                                                                              |
-# |--------------|------------------------------------------------------------------------------------------|
-# | n            | Number of vector components                                                              |
-# | fcn          | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
-# | x[1:n]*      | Initial estimate of the solution.                                                        |
-# | xScal[1:n]   | User scaling (lower threshold) of the iteration vector x                                 |
-# | rTol         | Required relative precision of solution components                                       |
-# | nItmax       | Maximum number of allowed iterations                                                     |
-# | nonLin       | Problem type specification. See OPT_NONLIN field in solver options                       |
-# | iRank        | Initially proposed (in) and final (out) rank of Jacobian                                 |
-# | cond         | Maximum permitted subcondition for rank-decision by linear solver.                       |
-# | opt          | Options for solving the nonlinear system. Valid options are listed below.                |
-# | m1           | Leading dimension of Jacobian array a                                                    |
-# | m2 = n       | For full mode                                                                            |
-# | = ml+mu+1    | For band mode                                                                            |
-# | nBroy        | Maximum possible consecutive iterative Broyden steps.                                    |
-# | fc           | Current Newton iteration damping factor.                                                 |
-# | fcMin        | Minimum permitted damping factor. fc < fcMin results in either of the following          |
-# |              | a. Recomputation of the Jacobian using difference approximation                          |
-# |              | b. Fail exit                                                                             |
-# | sigma        | Decision parameter for rank1-updates                                                     |
-# | sigma2       | Decision parameter for damping factor increasing to corrector                            |
-# | mStor        | Decision parameter for matrix storage. See option OPT_MSTOR in solver options.           |
-# | mPrWarn      | Decision parameter for printing warning messages                                         |
-# | mPrMon       | Decision parameter for printing iteration monitor                                        |
-# | mPrSol       | Decision parameter for printing solution                                                 |
-# | printIOwarn  | IO handle for printing warning                                                           |
-# | printIOmon   | IO handle for printing iteration monitor                                                 |
-# | printIOsol   | IO handle for printing solution                                                          |
-# | qBDamp       | Decision parameter for matrix storage. See option OPT_MSTOR in solver options.           |
-#
-# (* marks inout parameters)
-#
-# ## Output parameters
-# | Variable | Description                                                                                   |
-# |----------|-----------------------------------------------------------------------------------------------|
-# | x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
-# | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
-# """
+"""
+function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
+    rTol::Float64, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::Float64,
+    opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,
+    fc::Float64, fcMin::Float64, sigma::Float64, sigma2::Float64, mPrWarn::Int64,
+    mPrMon::Int64, mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
+
+Core routine for NLEQ2.
+
+Damped Newton-algorithm with rank-strategy for systems of
+highly nonlinear equations especially designed for
+numerically sensitive problems.
+
+## Input parameters
+| Variable     | Description                                                                              |
+|--------------|------------------------------------------------------------------------------------------|
+| n            | Number of vector components                                                              |
+| fcn          | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
+| x[1:n]*      | Initial estimate of the solution.                                                        |
+| xScal[1:n]   | User scaling (lower threshold) of the iteration vector x                                 |
+| rTol         | Required relative precision of solution components                                       |
+| nItmax       | Maximum number of allowed iterations                                                     |
+| nonLin       | Problem type specification. See OPT_NONLIN field in solver options                       |
+| iRank        | Initially proposed (in) and final (out) rank of Jacobian                                 |
+| cond         | Maximum permitted subcondition for rank-decision by linear solver.                       |
+| opt          | Options for solving the nonlinear system. Valid options are listed below.                |
+| m1           | Leading dimension of Jacobian array a                                                    |
+| m2 = n       | For full mode                                                                            |
+| = ml+mu+1    | For band mode                                                                            |
+| nBroy        | Maximum possible consecutive iterative Broyden steps.                                    |
+| fc           | Current Newton iteration damping factor.                                                 |
+| fcMin        | Minimum permitted damping factor. fc < fcMin results in either of the following          |
+|              | a. Recomputation of the Jacobian using difference approximation                          |
+|              | b. Fail exit                                                                             |
+| sigma        | Decision parameter for rank1-updates                                                     |
+| sigma2       | Decision parameter for damping factor increasing to corrector                            |
+| mStor        | Decision parameter for matrix storage. See option OPT_MSTOR in solver options.           |
+| mPrWarn      | Decision parameter for printing warning messages                                         |
+| mPrMon       | Decision parameter for printing iteration monitor                                        |
+| mPrSol       | Decision parameter for printing solution                                                 |
+| printIOwarn  | IO handle for printing warning                                                           |
+| printIOmon   | IO handle for printing iteration monitor                                                 |
+| printIOsol   | IO handle for printing solution                                                          |
+| qBDamp       | Decision parameter for matrix storage. See option OPT_MSTOR in solver options.           |
+
+(* marks inout parameters)
+
+## Output parameters
+| Variable | Description                                                                                   |
+|----------|-----------------------------------------------------------------------------------------------|
+| x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
+| retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
+"""
 function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     rTol::Float64, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::Float64,
     opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,

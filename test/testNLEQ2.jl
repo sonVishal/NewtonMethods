@@ -51,11 +51,10 @@ function testNLEQ2()
         end
 
         if dim == 2
-            testResult = relNormDiff <= 1e-12;
+            testResult = relNormDiff == 0.0;
         else
-            testResult &= relNormDiff <= 1e-12;
+            testResult &= relNormDiff == 0.0;
         end
-        println(testResult)
     end
     return testResult
 end

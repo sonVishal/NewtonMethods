@@ -22,41 +22,41 @@ refSol[9] = [0.044205346135779117, 0.19949067230774983, 0.23561910847320633,
                 0.41604690789257159, 0.5, 0.5839530921074283, 0.76438089152679367,
                 0.80050932769225014, 0.95579465386422091]
 
-dim = 8
-n1 = dim + 1
+for dim = 2:8
+    n1 = dim + 1
 
-# Initialize the options
-opt = OptionsNLEQ(OPT_MODE              => 1,
-                  OPT_JACGEN            => 1,
-                  OPT_PRINTWARNING      => 1,
-                  OPT_PRINTITERATION    => 3,
-                  OPT_PRINTSOLUTION     => 2,
-                  OPT_PRINTIOWARN       => fRest,
-                  OPT_PRINTIOMON        => fRest,
-                  OPT_PRINTIOSOL        => fSol,
-                  OPT_JACFCN            => chebyQuadJac,
-                  OPT_MSTOR             => 0,
-                  OPT_NOROWSCAL         => 0,
-                  OPT_NITMAX            => 200,
-                  OPT_RTOL              => 1e-5)
+    # Initialize the options
+    opt = OptionsNLEQ(OPT_MODE              => 1,
+                      OPT_JACGEN            => 1,
+                      OPT_PRINTWARNING      => 1,
+                      OPT_PRINTITERATION    => 3,
+                      OPT_PRINTSOLUTION     => 2,
+                      OPT_PRINTIOWARN       => fRest,
+                      OPT_PRINTIOMON        => fRest,
+                      OPT_PRINTIOSOL        => fSol,
+                      OPT_JACFCN            => chebyQuadJac,
+                      OPT_MSTOR             => 0,
+                      OPT_NOROWSCAL         => 0,
+                      OPT_NITMAX            => 200,
+                      OPT_RTOL              => 1e-5)
 
-x0    = collect(1:dim)./n1
-xScal = zeros(x0)
+    x0    = collect(1:dim)./n1
+    xScal = zeros(x0)
 
-retCode = -1
+    retCode = -1
 
-i = 1
+    i = 1
 
-while retCode == -1
-    (x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
-    write(fRest,"Return from call $i of NLEQ2\n")
-    flush(fRest)
-    flush(fSol)
-    i += 1
+    while retCode == -1
+        (x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
+        write(fRest,"Return from call $i of NLEQ2\n")
+        flush(fRest)
+        flush(fSol)
+        i += 1
+    end
+
+    err = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf)
+    println("Dimension $dim, relative error in Inf norm = $err")
 end
-
-err = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf)
-println("Dimension $dim, relative error in Inf norm = $err")
-
 close(fSol)
 close(fRest)

@@ -655,7 +655,7 @@ end
         # 3 Central part of iteration step
         # Pseudo-rank reduction loop
         # ==========================
-        # @bp
+        @bp
         while qPseudoRed
             # ------------------------------------------------------------------
             # 3.1 Solution of the linear system
@@ -877,7 +877,7 @@ end
                 qDampRed = true
                 # Damping-factor reduction loop
                 # =============================
-                # @bp
+                @bp
                 while qDampRed
                     # ----------------------------------------------------------
                     # 3.5 Preliminary new iterate

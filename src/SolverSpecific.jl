@@ -532,18 +532,17 @@ comprise mcon equality constraints. To be used in connection with subroutine dec
 function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
     n::Int64, x::Vector{Float64}, b::Vector{Float64}, iRankC::Int64, iRank::Int64,
     d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
-    # Begin
-    v = zeros(n)
-    s = 0.0
     # --------------------------------------------------------------------------
     # 1 Solution for pseudo-rank zero
     if iRank == 0
-        x[1:n] = zeros(n)
+        x[1:n] = 0.0
         return (iRankC, iRank)
     end
     if iRank <= iRankC && iRank != n
         iRanC1 = iRankC + 1
     end
+    v = zeros(n)
+    s = 0.0
     if kRed >= 0 && (m != 1 || n != 1)
         # ----------------------------------------------------------------------
         # 2 Constrained householder transformations of right-hand side
@@ -552,9 +551,9 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
             mh = m
         end
         for j = 1:iRank
-            s = sum(a[j:mh,j].*b[j:mh])
+            s = sum(a[j:mh,j:j].*b[j:mh])
             s = s/(d[j]*a[j,j])
-            b[j:m] += a[j:m,j]*s
+            b[j:m] += a[j:m,j:j]*s
             if j == iRankC
                 mh = m
             end
@@ -568,7 +567,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
         i1 = i + 1
         s = b[i]
         if ii != 1
-            sh = sum(a[i,i1:iRank]'.*v[i1:iRank])
+            sh = sum(a[i:i,i1:iRank]'.*v[i1:iRank])
             s = s-sh
         end
         v[i] = s/d[i]
@@ -577,7 +576,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
         # ----------------------------------------------------------------------
         # 3.2 Computation of the best constrained least squares-solution
         for j = iRk1:n
-            s = sum(ah[1:j-1,j].*v[1:j-1])
+            s = sum(ah[1:j-1,j:j].*v[1:j-1])
             v[j] = -s/d[j]
         end
         j1 = 1
@@ -585,7 +584,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
             j = n-jj+1
             s = 0.0
             if jj != 1
-                s = sum(ah[j,j1:n]'.*v[j1:n])
+                s = sum(ah[j:j,j1:n]'.*v[j1:n])
             end
             if jj != 1 && j <= iRank
                 v[j] -= s

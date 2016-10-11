@@ -55,7 +55,6 @@ function testNLEQ2()
         else
             testResult &= relNormDiff == 0.0;
         end
-        println(testResult)
     end
     return testResult
 end

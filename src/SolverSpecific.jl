@@ -340,7 +340,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
                 while qLoop
                     if jd != 0
                         for j = k:n
-                            d[j] = sum(a[k:mh,j].^2)
+                            d[j] = sum(a[k:mh,j:j].^2)
                         end
                     end
                     # ----------------------------------------------------------
@@ -378,7 +378,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
                 end
             end
             # end for k != n case
-            h = sum(a[k:mh,k].^2)
+            h = sum(a[k:mh,k:k].^2)
             t = sqrt(h)
             # ------------------------------------------------------------------
             # 2.3.0 A-priori test on pseudo-rank
@@ -419,12 +419,12 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
                 if k != n
                     t = 1.0/(h-s*t)
                     for j = k1:n
-                        s = sum(a[k:mh,k].*a[k:mh,j])
+                        s = sum(a[k:mh,k:k].*a[k:mh,j:j])
                         s *= t
                         s1 = -s
                         if s != 0.0
                             # Update the sub columns
-                            a[k:m,j] = a[k:m,j]+a[k:m,k]*s1
+                            a[k:m,j:j] = a[k:m,j:j]+a[k:m,k:k]*s1
                         end
                         # update sub column norms
                         d[j] = d[j]-a[k,j]^2
@@ -459,7 +459,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
                 i = iRk1 - ii
                 s = a[i,j]
                 if ii != 1
-                    sh = sum(a[i,i1:iRank]'.*v[i1:iRank])
+                    sh = sum(a[i:i,i1:iRank]'.*v[i1:iRank])
                     s = s - sh
                 end
                 i1 = i
@@ -467,7 +467,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
                 ah[i,j] = v[i]
             end
             for i = iRk1:j
-                s = sum(ah[1:i-1,i].*v[1:i-1])
+                s = sum(ah[1:i-1,i:i].*v[1:i-1])
                 if i != j
                     v[i] = -s/d[i]
                     ah[i,j] = -v[i]
@@ -552,9 +552,9 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
             mh = m
         end
         for j = 1:iRank
-            s = sum(a[j:mh,j].*b[j:mh])
+            s = sum(a[j:mh,j:j].*b[j:mh])
             s = s/(d[j]*a[j,j])
-            b[j:m] += a[j:m,j]*s
+            b[j:m] += a[j:m,j:j]*s
             if j == iRankC
                 mh = m
             end
@@ -568,7 +568,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
         i1 = i + 1
         s = b[i]
         if ii != 1
-            sh = sum(a[i,i1:iRank]'.*v[i1:iRank])
+            sh = sum(a[i:i,i1:iRank]'.*v[i1:iRank])
             s = s-sh
         end
         v[i] = s/d[i]
@@ -577,7 +577,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
         # ----------------------------------------------------------------------
         # 3.2 Computation of the best constrained least squares-solution
         for j = iRk1:n
-            s = sum(ah[1:j-1,j].*v[1:j-1])
+            s = sum(ah[1:j-1,j:j].*v[1:j-1])
             v[j] = -s/d[j]
         end
         j1 = 1
@@ -585,7 +585,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
             j = n-jj+1
             s = 0.0
             if jj != 1
-                s = sum(ah[j,j1:n]'.*v[j1:n])
+                s = sum(ah[j:j,j1:n]'.*v[j1:n])
             end
             if jj != 1 && j <= iRank
                 v[j] -= s

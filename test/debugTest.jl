@@ -34,7 +34,7 @@ n1 = dim + 1
 
 # Initialize the options
 opt = OptionsNLEQ(OPT_MODE              => 1,
-                  OPT_JACGEN            => 4,
+                  OPT_JACGEN            => 1,
                   OPT_PRINTWARNING      => 1,
                   OPT_PRINTITERATION    => 3,
                   OPT_PRINTSOLUTION     => 2,

@@ -609,7 +609,6 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     if iFail == 0
                         try
                             a[:,:] = ForwardDiff.jacobian(fcn,fd,x)
-                            iFail = 0
                         catch
                             iFail = -1
                         end

@@ -4,6 +4,8 @@
 using NewtonMethods
 using Base.Test
 
+include("ChebyQuad.jl")
+
 # Run tests
 tic()
 println("Testing NLEQ1")

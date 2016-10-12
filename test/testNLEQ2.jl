@@ -1,5 +1,3 @@
-include("ChebyQuad.jl")
-
 function testNLEQ2()
     refSol = Dict{Int64,Vector}();
 

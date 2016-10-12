@@ -1,5 +1,3 @@
-include("ChebyQuad.jl")
-
 function testNLEQ1()
     refSol = Dict{Int32,Any}();
     refSol[2] = [0.21132486540517281, 0.78867513459482719]

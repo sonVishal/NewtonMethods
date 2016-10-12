@@ -377,9 +377,9 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     alphaA  = getOption!(wkNLEQ1,"P_ALPHAA",0.0)
     qMStop  = getOption!(wkNLEQ1,"P_QMSTOP",false)
     sumxa2  = getOption!(wkNLEQ1,"P_SUMXA2",0.0)
-    l       = getOption!(wkNLEQ1,"P_L",Float64[])
-    u       = getOption!(wkNLEQ1,"P_U",Float64[])
-    p       = getOption!(wkNLEQ1,"P_P",Float64[])
+    l       = getOption!(wkNLEQ1,"P_L",Array{Float64,2}())
+    u       = getOption!(wkNLEQ1,"P_U",Array{Float64,2}())
+    p       = getOption!(wkNLEQ1,"P_P",Vector{Int64}())
     # --------------------------------------------------------------------------
     # Begin
     # --------------------------------------------------------------------------

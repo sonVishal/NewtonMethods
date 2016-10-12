@@ -26,17 +26,18 @@ for dim = 2:dimMax
     xScal = zeros(x0)
 
     retCode = -1
-    stats   = []
+
+    i = 1
 
     println("Calling the while loop for solving the Cheby Quad equation of dimension $dim")
     while retCode == -1
-        (x0, stats, retCode) = nleq1(chebyQuad, x0, xScal, opt)
+        (x0, _, retCode) = nleq1(chebyQuad, x0, xScal, opt)
+        write(fRest, @sprintf("Returned from call %4i of NLEQ1\n",i))
 		flush(fSol)
 	    flush(fRest)
+        i += 1
     end
     println("Solution = $x0")
-    flush(fSol)
-    flush(fRest)
 
     println("DONE")
 end

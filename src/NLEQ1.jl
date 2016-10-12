@@ -521,7 +521,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         if !qJcRfr
             # ------------------------------------------------------------------
             # 2.1 Scaling of variables x(n)
-            nScal(n , x, xa, xScal, iScal, mPrMon, printIOmon, xw)
+            nScal(n, x, xa, xScal, iScal, mPrMon, printIOmon, xw)
             if nIter != 0
                 # --------------------------------------------------------------
                 # 2.2 Aposteriori estimate of damping factor
@@ -612,7 +612,6 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 end
             end
             nJac += 1
-
             if jacGen == 1 && iFail < 0
                 retCode = 83
                 break

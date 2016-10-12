@@ -480,10 +480,10 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         fcK2    = fc
 
         if jacGen == 3
-            eta = etaIni*ones(n)
+            eta[:] = etaIni*ones(n)
         end
 
-        xa[:] = x[:]
+        xa[:] = x
 
         # ----------------------------------------------------------------------
         # 1.6 Print monitor header
@@ -631,7 +631,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         if newt == 0 && (qLU || nIter == 0)
             # ------------------------------------------------------------------
             # 2.3.2.1 Save scaling values
-            xwa = xw[1:n]
+            xwa[:] = xw
             # ------------------------------------------------------------------
             if issparse(a)
                 nza = nnz(a)
@@ -674,7 +674,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     nScrb(n,m1,ml,mu,a,fw)
                 end
             else
-                fw = ones(n)
+                fw[:] = 1.0
             end
         end
         # ----------------------------------------------------------------------
@@ -715,8 +715,8 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             if newt == 1
                 dxSave[1:n,1] = dx
             end
-            dxSave[1:n,newt+1] = t1
-            dx = t1
+            dxSave[1:n,newt+1:newt+1] = t1
+            dx[:] = t1
             t1 = t1./xw
         end
         # ----------------------------------------------------------------------
@@ -876,7 +876,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         while qRed
             # ------------------------------------------------------------------
             # 3.5 Preliminary new iterate
-            x = xa + dx*fc
+            x[:] = xa + dx*fc
             if opt.options[OPT_STORE] == 1
                 push!(fcAll,fc)
             end
@@ -959,12 +959,12 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         break
                     end
                     if newt > 0
-                        dxQ = t1.*xwa
+                        dxQ[:] = t1.*xwa
                         for iLoop = 1:newt
-                            sum1 = sum((dxQ.*dxSave[1:n,iLoop])./xw.^2)
-                            sum2 = sum((dxSave[1:n,iLoop]./xw).^2)
+                            sum1 = sum((dxQ.*dxSave[1:n,iLoop:iLoop])./xw.^2)
+                            sum2 = sum((dxSave[1:n,iLoop:iLoop]./xw).^2)
                             beta = sum1/sum2
-                            dxQ = dxQ + beta*dxSave[1:n,iLoop+1]
+                            dxQ[:] = dxQ + beta*dxSave[1:n,iLoop+1:iLoop+1]
                             t1 = dxQ./xw
                         end
                     end
@@ -1200,14 +1200,14 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             if !qOrdi
                 if retCode == 0
                     aprec = sqrt(sumX/n)
-                    x += dxQ
+                    x[:] += dxQ
                     if opt.options[OPT_STORE] == 1
                         push!(xIter,x)
                     end
                 else
                     aprec = sqrt(sumXa/n)
                     if alphaA > 0.0 && iOrMon == 3
-                        x += dx
+                        x[:] += dx
                         if opt.options[OPT_STORE] == 1
                             push!(xIter,x)
                         end

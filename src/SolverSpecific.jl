@@ -633,23 +633,22 @@ Call linear algebra subprogram for factorization of a (n,n)-matrix.
 function nFact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
     mStor::Int64, l::Array{Float64,2}, u::Array{Float64,2}, p::Vector{Int64})
     # Begin
+    iFail = 0
     if mStor == 0
         try
-            (l,u,p) = lu(a)
-            iFail = 0
+            (l[:,:],u[:,:],p[:]) = lu(a)
         catch
             iFail = 1
         end
     elseif mStor == 1
         # Band mode: l holds the complete lu-factorization of p*a
-        l = a[:,:]
+        l[:,:] = a
         # Use LINPACK function to compute the LU in place
         # p stores the pivot vectors and not the permuted identity
-        (l,p,iFail) = dgbfa(a,lda,n,ml,mu)
-        u = []
-    end
-    if iFail != 0
-        iFail = 1
+        (l[:,:],p[:],iFail) = dgbfa(a,lda,n,ml,mu)
+        if iFail != 0
+            iFail = 1
+        end
     end
     return iFail
 end

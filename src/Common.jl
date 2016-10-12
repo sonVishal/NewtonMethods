@@ -518,7 +518,7 @@ function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
             fw[k] = 1.0
         end
     end
-    a[:] = aout
+    a[:,:] = aout
 end
 
 """

@@ -1,6 +1,6 @@
 """
-function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
-    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Float64,
+function nJacFD(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
+    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Int64,
     a::Array{Float64,2})
 
 Evaluation of a dense Jacobian matrix using finite difference approximation
@@ -30,22 +30,24 @@ adapted for use in nonlinear systems solver.
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
-    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Float64,
+function nJacFD(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
+    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Int64,
     a::Array{Float64,2})
     # Begin
+    # Copy for internal purposes
+    xa = x[:]
     iFail = 0
     fu = zero(x)
     for k = 1:n
-        w = x[k]
-        su = sign(x[k])
+        w = xa[k]
+        su = sign(xa[k])
         if su == 0
             su = 1
         end
-        u = max(max(abs(x[k]),ajmin),yscal[k])*ajdel*su;
-        x[k] = w + u
+        u = max(max(abs(xa[k]),ajmin),yscal[k])*ajdel*su;
+        xa[k] = w + u
         try
-            fcn(fu,x)
+            fcn(fu,xa)
         catch
             iFail = -1
         end
@@ -53,15 +55,15 @@ function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64}
         if iFail != 0
             break
         end
-        x[k] = w
+        xa[k] = w
         a[1:n,k:k] = (fu-fx)./u
     end
     return (nFcn, iFail)
 end
 
 """
-function nJacb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
-    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Int64, ajmin::Int64,
+function nJacFDb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
+    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64,
     nFcn::Int64, a::Array{Float64,2})
 
 Evaluation of a banded Jacobian matrix using finite difference approximation
@@ -92,27 +94,30 @@ adapted for use in nonlinear systems solver
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJacb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
-    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Int64, ajmin::Int64,
+function nJacFDb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
+    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64,
     nFcn::Int64, a::Array{Float64,2})
     # Begin
+    # Copy for internal purposes
+    xa = x[:]
     iFail = 0
     mu = lda - 2*ml -1
     ldab = ml + mu + 1
-    w = zeros(n)
-    u = zeros(n)
+    fu = zero(x)
+    w  = zero(x)
+    u  = zero(x)
     for jj = 1:ldab
         for k = jj:ldab:n
-            w[k] = x[k]
-            su = sign(x[k])
+            w[k] = xa[k]
+            su = sign(xa[k])
             if su == 0
                 su = 1
             end
-            u[k] = max(max(abs(x[k]),ajmin),yscal[k])*ajdel*su
-            x[k] = w[k] + u[k]
+            u[k]  = max(max(abs(xa[k]),ajmin),yscal[k])*ajdel*su
+            xa[k] = w[k] + u[k]
         end
         try
-            fcn(fu,x)
+            fcn(fu,xa)
         catch
             iFail = -1
         end
@@ -121,7 +126,7 @@ function nJacb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
             break;
         end
         for k = jj:ldab:n
-            x[k] = w[k]
+            xa[k] = w[k]
             i1 = max(1,k-mu)
             i2 = min(n,k+ml)
             mh = mu + 1 - k
@@ -172,22 +177,25 @@ function nJcf(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64}
     etadif::Float64, conv::Float64, nFcn::Int64, a::Array{Float64,2})
     # Constant
     small2 = 0.1
+    # Copy for internal purposes
+    xa = x[:]
     # Begin
+    fu = zero(x)
     iFail = 0
     for k = 1:n
         is = 0
         qFine = false
         qExit = false
         while !qFine
-            w = x[k]
-            su = sign(x[k])
+            w = xa[k]
+            su = sign(xa[k])
             if su == 0
                 su = 1
             end
             u = eta[k]*yscal[k]*su
-            x[k] = w + u
+            xa[k] = w + u
             try
-                fcn(fu,x)
+                fcn(fu,xa)
             catch
                 iFail = -1
             end
@@ -196,7 +204,7 @@ function nJcf(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64}
                 qExit = true
                 break;
             end
-            x[k] = w
+            xa[k] = w
             sumd = 0.0
             for i = 1:n
                 hg = max(abs(fx[i]),abs(fu[i]))
@@ -265,11 +273,14 @@ function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
     nFcn::Int64, a::Array{Float64,2})
     # Constants
     small2 = 0.1
+    # Copy for internal purposes
+    xa = x[:]
     # Begin
     mu = lda - 2*ml - 1
     ldab = ml + mu + 1
-    w = zeros(n)
-    u = zeros(n)
+    fu = zero(x)
+    w  = zero(x)
+    u  = zero(x)
     iFail = 0
     for jj = 1:ldab
         is = 0
@@ -277,17 +288,17 @@ function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
         qExit = false
         while !qFine
             for k = jj:ldab:n
-                w[k] = x[k]
-                su = sign(x[k])
+                w[k] = xa[k]
+                su = sign(xa[k])
                 if su == 0
                     su = 1
                 end
                 u[k] = eta[k]*yscal[k]*su
-                x[k] = w[k] + u[k]
+                xa[k] = w[k] + u[k]
             end
 
             try
-                fcn(fu,x)
+                fcn(fu,xa)
             catch
                 iFail = -1
             end
@@ -298,7 +309,7 @@ function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
             end
 
             for k = jj:ldab:n
-                x[k] = w[k]
+                xa[k] = w[k]
                 sumd = 0.0
                 i1 = max(1,k-mu)
                 i2 = min(n,k+ml)
@@ -309,7 +320,7 @@ function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
                     if hg != 0.0
                         sumd += (fhi/hg)^2
                     end
-                    a[mh+i,k] = fhi/u[k]
+                    a[mh+i,k:k] = fhi/u[k]
                 end
                 sumd = sqrt(sumd/n)
                 qFine = true

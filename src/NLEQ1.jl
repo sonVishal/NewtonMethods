@@ -584,13 +584,14 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 end
             else
                 if mStor == 0
+                    if jacGen == 2
+                        (nFcnJ,iFail) = nJacFD(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
+                    end
                     if jacGen == 3
                         (nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,
                                                 etaMax,etaDif,conv,nFcnJ,a)
                     end
-                    if jacGen == 2
-                        (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
-                    end
+                    # Forward mode automatic differentiation
                     if jacGen == 4
                         fd = zero(x)
                         try
@@ -609,13 +610,14 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         end
                     end
                 elseif mStor == 1
+                    if jacGen == 2
+                        (nFcnJ,iFail) = nJacFDb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ,a)
+                    end
                     if jacGen == 3
                         (nFcnJ,iFail) =
                             nJcfb(fcn,n,m1,ml,x,f,xw,eta,etaMin,etaMax,etaDif,conv,nFcnJ,a)
                     end
-                    if jacGen == 2
-                        (nFcnJ,iFail) = nJacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ,a)
-                    end
+                    # Forward mode automatic differentiation
                     if jacGen == 4
                         fd = zero(x)
                         try

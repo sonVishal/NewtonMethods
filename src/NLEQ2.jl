@@ -591,7 +591,7 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 end
             else
                 if jacGen == 2
-                    (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
+                    (nFcnJ,iFail) = nJacFD(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
                 end
                 if jacGen == 3
                     (nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,

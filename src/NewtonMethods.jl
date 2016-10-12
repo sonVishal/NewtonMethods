@@ -1,5 +1,4 @@
 # TODO: Make everything work with Float64 as well as BigFloat
-# TODO: Test all the Jacobian functions
 # Precompile the module
 __precompile__(true)
 """

@@ -33,40 +33,15 @@ This is a driver routine for the core solver N1INT.
 | x0[1:n]  | Solution values (or final values if exit before solution is reached).                         |
 | stats    | A dictionary variable of additional output values. The fields are discussed below.            |
 | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
-
 """
 function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
-
-    # Initialize error code 0
-    retCode = 0
-
-#-------------------------------------------------------------------------------
-# Printing related stuff
-#-------------------------------------------------------------------------------
-    # Print warning messages?
-    printWarn   = getOption!(opt,OPT_PRINTWARNING,0)
-    # Print iteration summary?
-    printMon    = getOption!(opt,OPT_PRINTITERATION,0)
-    # Print solution summary?
-    printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
-    # Where to print?
-    # Defaults to STDOUT
-    printIOwarn = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
-    printIOmon  = getOption!(opt,OPT_PRINTIOMON,STDOUT)
-    printIOsol  = getOption!(opt,OPT_PRINTIOSOL,STDOUT)
-
-#-------------------------------------------------------------------------------
-
-    # First call or successive call
-    qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
-    qIniMon = (printMon >= 1 && !qSucc)
-
-    # Create an empty statistics variable to be returned
-    stats = Dict{AbstractString,Any}()
-
+    # Begin
     # Check input parameters and options
     n = length(x)
     retCode = checkOptions(n, x, xScal, opt)
+
+    # Create an empty statistics variable to be returned
+    stats = Dict{AbstractString,Any}()
 
     # Exit if any parameter error was detected
     if retCode != 0
@@ -74,144 +49,18 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         return (x, stats, retCode)
     end
 
-    # Check if the Jacobian is Dense/Sparse or Banded matrix
-    mStor = getOption!(opt,OPT_MSTOR,0)
-    ml = getOption!(opt,"OPT_ML",0)
-    mu = getOption!(opt,"OPT_MU",0)
-    if mStor == 0
-        m1 = n
-        m2 = n
-    elseif mStor == 1
-        m1 = 2*ml + mu + 1
-        m2 = ml + mu + 1
-    end
+#-------------------------------------------------------------------------------
+# Printing related stuff
+#-------------------------------------------------------------------------------
+    # Print warning messages?
+    printWarn   = opt.options[OPT_PRINTWARNING]
+    # Print iteration summary?
+    printMon    = getOption!(opt,OPT_PRINTITERATION,0)
+    # Print solution summary?
+    printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
+#-------------------------------------------------------------------------------
 
-    jacGen = opt.options[OPT_JACGEN]
-
-    qRank1 = Bool(getOption!(opt, OPT_QRANK1, 0))
-    qOrdi  = Bool(getOption!(opt, OPT_QORDI,  0))
-    qSimpl = Bool(getOption!(opt, OPT_QSIMPL, 0))
-
-    if qRank1
-        nBroy = getOption!(opt,OPT_NBROY,0)
-        if nBroy == 0
-            nBroy = max(m2,10)
-            setOption!(opt,OPT_NBROY, nBroy)
-        end
-    else
-        nBroy = 0
-    end
-
-    # Check if this is a first call or successive call to nleq1
-    # If first call then reset the workspace and persistent variables
-    if !qSucc
-        empty!(wkNLEQ1.options)
-        initializeOptions(opt, wkNLEQ1, n, m1, nBroy, qRank1, 1)
-    end
-
-    # Check for non linear option
-    nonLin = getOption!(opt, OPT_NONLIN, 3)
-    initOption!(opt, OPT_BOUNDEDDAMP, 0)
-
-    if opt.options[OPT_BOUNDEDDAMP] == 0
-        qBDamp = nonLin == 4
-    elseif opt.options[OPT_BOUNDEDDAMP] == 1
-        qBDamp = true
-    elseif opt.options[OPT_BOUNDEDDAMP] == 2
-        qBDamp = false
-    end
-
-    # Initialize bounded damping strategy restriction factor
-    initOption!(opt, OPT_FCBAND, 0.0)
-    if qBDamp
-        if opt.options[OPT_FCBAND] < 1.0
-            setOption!(opt, OPT_FCBAND, 10.0)
-        end
-    end
-
-    # Maximum permitted number of iteration steps
-    nItmax = getOption!(opt, OPT_NITMAX, 50)
-    if nItmax <= 0
-        nItmax = 50
-        setOption!(opt, OPT_NITMAX, nItmax)
-    end
-
-    if qIniMon
-        printInitialization(n, printIOmon, opt.options[OPT_RTOL], jacGen, mStor,
-        ml, mu, opt.options[OPT_NOROWSCAL], qRank1, nonLin, qBDamp,
-        opt.options[OPT_FCBAND], qOrdi, qSimpl, nItmax)
-    end
-
-    # Initial damping factor for highly nonlinear problems
-    initOption!(opt, OPT_FCSTART, 0.0)
-    qFcStart = opt.options[OPT_FCSTART] > 0.0
-    if !qFcStart
-        setOption!(opt, OPT_FCSTART, 1.0e-2)
-        if nonLin == 4
-            setOption!(opt, OPT_FCSTART, 1.0e-4)
-        end
-    end
-
-    # Minimal permitted damping factor
-    initOption!(opt,OPT_FCMIN,0.0)
-    if opt.options[OPT_FCMIN] <= 0.0
-        setOption!(opt, OPT_FCMIN, 1.0e-4)
-        if nonLin == 4
-            setOption!(opt, OPT_FCMIN, 1.0e-8)
-        end
-    end
-    fcMin = getOption(opt,OPT_FCMIN,0.0)
-
-    # Rank1 decision parameter SIGMA
-    initOption!(opt,OPT_SIGMA,0.0)
-    if opt.options[OPT_SIGMA] < 1.0
-        setOption!(opt, OPT_SIGMA, 3.0)
-    end
-    if !qRank1
-        setOption!(opt, OPT_SIGMA, 10.0/fcMin)
-    end
-
-    # Decision parameter about increasing too small predictor
-    # to greater corrector value
-    initOption!(opt,OPT_SIGMA2,0.0)
-    if opt.options[OPT_SIGMA2] < 1.0
-        setOption!(opt, OPT_SIGMA2, 10.0/fcMin)
-    end
-
-    # Starting value of damping factor (fcMin <= fc <= 1.0)
-    if nonLin <= 2 && !qFcStart
-        # for linear or mildly nonlinear problems
-        fc = 1.0
-    else
-        # for highly or extremely nonlinear problems
-        fc = getOption(opt, OPT_FCSTART, 0.0)
-    end
-
-    # Simplified Newton iteration implies ordinary Newton iteration mode
-    if qSimpl
-        setOption!(opt, OPT_QORDI, 1)
-    end
-
-    # If ordinary Newton iteration, damping factor is always 1
-    if opt.options[OPT_QORDI] == 1
-        fc = 1.0
-    end
-
-    # Set starting damping factor
-    setOption!(opt, OPT_FCSTART, fc)
-
-    if printMon >= 2 && !qSucc
-        write(printIOmon,"\nINFO: ","Internal parameters:",
-        "\n\tStarting value for damping factor ",
-        @sprintf("OPT_FCSTART\t= %1.2e",opt.options[OPT_FCSTART]),
-        @sprintf("\n\tMinimum allowed damping factor OPT_FCMIN\t= %1.2e",fcMin),
-        "\n\tRank-1 updates decision parameter ",
-        @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]))
-    end
-
-    # If retCode is unmodified on exit, successive steps are required
-    # to complete the Newton iterations
-    retCode = -1
+    (m1, m2, nBroy, qBDamp) = initializeOptions(n, opt, 1)
 
     if nBroy == 0
         nBroy = 1
@@ -220,11 +69,16 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     # Create a copy inside so that the original variable is untouched
     x0 = x[:]
 
+    # If retCode is unmodified on exit, successive steps are required
+    # to complete the Newton iterations
+    retCode = -1
+
     # Call to n1int
-    retCode = n1int(n, fcn, x0, xScal, opt.options[OPT_RTOL], nItmax,
-        nonLin, opt, m1, m2, nBroy, opt.options[OPT_FCSTART], opt.options[OPT_FCMIN],
-        opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2], mStor, printWarn,
-        printMon, printSol, printIOwarn, printIOmon, printIOsol, qBDamp)
+    retCode = n1int(n, fcn, x0, xScal, opt.options[OPT_RTOL], opt.options[OPT_NITMAX],
+        opt.options[OPT_NONLIN], opt, m1, m2, nBroy, opt.options[OPT_FCSTART],
+        opt.options[OPT_FCMIN], opt.options[OPT_SIGMA], opt.options[OPT_SIGMA2],
+        opt.options[OPT_MSTOR], printWarn, printMon, printSol, opt.options[OPT_PRINTIOWARN],
+        opt.options[OPT_PRINTIOMON], opt.options[OPT_PRINTIOSOL], qBDamp)
 
     # set stats variable
     stats[STATS_XSCAL] = xScal
@@ -251,7 +105,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
 
     # Print statistics
     if printMon >= 2 && retCode != -1 && retCode != 10
-        printStats(stats, printIOmon)
+        printStats(stats, opt.options[OPT_PRINTIOMON])
     end
 
     return (x0, stats, retCode);

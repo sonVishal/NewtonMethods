@@ -47,15 +47,11 @@ NewtonMethods.wnorm
 ```
 
 ```@docs
-NewtonMethods.nJacFAD
+NewtonMethods.nJacFD
 ```
 
 ```@docs
-NewtonMethods.nJac
-```
-
-```@docs
-NewtonMethods.nJacb
+NewtonMethods.nJacFDb
 ```
 
 ```@docs

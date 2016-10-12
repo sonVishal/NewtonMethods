@@ -24,99 +24,6 @@ Checking of common input parameters and options.
 function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     opt::OptionsNLEQ)
     # Begin
-    # Check whether warnings need to be printed
-    printWarn = getOption!(opt,OPT_PRINTWARNING,0)
-    printIOwarn = getOption!(opt,OPT_PRINTIOWARN,STDOUT)
-
-    # Initialize return code to 0
-    retCode = 0
-
-    # Check dimensional parameter n
-    if n <= 0
-        retCode = 20
-        write(printIOwarn,"ERROR: Bad input to dimensional parameter n supplied","\n",
-            "Choose n positive, your input is: n = $n\n")
-        return retCode
-    end
-
-    # Problem type specification by user
-    nonLin = getOption(opt,OPT_NONLIN,3)
-
-    # Checking and conditional adaptation of user given RTOL
-    # if RTOL is not set, set it to 1e-6
-    rTol = getOption!(opt,OPT_RTOL,1e-6)
-    if rTol <= 0.0
-        retCode = 21
-        write(printIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied\n")
-        return retCode
-    else
-        tolMin = epMach*10.0*n
-        if rTol < tolMin
-            rTol = tolMin
-            setOption!(opt,OPT_RTOL,rTol)
-            if printWarn == 1
-                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol\n")
-            end
-        end
-
-        tolMax = 1.0e-1
-        if rTol > tolMax
-            rTol = tolMax
-            setOption!(opt,OPT_RTOL,rTol)
-            if printWarn == 1
-                write(printIOwarn,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol\n")
-            end
-        end
-    end
-
-    # Test user prescribed accuracy and scaling on proper values
-    if nonLin >= 3
-        defScal = rTol
-    else
-        defScal = 1.0
-    end
-
-    for i = 1:n
-        # Scaling Values cannot be negative
-        # Positive scaling values give scale invariance
-        if xScal[i] < 0.0
-            retCode = 22
-            write(printIOwarn,"ERROR: Negative value in xScal[$i] supplied\n")
-            return retCode
-        end
-
-        if xScal[i] == 0.0
-            xScal[i] = defScal
-        end
-        # Avoid overflow due to division by xScal[i]
-        if xScal[i] > 0.0 && xScal[i] < small
-            if printWarn == 1
-                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small\n")
-            end
-            xScal[i] = small
-        end
-        # Avoid underflow due to division by xScal[i]
-        if xScal[i] > great
-            if printWarn == 1
-                write(printIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great\n")
-            end
-            xScal[i] = great
-        end
-    end
-
-    # Assign the Jacobian depending on user input
-    # By default Forward mode automatic differentiation is used
-    jacGen = getOption!(opt,OPT_JACGEN,4)
-    if jacGen == 1
-        jacFcn = getOption!(opt,OPT_JACFCN,0)
-        if jacFcn == 0
-            retCode = 30
-            write(printIOwarn,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
-            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.\n")
-            return retCode
-        end
-    end
-
     # Check the IO
     pIOwarn = getOption!(opt, OPT_PRINTIOWARN, STDOUT)
     if typeof(pIOwarn) != IOStream && pIOwarn != STDOUT
@@ -141,6 +48,97 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
         "use the default option.\n")
         return retCode
     end
+    # Check whether warnings need to be printed
+    printWarn = getOption!(opt,OPT_PRINTWARNING,0)
+
+    # Initialize return code to 0
+    retCode = 0
+
+    # Check dimensional parameter n
+    if n <= 0
+        retCode = 20
+        write(pIOwarn,"ERROR: Bad input to dimensional parameter n supplied","\n",
+            "Choose n positive, your input is: n = $n\n")
+        return retCode
+    end
+
+    # Problem type specification by user
+    nonLin = getOption!(opt,OPT_NONLIN,3)
+
+    # Checking and conditional adaptation of user given RTOL
+    # if RTOL is not set, set it to 1e-6
+    rTol = getOption!(opt,OPT_RTOL,1e-6)
+    if rTol <= 0.0
+        retCode = 21
+        write(pIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied\n")
+        return retCode
+    else
+        tolMin = epMach*10.0*n
+        if rTol < tolMin
+            rTol = tolMin
+            setOption!(opt,OPT_RTOL,rTol)
+            if printWarn == 1
+                write(pIOwarn,"WARNING: User prescribed $OPT_RTOL increased to a reasonable smallest value RTOL = $rTol\n")
+            end
+        end
+
+        tolMax = 1.0e-1
+        if rTol > tolMax
+            rTol = tolMax
+            setOption!(opt,OPT_RTOL,rTol)
+            if printWarn == 1
+                write(pIOwarn,"WARNING: User prescribed $OPT_RTOL decreased to a reasonable largest value RTOL = $rTol\n")
+            end
+        end
+    end
+
+    # Test user prescribed accuracy and scaling on proper values
+    if nonLin >= 3
+        defScal = rTol
+    else
+        defScal = 1.0
+    end
+
+    for i = 1:n
+        # Scaling Values cannot be negative
+        # Positive scaling values give scale invariance
+        if xScal[i] < 0.0
+            retCode = 22
+            write(pIOwarn,"ERROR: Negative value in xScal[$i] supplied\n")
+            return retCode
+        end
+
+        if xScal[i] == 0.0
+            xScal[i] = defScal
+        end
+        # Avoid overflow due to division by xScal[i]
+        if xScal[i] > 0.0 && xScal[i] < small
+            if printWarn == 1
+                write(pIOwarn,"WARNING: xScal[$i] = $xScal[i] too small, increased to $small\n")
+            end
+            xScal[i] = small
+        end
+        # Avoid underflow due to division by xScal[i]
+        if xScal[i] > great
+            if printWarn == 1
+                write(pIOwarn,"WARNING: xScal[$i] = $xScal[i] too big, increased to $great\n")
+            end
+            xScal[i] = great
+        end
+    end
+
+    # Assign the Jacobian depending on user input
+    # By default Forward mode automatic differentiation is used
+    jacGen = getOption!(opt,OPT_JACGEN,4)
+    if jacGen == 1
+        jacFcn = getOption!(opt,OPT_JACFCN,0)
+        if jacFcn == 0
+            retCode = 30
+            write(pIOwarn,"ERROR: The Jacobian function OPT_JACFCN is not supplied. ",
+            "Please supply a Jacobian function or use OPT_JACGEN = 2 or 3 for numerical differentiation based jacobian evaluation.\n")
+            return retCode
+        end
+    end
 
     return retCode
 end
@@ -153,16 +151,16 @@ Initialization of options based on the solver input argument.
 
 ## Input parameters
 -------------------
-| Variables | Description                                                    |
-|-----------|----------------------------------------------------------------|
-| opt*      | Options set by the user                                        |
-| wk*       | Internal workspace specific to the solver                      |
-| n         | Size of the problem                                            |
-| m1        | In full mode = n and in band mode = 2*ml+mu+1                  |
-| nBroy     | Maximum number of possible consecutive iterative Broyden steps |
-| qRank1    | Decision parameter for Rank-1 updates                          |
-| solver = 1| Specifies that the solver is NLEQ1                             |
-|        = 2| Specifies that the solver is NLEQ2                             |
+| Variables  | Description                                                    |
+|------------|----------------------------------------------------------------|
+| opt*       | Options set by the user                                        |
+| wk*        | Internal workspace specific to the solver                      |
+| n          | Size of the problem                                            |
+| m1         | In full mode = n and in band mode = 2*ml+mu+1                  |
+| nBroy      | Maximum number of possible consecutive iterative Broyden steps |
+| qRank1     | Decision parameter for Rank-1 updates                          |
+| solver = 1 | Specifies that the solver is NLEQ1                             |
+|        = 2 | Specifies that the solver is NLEQ2                             |
 
 (* marks inout parameters)
 """
@@ -236,6 +234,202 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
     end
 
     return nothing
+end
+
+"""
+function initializeOptions(opt::OptionsNLEQ, solver::Int64)
+
+Initialization of options based on the solver input argument.
+
+## Input parameters
+-------------------
+| Variables  | Description                                                    |
+|------------|----------------------------------------------------------------|
+| opt*       | Options set by the user                                        |
+| solver = 1 | Specifies that the solver is NLEQ1                             |
+|        = 2 | Specifies that the solver is NLEQ2                             |
+
+(* marks inout parameters)
+"""
+function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
+    # First call or successive call
+    qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
+    qIniMon = (opt.options[OPT_PRINTITERATION] >= 1 && !qSucc)
+
+    # Check if the Jacobian is Dense/Sparse or Banded matrix
+    mStor = getOption!(opt,OPT_MSTOR,0)
+    ml = getOption!(opt,"OPT_ML",0)
+    mu = getOption!(opt,"OPT_MU",0)
+    if mStor == 0
+        m1 = n
+        m2 = n
+    elseif mStor == 1
+        m1 = 2*ml + mu + 1
+        m2 = ml + mu + 1
+    end
+
+    qRank1 = Bool(getOption!(opt, OPT_QRANK1, 0))
+    qOrdi  = Bool(getOption!(opt, OPT_QORDI,  0))
+    qSimpl = Bool(getOption!(opt, OPT_QSIMPL, 0))
+
+    if qRank1
+        nBroy = getOption!(opt,OPT_NBROY,0)
+        if nBroy == 0
+            nBroy = max(m2,10)
+            setOption!(opt,OPT_NBROY, nBroy)
+        end
+    else
+        nBroy = 0
+    end
+
+    # If in stepwise mode and this is the first call then clear the workspace
+    initOption!(opt, OPT_MODE, 0)
+
+    if opt.options[OPT_MODE] == 1 && !qSucc
+        if solver == 1
+            empty!(wkNLEQ1.options)
+        elseif solver == 2
+            empty!(wkNLEQ1.options)
+        end
+    end
+
+    # Check if this is a first call or successive call to nleq1
+    # If first call then reset the workspace and persistent variables
+    if !qSucc
+        if solver == 1
+            empty!(wkNLEQ1.options)
+            initializeOptions(opt, wkNLEQ1, n, m1, nBroy, qRank1, 1)
+        elseif solver == 2
+            empty!(wkNLEQ2.options)
+            initializeOptions(opt, wkNLEQ2, n, m1, nBroy, qRank1, 2)
+        end
+    end
+
+    # Check for non linear option
+    nonLin = opt.options[OPT_NONLIN]
+    initOption!(opt, OPT_BOUNDEDDAMP, 0)
+
+    if opt.options[OPT_BOUNDEDDAMP] == 0
+        qBDamp = nonLin == 4
+    elseif opt.options[OPT_BOUNDEDDAMP] == 1
+        qBDamp = true
+    elseif opt.options[OPT_BOUNDEDDAMP] == 2
+        qBDamp = false
+    end
+
+    # Initialize bounded damping strategy restriction factor
+    initOption!(opt, OPT_FCBAND, 0.0)
+    if qBDamp
+        if opt.options[OPT_FCBAND] < 1.0
+            setOption!(opt, OPT_FCBAND, 10.0)
+        end
+    end
+
+    # Maximum permitted number of iteration steps
+    nItmax = getOption!(opt, OPT_NITMAX, 50)
+    if nItmax <= 0
+        nItmax = 50
+        setOption!(opt, OPT_NITMAX, nItmax)
+    end
+
+    if qIniMon
+        if solver == 1
+            printInitialization(n, opt.options[OPT_PRINTIOMON], opt.options[OPT_RTOL],
+            opt.options[OPT_JACGEN], mStor, ml, mu, opt.options[OPT_NOROWSCAL],
+            qRank1, nonLin, qBDamp, opt.options[OPT_FCBAND], qOrdi, qSimpl, nItmax)
+        elseif solver == 2
+            printInitialization(n, opt.options[OPT_PRINTIOMON], opt.options[OPT_RTOL],
+            opt.options[OPT_JACGEN], 0, 0, 0, opt.options[OPT_NOROWSCAL], qRank1,
+            nonLin, qBDamp, opt.options[OPT_FCBAND], false, false, nItmax)
+        end
+    end
+
+    # Initial damping factor for highly nonlinear problems
+    initOption!(opt, OPT_FCSTART, 0.0)
+    qFcStart = opt.options[OPT_FCSTART] > 0.0
+    if !qFcStart
+        setOption!(opt, OPT_FCSTART, 1.0e-2)
+        if nonLin == 4
+            setOption!(opt, OPT_FCSTART, 1.0e-4)
+        end
+    end
+
+    # Minimal permitted damping factor
+    initOption!(opt,OPT_FCMIN,0.0)
+    if opt.options[OPT_FCMIN] <= 0.0
+        setOption!(opt, OPT_FCMIN, 1.0e-4)
+        if nonLin == 4
+            setOption!(opt, OPT_FCMIN, 1.0e-8)
+        end
+    end
+    fcMin = getOption(opt,OPT_FCMIN,0.0)
+
+    # Rank1 decision parameter SIGMA
+    initOption!(opt,OPT_SIGMA,0.0)
+    if opt.options[OPT_SIGMA] < 1.0
+        setOption!(opt, OPT_SIGMA, 3.0)
+    end
+    if !qRank1
+        setOption!(opt, OPT_SIGMA, 10.0/fcMin)
+    end
+
+    # Decision parameter about increasing too small predictor
+    # to greater corrector value
+    initOption!(opt,OPT_SIGMA2,0.0)
+    if opt.options[OPT_SIGMA2] < 1.0
+        setOption!(opt, OPT_SIGMA2, 10.0/fcMin)
+    end
+
+    # Starting value of damping factor (fcMin <= fc <= 1.0)
+    if nonLin <= 2 && !qFcStart
+        # for linear or mildly nonlinear problems
+        fc = 1.0
+    else
+        # for highly or extremely nonlinear problems
+        fc = getOption(opt, OPT_FCSTART, 0.0)
+    end
+
+    # Simplified Newton iteration implies ordinary Newton iteration mode
+    if qSimpl
+        setOption!(opt, OPT_QORDI, 1)
+    end
+
+    # If ordinary Newton iteration, damping factor is always 1
+    if opt.options[OPT_QORDI] == 1
+        fc = 1.0
+    end
+
+    # Set starting damping factor
+    setOption!(opt, OPT_FCSTART, fc)
+
+    if solver == 2
+        iRank = getOption!(opt, OPT_IRANK, 0)
+        if iRank <= 0 || iRank > n
+            iRank = n
+            setOption!(opt, OPT_IRANK, iRank)
+        end
+
+        cond = getOption!(opt, OPT_COND, 1.0/epMach)
+        if cond < 1.0
+            cond = 1.0/epMach
+            setOption!(opt, OPT_COND, cond)
+        end
+    end
+
+    if opt.options[OPT_PRINTITERATION] >= 2 && !qSucc
+        write(opt.options[OPT_PRINTIOMON],"\nINFO: ","Internal parameters:",
+        "\n\tStarting value for damping factor ",
+        @sprintf("OPT_FCSTART\t= %1.2e",opt.options[OPT_FCSTART]),
+        @sprintf("\n\tMinimum allowed damping factor OPT_FCMIN\t= %1.2e",fcMin),
+        "\n\tRank-1 updates decision parameter ",
+        @sprintf("OPT_SIGMA\t= %1.2e\n",opt.options[OPT_SIGMA]))
+        if solver == 2
+            write(opt.options[OPT_PRINTIOMON], @sprintf("\n\tInitial Jacobian pseudo-rank iRank\t\t= %6i", iRank),
+            @sprintf("\n\tMaximum permitted subcondition cond\t\t= %1.2e\n", cond))
+        end
+    end
+
+    return (m1, m2, nBroy, qBDamp)
 end
 
 """

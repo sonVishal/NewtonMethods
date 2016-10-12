@@ -44,16 +44,12 @@ function testNLEQ2()
 
         (x0, _, retCode) = nleq2(chebyQuad,x0,xScal,opt);
 
-        relNormDiff = norm(x0-refSol[dim],Inf);
-
-        if norm(refSol[dim],Inf) != 0.0
-            relNormDiff /= norm(refSol[dim],Inf);
-        end
+        relNormDiff = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf);
 
         if dim == 2
-            testResult = relNormDiff == 0.0;
+            testResult = relNormDiff < eps(Float64);
         else
-            testResult &= relNormDiff == 0.0;
+            testResult &= relNormDiff < eps(Float64);
         end
     end
     return testResult

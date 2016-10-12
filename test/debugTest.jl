@@ -1,5 +1,5 @@
-using NewtonMethods
-include("ChebyQuad.jl")
+# using NewtonMethods
+# include("ChebyQuad.jl")
 fSol = open("nleq1.dat","w")
 fRest = open("nleq1.out","w")
 
@@ -23,7 +23,7 @@ refSol[9] = [0.044205346135779103, 0.19949067230774983, 0.23561910847320636,
                 0.76438089152679367, 0.80050932769225003, 0.95579465386422091]
 
 # for dim = 2:9
-dim = 2
+dim = 8
 n1 = dim + 1
 
 # Initialize the options
@@ -57,6 +57,11 @@ while retCode == -1
 end
 err = norm(x0-refSol[dim],Inf)/norm(refSol[dim],Inf)
 println("Dimension $dim, relative error in Inf norm = $err")
+msg = "Solution rejected"
+if err < eps(Float64)
+    msg = "Solution accepted"
+end
+println(msg)
 # end
 
 close(fSol)

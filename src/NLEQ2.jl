@@ -391,7 +391,7 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     alphaA  = getOption!(wkNLEQ2,"P_ALPHAA",0.0)
     qMStop  = getOption!(wkNLEQ2,"P_QMSTOP",false)
     sumxa2  = getOption!(wkNLEQ2,"P_SUMXA2",0.0)
-    d       = getOption!(wkNLEQ2,"P_D",zeros(n))
+    d       = getOption!(wkNLEQ2,"P_D",zero(x))
     p       = getOption!(wkNLEQ2,"P_P",zeros(Int64,n))
     # --------------------------------------------------------------------------
     # Begin

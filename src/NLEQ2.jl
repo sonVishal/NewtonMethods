@@ -78,11 +78,7 @@ function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     m1 = n
     m2 = n
 
-    jacGen = getOption!(opt,OPT_JACGEN,0)
-    if jacGen == 0
-        jacGen = 2
-        setOption!(opt, OPT_JACGEN, jacGen)
-    end
+    jacGen = opt.options[OPT_JACGEN]
 
     qRank1 = Bool(getOption!(opt, OPT_QRANK1, 0))
 
@@ -594,15 +590,30 @@ function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     iFail   = -1
                 end
             else
+                if jacGen == 2
+                    (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
+                end
                 if jacGen == 3
                     (nFcnJ,iFail) = nJcf(fcn,n,n,x,f,xw,eta,etaMin,etaMax,
                                             etaDif,conv,nFcnJ,a)
                 end
-                if jacGen == 2
-                    (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
-                end
+                # Forward mode automatic differentiation using ForwardDiff
                 if jacGen == 4
-                    (nFcn,iFail) = nJacFAD(fcn,x,f,a)
+                    fd = zero(x)
+                    try
+                        fcn(fd,x)
+                    catch
+                        iFail = -1
+                    end
+                    nFcnJ += 1
+                    if iFail == 0
+                        try
+                            a[:,:] = ForwardDiff.jacobian(fcn,fd,x)
+                            iFail = 0
+                        catch
+                            iFail = -1
+                        end
+                    end
                 end
             end
             nJac += 1

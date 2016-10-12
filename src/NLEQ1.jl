@@ -86,11 +86,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
         m2 = ml + mu + 1
     end
 
-    jacGen = getOption!(opt,OPT_JACGEN,0)
-    if jacGen == 0
-        jacGen = 2
-        setOption!(opt, OPT_JACGEN, jacGen)
-    end
+    jacGen = opt.options[OPT_JACGEN]
 
     qRank1 = Bool(getOption!(opt, OPT_QRANK1, 0))
     qOrdi  = Bool(getOption!(opt, OPT_QORDI,  0))
@@ -596,7 +592,12 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
                     end
                     if jacGen == 4
-                        (nFcn,iFail) = nJacFAD(fcn,x,f,a)
+                        try
+                            a[:,:] = ForwardDiff.jacobian(fcn,f,xw)
+                            iFail = 0
+                        catch
+                            iFail = -1
+                        end
                     end
                 elseif mStor == 1
                     if jacGen == 3
@@ -607,7 +608,12 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (nFcnJ,iFail) = nJacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ,a)
                     end
                     if jacGen == 4
-                        (nFcn,iFail) = nJacFAD(fcn,x,f,a)
+                        try
+                            a[:,:] = ForwardDiff.jacobian(fcn,f,xw)
+                            iFail = 0
+                        catch
+                            iFail = -1
+                        end
                     end
                 end
             end

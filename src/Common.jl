@@ -105,9 +105,8 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
     end
 
     # Assign the Jacobian depending on user input
-    # Multiple dispatch calls the required function based on
-    # the storage requirement of the user
-    jacGen = getOption!(opt,OPT_JACGEN,2)
+    # By default Forward mode automatic differentiation is used
+    jacGen = getOption!(opt,OPT_JACGEN,4)
     if jacGen == 1
         jacFcn = getOption!(opt,OPT_JACFCN,0)
         if jacFcn == 0

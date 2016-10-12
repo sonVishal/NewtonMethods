@@ -1,43 +1,3 @@
-# Evaluation of Jacobian using Automatic differentiation
-"""
-function nJacFAD(fcn, x::Vector{Float64}, a::Array{Float64,2}, nFcn::Int64,
-    chunkSize = ForwardDiff.pickchunk(x))
-
-Evaluation of Jacobian matrix using forward mode automatic differentiation
-for use in nonlinear systems solver.
-
-## Input parameters
--------------------
-| Variable  | Description                                                     |
-|-----------|-----------------------------------------------------------------|
-| fcn       | Function of the form fcn(f, x) to provide right-hand side       |
-| x[n]      | Current scaled vector                                           |
-| f[n]      | Vector containing fcn(x)                                        |
-| chunkSize | Chunk size for computing the Jacobian. Refer doc of ForwardDiff |
-
-(* marks inout parameters)
-
-## Output parameters
--------------------
-| Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
-| a        | Array containing the approximated Jacobian                      |
-| nFcn*    | fcn evaluation count adjusted                                   |
-| iFail    | Return code non-zero if Jacobian could not be computed          |
-"""
-function nJacFAD(fcn, x::Vector{Float64}, f::Vector{Float64}, a::Array{Float64,2},
-    chunkSize = ForwardDiff.pickchunk(x))
-    # Begin
-    iFail = 0
-    nFcn += 1
-    try
-        a = ForwardDiff.jacobian(fcn,f,x,chunk)
-    catch
-        iFail = -1
-    end
-    return iFail
-end
-
 """
 function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
     yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Float64,
@@ -94,7 +54,7 @@ function nJac(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64}
             break
         end
         x[k] = w
-        a[1:n,k] = (fu-fx)/u
+        a[1:n,k:k] = (fu-fx)./u
     end
     return (nFcn, iFail)
 end
@@ -165,7 +125,7 @@ function nJacb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
             i1 = max(1,k-mu)
             i2 = min(n,k+ml)
             mh = mu + 1 - k
-            a[mh+i1:mh+i2,k] = (fu[i1:i2]-fx[i1:i2])/u[k]
+            a[mh+i1:mh+i2,k:k] = (fu[i1:i2]-fx[i1:i2])/u[k]
         end
     end
     return (nFcn,iFail)

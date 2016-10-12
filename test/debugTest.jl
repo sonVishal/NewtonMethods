@@ -1,7 +1,7 @@
 using NewtonMethods
 include("ChebyQuad.jl")
-fSol = open("nleq2.dat","w")
-fRest = open("nleq2.out","w")
+fSol = open("nleq1.dat","w")
+fRest = open("nleq1.out","w")
 
 refSol = Dict{Int64,Vector}()
 
@@ -55,8 +55,8 @@ retCode = -1
 i = 1
 
 while retCode == -1
-    (x0, _, retCode) = nleq2(chebyQuad, x0, xScal, opt)
-    write(fRest, @sprintf("Returned from call %4i of NLEQ2\n",i))
+    (x0, _, retCode) = nleq1(chebyQuad, x0, xScal, opt)
+    write(fRest, @sprintf("Returned from call %4i of NLEQ1\n",i))
     flush(fSol)
     flush(fRest)
     i += 1

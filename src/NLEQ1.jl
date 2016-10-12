@@ -592,11 +592,20 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (nFcnJ,iFail) = nJac(fcn,n,n,x,f,xw,aJdel,aJmin,nFcnJ,a)
                     end
                     if jacGen == 4
+                        fd = zero(x)
                         try
-                            a[:,:] = ForwardDiff.jacobian(fcn,f,xw)
-                            iFail = 0
+                            fcn(fd,x)
                         catch
                             iFail = -1
+                        end
+                        nFcnJ += 1
+                        if iFail == 0
+                            try
+                                a[:,:] = ForwardDiff.jacobian(fcn,fd,x)
+                                iFail = 0
+                            catch
+                                iFail = -1
+                            end
                         end
                     end
                 elseif mStor == 1
@@ -608,11 +617,20 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                         (nFcnJ,iFail) = nJacb(fcn,n,m1,ml,x,f,xw,aJdel,aJmin,nFcnJ,a)
                     end
                     if jacGen == 4
+                        fd = zero(x)
                         try
-                            a[:,:] = ForwardDiff.jacobian(fcn,f,xw)
-                            iFail = 0
+                            fcn(fd,x)
                         catch
                             iFail = -1
+                        end
+                        nFcnJ += 1
+                        if iFail == 0
+                            try
+                                a[:,:] = ForwardDiff.jacobian(fcn,fd,x)
+                                iFail = 0
+                            catch
+                                iFail = -1
+                            end
                         end
                     end
                 end

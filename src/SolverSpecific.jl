@@ -730,11 +730,11 @@ function nSolv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
     u::Array{Float64,2}, p::Vector{Int64}, b::Vector{Float64}, mStor::Int64)
     # Begin
     if mStor == 0
-        x = b[p]
-        x = l\x
-        x = u\x
+        x[:] = b[p]
+        x[:] = l\x
+        x[:] = u\x
     elseif mStor == 1
-        x = dgbsl(l,lda,n,ml,mu,p,b,0)
+        x[:] = dgbsl(l,lda,n,ml,mu,p,b,0)
     end
     iFail = 0
     return iFail

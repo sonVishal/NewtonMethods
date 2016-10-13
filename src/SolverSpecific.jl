@@ -1,6 +1,6 @@
 """
 # Summary:
-function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
+function dgbfa{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
 
 This function is similar to the function gbtrf! provided in Base.LinAlg.LAPACK.
 Julia documentation mentions the following:
@@ -13,10 +13,12 @@ Due to this reason dgbfa function has been written as per the one provided in th
 original version of these solvers at: [NewtonLib](http://elib.zib.de/pub/elib/codelib/NewtonLib/index.html)
 based on LINPACK written for Matlab by Cleve Moler, University of New Mexico, Argonne National Lab.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable    | Description                                                  |
-|-------------|--------------------------------------------------------------|
+|:------------|:-------------------------------------------------------------|
 | abd[lda,n]* | Contains the matrix in band storage. See the comments below. |
 | lda         | Leading dimension of the matrix. lda >= 2*ml + mu + 1        |
 | n           | Order of the original matrix                                 |
@@ -28,7 +30,7 @@ based on LINPACK written for Matlab by Cleve Moler, University of New Mexico, Ar
 ## Output parameters
 --------------------
 | Variable    | Description                                                  |
-|-------------|--------------------------------------------------------------|
+|:------------|:-------------------------------------------------------------|
 | abd[lda,n]* | An upper triangular matrix in band storage and the multipliers which were used to obtain it. Factorization can be written as a = l*u where l is a product of permutation and unit lower triangular matrices and u is upper triangular. |
 | ipvt        | Vector containing the pivot indices                          |
 | info = 0    | Normal value                                                 |
@@ -121,15 +123,17 @@ function dgbfa{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
 end
 
 """
-function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
-    ipvt::Vector{Int64}, b::Vector{Float64}, flag::Int64)
+function dgbsl{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
+    ipvt::Vector{Int64}, b::Vector{T}, flag::Int64)
 
 Solves the double precision band system using the factors computed by dgbfa.
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variable    | Description                                                  |
-|-------------|--------------------------------------------------------------|
+|:------------|:-------------------------------------------------------------|
 | abd[lda,n]  | Matrix output from dgbfa                                     |
 | lda         | Leading dimension of the matrix abd                          |
 | n           | Order of the original matrix                                 |
@@ -143,7 +147,7 @@ Solves the double precision band system using the factors computed by dgbfa.
 ## Output parameters
 --------------------
 | Variable    | Description                                                  |
-|-------------|--------------------------------------------------------------|
+|:------------|:-------------------------------------------------------------|
 | x           | Solution vector                                              |
 """
 function dgbsl{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
@@ -206,16 +210,18 @@ function dgbsl{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
 end
 
 """
-function n2prjn(n::Int64, iRank::Int64, u::Vector{Float64}, d::Vector{Float64},
-    qe::Array{Float64,2}, p::Vector{Int64}, v::Vector{Float64})
+function n2prjn{T}(n::Int64, iRank::Int64, u::Vector{T}, d::Vector{T},
+    qe::Array{T,2}, p::Vector{Int64}, v::Vector{T})
 
 Provides the projection to the appropriate subspace in case
     of rank - reduction. To be used in connection with DECCON/SOLCON.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description                                      |
-|----------|--------------------------------------------------|
+|:---------|:-------------------------------------------------|
 | n        | Number of parameters to be estimated             |
 | iRank    | Pseudo rank of decomposed Jacobian matrix        |
 | u[n]     | Scaled Newton correction                         |
@@ -227,7 +233,7 @@ Provides the projection to the appropriate subspace in case
 ## Output parameters
 --------------------
 | Variable | Description                 |
-|----------|-----------------------------|
+|:---------|:----------------------------|
 | del      | Defect                      |
 """
 function n2prjn{T}(n::Int64, iRank::Int64, u::Vector{T}, d::Vector{T},
@@ -246,17 +252,19 @@ function n2prjn{T}(n::Int64, iRank::Int64, u::Vector{T}, d::Vector{T},
 end
 
 """
-function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
-    m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::Float64,
-    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
+function deccon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64,
+    m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::T,
+    d::Vector{T}, pivot::Vector{Int64}, kRed::Int64, ah::Array{T,2})
 
 Constrained QR-decomposition of (m,n)-system  with computation of pseudoinverse
 in case of rank-defeciency. First mcon rows belong to equality constraints.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|:--------------|:--------------------------------------------------------------|
 | a[nRow,nCol]* | Array holding the (m,n) matrix to be decomposed               |
 | nRow          | Declared number of rows of array a                            |
 | nCol          | Declared number of columns of array a and rows and columns of ah |
@@ -274,7 +282,7 @@ in case of rank-defeciency. First mcon rows belong to equality constraints.
 ## Output parameters
 --------------------
 | Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|:--------------|:--------------------------------------------------------------|
 | a[nRow,nCol]* | Upper triangular part consisting of transformed matrix and lower triangular part consisting of Householder transformations |
 | iRankC*       | New pseudo-rank of constrained part of a such that abs(d[1]/d[iRankC]) < 1/epMach |
 | iRank*        | New pseudo-rank of matrix a such that abs(d[iRankC+1]/d[iRank]) < cond |
@@ -506,17 +514,19 @@ function deccon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64,
 end
 
 """
-function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
-    n::Int64, x::Vector{Float64}, b::Vector{Float64}, iRankC::Int64, iRank::Int64,
-    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
+function solcon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
+    n::Int64, x::Vector{T}, b::Vector{T}, iRankC::Int64, iRank::Int64,
+    d::Vector{T}, pivot::Vector{Int64}, kRed::Int64, ah::Array{T,2})
 
 Best constrained linear least squares solution of (m,n)-system. First mcon rows
 comprise mcon equality constraints. To be used in connection with subroutine deccon.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description             |
-|----------|-------------------------|
+|:---------|:------------------------|
 | a[m,n], nRow, nCol, m, n, mCon, iRankC, iRank, d[n], pivot[n], ah[n,n], kRed | Refer to input and output parameters of deccon     |
 | b[m]*    | Right hand side of the linear system if kRed >= 0. Right hand side of the upper linear system if kRed < 0 |
 
@@ -525,7 +535,7 @@ comprise mcon equality constraints. To be used in connection with subroutine dec
 ## Output parameters
 --------------------
 | Variable | Description                        |
-|----------|------------------------------------|
+|:---------|:-----------------------------------|
 | x[n]     | Best LSQ-solution of linear system |
 | b[m]*    | Right-hand side of upper triangular system (transformed right-hand side of linear system) |
 """
@@ -602,15 +612,17 @@ function solcon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int6
 end
 
 """
-function nFact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
-    mStor::Int64, l::Array{Float64,2}, u::Array{Float64,2}, p::Vector{Int64})
+function nFact{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
+    mStor::Int64, l::Array{T,2}, u::Array{T,2}, p::Vector{Int64})
 
 Call linear algebra subprogram for factorization of a (n,n)-matrix.
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variable  | Description                                             |
-|-----------|---------------------------------------------------------|
+|:----------|:--------------------------------------------------------|
 | n         | Order of the linear system                              |
 | lda       | Leading dimension of the matrix a                       |
 | ml        | Lower bandwidth of the matrix (only for banded systems) |
@@ -622,7 +634,7 @@ Call linear algebra subprogram for factorization of a (n,n)-matrix.
 ## Output parameters
 --------------------
 | Variable | Description                                        |
-|----------|----------------------------------------------------|
+|:---------|:---------------------------------------------------|
 | iFail    | Exit code in case of errors                        |
 | = 0      | Matrix decomposition successful                    |
 | = 1      | Decomposition failed - matrix numerically singular |
@@ -654,18 +666,20 @@ function nFact{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
 end
 
 """
-function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
-    a::Array{Float64,2}, aInv::Array{Float64,2}, cond::Float64, iRank::Int64,
-    opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{Float64}, iRepeat::Int64, iRankC::Int64)
+function nFact{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{T,2}, aInv::Array{T,2}, cond::T, iRank::Int64,
+    opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{T}, iRepeat::Int64, iRankC::Int64)
 
 Call linear algebra subprogram for factorization of a (n,n)-matrix
 with rank decision and casual computation of the rank deficient
 pseudo-inverse matrix.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable  | Description                                             |
-|-----------|---------------------------------------------------------|
+|:----------|:--------------------------------------------------------|
 | n         | Order of the linear system                              |
 | lda       | Leading dimension of the matrix a                       |
 | ldaInv    | Leading dimension of the matrix aInv                    |
@@ -681,7 +695,7 @@ pseudo-inverse matrix.
 ## Output parameters
 --------------------
 | Variable       | Description                                        |
-|----------------|----------------------------------------------------|
+|:---------------|:---------------------------------------------------|
 | aInv[ldaInv,n] | If matrix a is rank deficient this array holds the pseudo-inverse of a |
 | iFail = 0      | Matrix decomposition successful                    |
 | p              | Vector of pivot indices                            |
@@ -715,15 +729,17 @@ function nFact{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
 end
 
 """
-function nSolv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
-    u::Array{Float64,2}, p::Vector{Int64}, b::Vector{Float64}, mStor::Int64)
+function nSolv{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{T,2},
+    u::Array{T,2}, p::Vector{Int64}, b::Vector{T}, mStor::Int64)
 
 Call linear algebra subprogram for solution of the linear system a*z = b
+
+T = Float64 or BigFloat
 
 ## Parameters
 -------------------
 | Variable | Description             |
-|----------|-------------------------|
+|:---------|:------------------------|
 | n, lda, ml, mu, l, u, p, b, mStor, iFail | Refer nFact |
 """
 function nSolv{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{T,2},
@@ -741,17 +757,22 @@ function nSolv{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{T,2},
 end
 
 """
-function nSolv(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
-    a::Array{Float64,2}, aInv::Array{Float64,2}, b::Vector{Float64},
-    z::Vector{Float64}, iRank::Int64, iRepeat::Int64, d::Vector{Float64},
+function nSolv{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{T,2}, aInv::Array{T,2}, b::Vector{T},
+    z::Vector{T}, iRank::Int64, iRepeat::Int64, d::Vector{T},
     pivot::Vector{Int64}, iRankC::Int64)
 
-Checking of common input parameters and options.
+Call linear algebra subprogram for solution of the linear system a*z = b.
+To be used with the factorization routine of a (n,n)-matrix
+with rank decision and casual computation of the rank deficient
+pseudo-inverse matrix.
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variable | Description                          |
-|----------|--------------------------------------|
+|:---------|:-------------------------------------|
 | b[n]*    | Right hand side of the linear system |
 | n, lda, ldaInv, ml, mu, a, aInv, iRank, iRepeat, d, pivot, iRankC | Refer nFact |
 
@@ -760,7 +781,7 @@ Checking of common input parameters and options.
 ## Output parameters
 --------------------
 | Variable | Description                                                       |
-|----------|-------------------------------------------------------------------|
+|:---------|:------------------------------------------------------------------|
 | b[n]*    | RHS transformed to the upper triangular part of the linear system |
 """
 function nSolv{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,

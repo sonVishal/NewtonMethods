@@ -1,13 +1,15 @@
 """
-function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
+function checkOptions{T}(n::Int64, x::Vector{T}, xScal::Vector{T},
     opt::OptionsNLEQ)
 
 Checking of common input parameters and options.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description             |
-|----------|-------------------------|
+|:---------|:------------------------|
 | n        | Size of the problem     |
 | x        | Initial guess           |
 | xScal*   | Initial scaling vector  |
@@ -18,7 +20,7 @@ Checking of common input parameters and options.
 ## Output parameters
 --------------------
 | Variable | Description                 |
-|----------|-----------------------------|
+|:---------|:----------------------------|
 | retCode  | Exit code in case of errors |
 """
 function checkOptions{T}(n::Int64, x::Vector{T}, xScal::Vector{T},
@@ -149,15 +151,15 @@ function checkOptions{T}(n::Int64, x::Vector{T}, xScal::Vector{T},
 end
 
 """
-function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
-    m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64)
+function initializeOptions·(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
+    m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64, T::DataType)
 
 Initialization of options based on the solver input argument.
 
 ## Input parameters
 -------------------
 | Variables  | Description                                                    |
-|------------|----------------------------------------------------------------|
+|:-----------|:---------------------------------------------------------------|
 | opt*       | Options set by the user                                        |
 | wk*        | Internal workspace specific to the solver                      |
 | n          | Size of the problem                                            |
@@ -166,7 +168,7 @@ Initialization of options based on the solver input argument.
 | qRank1     | Decision parameter for Rank-1 updates                          |
 | solver = 1 | Specifies that the solver is NLEQ1                             |
 |        = 2 | Specifies that the solver is NLEQ2                             |
-
+| T          | Data type of the input. Acceptable values Float64 or BigFloat  |
 (* marks inout parameters)
 """
 function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
@@ -242,17 +244,18 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
 end
 
 """
-function initializeOptions(opt::OptionsNLEQ, solver::Int64)
+function initializeOptions(opt::OptionsNLEQ, solver::Int64, T::DataType)
 
 Initialization of options based on the solver input argument.
 
 ## Input parameters
 -------------------
 | Variables  | Description                                                    |
-|------------|----------------------------------------------------------------|
+|:-----------|:---------------------------------------------------------------|
 | opt*       | Options set by the user                                        |
 | solver = 1 | Specifies that the solver is NLEQ1                             |
 |        = 2 | Specifies that the solver is NLEQ2                             |
+| T          | Data type of the input. Acceptable values Float64 or BigFloat  |
 
 (* marks inout parameters)
 """
@@ -440,16 +443,18 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64, T::DataTyp
 end
 
 """
-function printInitialization(n::Int64, printIOmon, rTol::Float64, jacGen::Int64,
+function printInitialization{T}(n::Int64, printIOmon, rTol::T, jacGen::Int64,
     mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Int64, qRank1::Bool, nonLin::Int64,
-    qBDamp::Bool, fcBand::Float64, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
+    qBDamp::Bool, fcBand::T, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
 
 Print a summary of the initialization.
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variables  | Description                                        |
-|------------|----------------------------------------------------|
+|:-----------|:---------------------------------------------------|
 | n          | Size of the problem                                |
 | printIOmon | IO handle for printing                             |
 | rTol       | Relative tolerance                                 |
@@ -543,7 +548,7 @@ Print a summary of the statistics.
 ## Input parameters
 -------------------
 | Variables  | Description                                      |
-|------------|--------------------------------------------------|
+|:-----------|:-------------------------------------------------|
 | stats      | Dictionary variable containing solver statistics |
 | printIOmon | IO handle for printing                           |
 """
@@ -560,8 +565,8 @@ function printStats(stats::Dict{AbstractString,Any}, printIOmon)
 end
 
 """
-function nScal(n::Int64, x::Vector{Float64}, xa::Vector{Float64}, xScal::Vector{Float64},
-    iScal::Int64, mPr::Int64, printIO, xw::Vector{Float64})
+function nScal{T}(n::Int64, x::Vector{T}, xa::Vector{T}, xScal::Vector{T},
+    iScal::Int64, mPr::Int64, printIO, xw::Vector{T})
 
 To be used in connection with NLEQ1 and NLEQ2.
 Computation of the internal scaling vector XW used for the
@@ -569,10 +574,12 @@ Jacobian matrix, the iterate vector and it's related
 vectors - especially for the solution of the linear system
 and the computations of norms to avoid numerical overflow.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variables | Description                                                                |
-|-----------|----------------------------------------------------------------------------|
+|:----------|:---------------------------------------------------------------------------|
 | n         | Size of the problem                                                        |
 | x         | Current iterate                                                            |
 | xa        | Previous iterate                                                           |
@@ -584,7 +591,7 @@ and the computations of norms to avoid numerical overflow.
 ## Output parameters
 -------------------
 | Variables | Description                                                                |
-|-----------|----------------------------------------------------------------------------|
+|:----------|:---------------------------------------------------------------------------|
 | xw        | Scaling vector computed by this routine<br>All components must be positive.|
 
 """
@@ -613,14 +620,16 @@ function nScal{T}(n::Int64, x::Vector{T}, xa::Vector{T}, xScal::Vector{T},
 end
 
 """
-function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
+function nScrf{T}(m::Int64, n::Int64, a::Array{T,2}, fw::Vector{T})
 
 Row scaling of a (m,n)-matrix in full storage mode
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variables | Description                    |
-|-----------|--------------------------------|
+|:----------|:-------------------------------|
 | m         | Number of rows of the matrix   |
 | n         | Numer of columns of the matrix |
 | a[m,n]*   | Matrix to be scaled            |
@@ -630,7 +639,7 @@ Row scaling of a (m,n)-matrix in full storage mode
 ## Output parameters
 -------------------
 | Variables | Description                    |
-|-----------|--------------------------------|
+|:----------|:-------------------------------|
 | fw        | Row scaling factors.           |
 """
 function nScrf{T}(m::Int64, n::Int64, a::Array{T,2}, fw::Vector{T})
@@ -673,15 +682,17 @@ function nScrf{T}(m::Int64, n::Int64, a::Array{T,2}, fw::Vector{T})
 end
 
 """
-function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
-    fw::Vector{Float64})
+function nScrb{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
+    fw::Vector{T})
 
 Row scaling of a (n,n)-matrix in band storage mode
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variables | Description                              |
-|-----------|------------------------------------------|
+|:----------|:-----------------------------------------|
 | n         | Number of rows and columns of the matrix |
 | lda       | Leading dimension of the matrix array    |
 | ml        | Lower bandwidth of the matrix            |
@@ -693,7 +704,7 @@ Row scaling of a (n,n)-matrix in band storage mode
 ## Output parameters
 -------------------
 | Variables | Description                              |
-|-----------|------------------------------------------|
+|:----------|:-----------------------------------------|
 | fw        | Row scaling factors.                     |
 """
 function nScrb{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
@@ -723,16 +734,18 @@ function nScrb{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
 end
 
 """
-function nLvls(n::Int64, dxq::Vector{Float64}, dx1::Vector{Float64},
-    xw::Vector{Float64}, f::Vector{Float64}, qdscal::Bool)
+function nLvls{T}(n::Int64, dxq::Vector{T}, dx1::Vector{T},
+    xw::Vector{T}, f::Vector{T}, qdscal::Bool)
 
 Provides descaled solution, error norm and level functions
 To be used in connection with NLEQ1 and NLEQ2.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variables | Description                                   |
-|-----------|-----------------------------------------------|
+|:----------|:----------------------------------------------|
 | n         | Number of parameters to be estimated          |
 | dx1       | Scaled Newton correction                      |
 | xw        | Vector of scaling values                      |
@@ -742,7 +755,7 @@ To be used in connection with NLEQ1 and NLEQ2.
 ## Output parameters
 -------------------
 | Variables | Description                              |
-|-----------|------------------------------------------|
+|:----------|:-----------------------------------------|
 | dxq       | Leading dimension of the matrix array    |
 | conv      | Scaled maximum norm of Newton correction |
 | sumX      | Scaled natural level function value      |
@@ -771,10 +784,12 @@ end
 # The following function nPrv1 is a multiple dispatch function
 # The first one corresponds to nleq1 and the second corresponds to nleq2
 """
-function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,
     newt::Int64, mPr::Int64, printIO, qMixIO::Bool)
 
 Printing of intermediate values (Type 1 routine)
+
+T = Float64 or BigFloat
 
 ## Parameters
 -------------
@@ -808,10 +823,12 @@ function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,
 end
 
 """
-function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::Int64,
-    iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::Float64)
+function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64, newt::Int64,
+    iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::T)
 
 Printing of intermediate values (Type 1 routine)
+
+T = Float64 or BigFloat
 
 Parameters
 -------------
@@ -847,15 +864,17 @@ function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64, newt::Int64,
 end
 
 """
-function nPrv2(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+function nPrv2{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,
     printIO, qMixIO::Bool, cmark::AbstractString)
 
 Printing of intermediate values (Type 2 routine)
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variables | Description                                 |
-|-----------|---------------------------------------------|
+|:----------|:--------------------------------------------|
 | dlevf     | Standard level function value               |
 | dlevx     | Standard level value                        |
 | fc        | Current damping factor                      |
@@ -880,15 +899,17 @@ function nPrv2{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,
 end
 
 """
-function nSout(n::Int64, x::Vector{Float64}, mode::Int64, mPr::Int64, printIO,
-    nIter::Int64, dLevF::Float64, sumX::Float64)
+function nSout{T}(n::Int64, x::Vector{T}, mode::Int64, mPr::Int64, printIO,
+    nIter::Int64, dLevF::T, sumX::T)
 
 Printing of iterate (user customizable routine)
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variables | Description                                                     |
-|-----------|-----------------------------------------------------------------|
+|:----------|:----------------------------------------------------------------|
 | n         | Size of the problem                                             |
 | x         | Iterate vector                                                  |
 | mode = 1  | This routine is called before the first Newton iteration step   |
@@ -935,14 +956,16 @@ function nSout{T}(n::Int64, x::Vector{T}, mode::Int64, mPr::Int64, printIO,
 end
 
 """
-function wnorm(n::Int64, z::Vector{Float64}, xw::Vector{Float64})
+function wnorm{T}(n::Int64, z::Vector{T}, xw::Vector{T})
 
 Return the norm to be used in exit (termination) criteria
+
+T = Float64 or BigFloat
 
 ## Input parameters
 -------------------
 | Variables | Description                                                     |
-|-----------|-----------------------------------------------------------------|
+|:----------|:----------------------------------------------------------------|
 | n         | Size of the problem                                             |
 | z         | The vector of which norm is to be computed                      |
 | xw        | Scaling value of z                                              |

@@ -1,15 +1,17 @@
 """
-function nJacFD(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
-    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Int64,
-    a::Array{Float64,2})
+function nJacFD{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},
+    yscal::Vector{T}, ajdel::T, ajmin::T, nFcn::Int64,
+    a::Array{T,2})
 
 Evaluation of a dense Jacobian matrix using finite difference approximation
 adapted for use in nonlinear systems solver.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | fcn      | Function of the form fcn(f, x) to provide right-hand side       |
 | n        | Number of rows and columns of the Jacobian                      |
 | lda      | Leading dimension of the array "a"                              |
@@ -25,7 +27,7 @@ adapted for use in nonlinear systems solver.
 ## Output parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | a[lda,n] | Array containing the approximated Jacobian                      |
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
@@ -62,17 +64,19 @@ function nJacFD{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},
 end
 
 """
-function nJacFDb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
-    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64,
-    nFcn::Int64, a::Array{Float64,2})
+function nJacFDb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},
+    fx::Vector{T}, yscal::Vector{T}, ajdel::T, ajmin::T,
+    nFcn::Int64, a::Array{T,2})
 
 Evaluation of a banded Jacobian matrix using finite difference approximation
 adapted for use in nonlinear systems solver
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | fcn      | Function of the form fcn(f, x) to provide right-hand side       |
 | n        | Number of rows and columns of the Jacobian                      |
 | lda      | Leading dimension of the array "a"                              |
@@ -89,7 +93,7 @@ adapted for use in nonlinear systems solver
 ## Output parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | a[lda,n] | Array containing the approximated Jacobian                      |
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
@@ -137,17 +141,19 @@ function nJacFDb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},
 end
 
 """
-function nJcf(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
-    yscal::Vector{Float64}, eta::Vector{Float64}, etamin::Float64, etamax::Float64,
-    etadif::Float64, conv::Float64, nFcn::Int64, a::Array{Float64,2})
+function nJcf{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},
+    yscal::Vector{T}, eta::Vector{T}, etamin::T, etamax::T,
+    etadif::T, conv::T, nFcn::Int64, a::Array{T,2})
 
 Approximation of dense Jacobian matrix for nonlinear systems solver with
 feed-back control of discretization and rounding errors
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | fcn      | Function of the form fcn(f, x) to provide right-hand side       |
 | n        | Number of rows and columns of the Jacobian                      |
 | lda      | Leading dimension of the array "a"                              |
@@ -166,7 +172,7 @@ feed-back control of discretization and rounding errors
 ## Output parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | a[lda,n] | Array containing the approximated Jacobian                      |
 | eta[n]*  | Vector of scaled denominator differences adjusted               |
 | nFcn*    | fcn evaluation count adjusted                                   |
@@ -230,18 +236,20 @@ function nJcf{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},
 end
 
 """
-function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
-    fx::Vector{Float64}, yscal::Vector{Float64}, eta::Vector{Float64},
-    etamin::Float64, etamax::Float64, etadif::Float64, conv::Float64,
-    nFcn::Int64, a::Array{Float64,2})
+function nJcfb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},
+    fx::Vector{T}, yscal::Vector{T}, eta::Vector{T},
+    etamin::T, etamax::T, etadif::T, conv::T,
+    nFcn::Int64, a::Array{T,2})
 
 Approximation of banded Jacobian matrix for nonlinear systems solver with
 feed-back control of discretization and rounding errors
 
+T = Float64 or BigFloat
+
 ## Input parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | fcn      | Function of the form fcn(f, x) to provide right-hand side       |
 | n        | Number of rows and columns of the Jacobian                      |
 | lda      | Leading dimension of the array "a"                              |
@@ -261,7 +269,7 @@ feed-back control of discretization and rounding errors
 ## Output parameters
 -------------------
 | Variable | Description                                                     |
-|----------|-----------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------|
 | a[lda,n] | Array containing the approximated Jacobian                      |
 | eta[n]*  | Vector of scaled denominator differences adjusted               |
 | nFcn*    | fcn evaluation count adjusted                                   |

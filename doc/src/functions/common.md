@@ -105,3 +105,7 @@ NewtonMethods.initOptions!
 ```@docs
 NewtonMethods.copyOptions!
 ```
+
+```@docs
+NewtonMethods.getMachineConstants
+```

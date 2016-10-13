@@ -1,5 +1,5 @@
 """
-function nleq2(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+function nleq2{T}(fcn, x::Vector{T}, xScal::Vector{T}, opt::OptionsNLEQ)
 
 Damped Newton-algorithm with rank strategy for systems of
 highly nonlinear equations - damping strategy due to Ref.(1).
@@ -18,9 +18,13 @@ For special purposes these routines may be substituted.
 
 This is a driver routine for the core solver N2INT.
 
+Does not support Band mode for Jacobian storage.
+
+T = Float64 or BigFloat
+
 ## Input parameters
 | Variable   | Description                                                                              |
-|------------|------------------------------------------------------------------------------------------|
+|:-----------|:-----------------------------------------------------------------------------------------|
 | fcn        | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
 | x[1:n]     | Initial estimate of the solution.                                                        |
 | xScal[1:n] | User scaling (lower threshold) of the iteration vector x                                 |
@@ -28,7 +32,7 @@ This is a driver routine for the core solver N2INT.
 
 ## Output parameters
 | Variable | Description                                                                                   |
-|----------|-----------------------------------------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------------------------------------|
 | x0[1:n]  | Solution values (or final values if exit before solution is reached).                         |
 | stats    | A dictionary variable of additional output values. The fields are discussed below.            |
 | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
@@ -110,10 +114,10 @@ function nleq2{T}(fcn, x::Vector{T}, xScal::Vector{T}, opt::OptionsNLEQ)
 end
 
 """
-function n2int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
-    rTol::Float64, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::Float64,
+function n2int{T}(n::Int64, fcn, x::Vector{T}, xScal::Vector{T},
+    rTol::T, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::T,
     opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,
-    fc::Float64, fcMin::Float64, sigma::Float64, sigma2::Float64, mPrWarn::Int64,
+    fc::T, fcMin::T, sigma::T, sigma2::T, mPrWarn::Int64,
     mPrMon::Int64, mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
 
 Core routine for NLEQ2.
@@ -122,9 +126,11 @@ Damped Newton-algorithm with rank-strategy for systems of
 highly nonlinear equations especially designed for
 numerically sensitive problems.
 
+T = Float64 or BigFloat
+
 ## Input parameters
 | Variable     | Description                                                                              |
-|--------------|------------------------------------------------------------------------------------------|
+|:-------------|:-----------------------------------------------------------------------------------------|
 | n            | Number of vector components                                                              |
 | fcn          | Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x). |
 | x[1:n]*      | Initial estimate of the solution.                                                        |
@@ -158,7 +164,7 @@ numerically sensitive problems.
 
 ## Output parameters
 | Variable | Description                                                                                   |
-|----------|-----------------------------------------------------------------------------------------------|
+|:---------|:----------------------------------------------------------------------------------------------|
 | x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
 | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 """

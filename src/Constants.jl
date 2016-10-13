@@ -89,6 +89,13 @@ const WK_DMYCOR                 = "dmycor"
 const WK_SUMXS                  = "sumxs"
 const WK_SENS1                  = "sens1"
 
+"""
+function getMachineConstants(T::DataType)
+
+Get the machine constants depending on the DataType T.
+
+Supported DataTypes are Float64 and BigFloat.
+"""
 function getMachineConstants(T::DataType)
     if T != Float64 && T != DataType
         println("ERROR: Wrong DataType provided. You provided $T, expected Float64 or BigFloat.")

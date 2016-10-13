@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Solver Options - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Solver Options";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/nleq1/">NELQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/nleq2/">NELQ2</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq1/">NLEQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq2/">NLEQ2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/common/">Common</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Solver Options</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#common-options">Common options</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#options-specific-to-nleq2">Options specific to NLEQ2</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../stats/">Solver Statistics</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../returnCodes/">Solver Return codes</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Solver Options</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='Common-options-1'></a></p>
+<h1 id="common-options">Common options</h1>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Default value</th>
+<th align="left">Value</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">OPT_RTOL</td>
+<td align="left">1e-6</td>
+<td align="left"></td>
+<td align="left">Required relative precision of solution components.</td>
+</tr>
+<tr>
+<td align="left">OPT_QSUCC</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">(false) initial call: NLEQ solver is not yet initialized, i.e. this is the first call for this nonlinear system. At successful return with OPT_MODE=1, OPT_QSUCC is set to 1.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">(true) successive call: NLEQ solver is initialized already and is now called to perform one or more following Newton iteration steps.</td>
+</tr>
+<tr>
+<td align="left">OPT_MODE</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Standard mode initial call: Return when the required accuracy for the iteration vector is reached. User defined parameters are evaluated and checked.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left">Standard mode successive call: If NLEQ solver was called previously with OPT_MODE=1, it performs all remaining iteration steps.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">Stepwise mode: Return after one Newton iteration step.</td>
+</tr>
+<tr>
+<td align="left">OPT_JACGEN</td>
+<td align="left">2</td>
+<td align="left">1</td>
+<td align="left">User supplied subroutine OPT_JACFCN will be called to generate Jacobian matrix</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">Jacobian approximation by numerical differentation (see subroutines nJac and nJacb)</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">3</td>
+<td align="left">Jacobian approximation by numerical differentation with feedback control (see subroutines nJcf and nJcfb)</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">4</td>
+<td align="left">Jacobian approximation by forward mode automatic differentiation using the ForwardDiff package</td>
+</tr>
+<tr>
+<td align="left">OPT_JACFCN</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">User supplied Jacobian generation function of the form Jac(a,x), where a = Jacobian(x). Only required if OPT_JACGEN = 2</td>
+</tr>
+<tr>
+<td align="left">OPT_MSTOR</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Jacobian is a dense matrix</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">Jacobian is a band matrix</td>
+</tr>
+<tr>
+<td align="left">OPT_ML</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">Lower bandwidth of the Jacobian (excluding the diagonal). Only required if OPT_MSTOR = 1</td>
+</tr>
+<tr>
+<td align="left">OPT_MU</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">Upper bandwidth of the Jacobian (excluding the diagonal). Only required if OPT_MSTOR = 1</td>
+</tr>
+<tr>
+<td align="left">OPT_ISCAL</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">The user supplied scaling vector XSCAL is used as a (componentwise) lower threshold of the current scaling vector</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">The vector xScal is always used as the current scaling vector</td>
+</tr>
+<tr>
+<td align="left">OPT_PRINTWARNING</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Do not print any warning or error messages</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">Print warning and error messages</td>
+</tr>
+<tr>
+<td align="left">OPT_PRINTITERATION</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Do not print iteration monitor</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">Standard output</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">Summary iteration monitor additionally</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">3</td>
+<td align="left">Detailed iteration monitor additionally</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">4,5,6</td>
+<td align="left">Outputs with increasing level additional increasing information for code testing purposes. Level 6 produces in general extremely large output!</td>
+</tr>
+<tr>
+<td align="left">OPT_PRINTSOLUTION</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Do not print solutions</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">Print initial values and solution values</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">Print intermediate values additionally</td>
+</tr>
+<tr>
+<td align="left">OPT_PRINTIOWARN</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Prints the warning and error messages to STDOUT</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">IOStream</td>
+<td align="left">Prints the warning and error messages to the file provided. Please look at the examples to understand this option.</td>
+</tr>
+<tr>
+<td align="left">OPT_PRINTIOMON</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Prints the iteration monitor to STDOUT</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">IOStream</td>
+<td align="left">Prints the iteration monitor to the file provided. Please look at the examples to understand this option.</td>
+</tr>
+<tr>
+<td align="left">OPT_PRINTIOSOL</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">Prints the solutions to STDOUT</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">IOStream</td>
+<td align="left">Prints the solutions to the file provided. Please look at the examples to understand this option.</td>
+</tr>
+<tr>
+<td align="left">OPT_NONLIN</td>
+<td align="left">3</td>
+<td align="left">1</td>
+<td align="left">Linear problem.<br><em>Warning: If specified, no check will be done, if the problem is really linear, and the NLEQ solver terminates unconditionally after one Newton-iteration step.</em></td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">Mildly nonlinear problem</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">3</td>
+<td align="left">Highly nonlinear problem</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">4</td>
+<td align="left">Extremely nonlinear problem</td>
+</tr>
+<tr>
+<td align="left">OPT_QRANK1</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">(false) Rank-1 updates by Broyden-approximation are inhibited.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">(true) Rank-1 updates by Broyden-approximation are allowed.</td>
+</tr>
+<tr>
+<td align="left">OPT_QORDI</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">(false) Standard program mode.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">(true) Special program mode: Ordinary Newton iteration is done, e.g.: No damping strategy and no monotonicity test is applied.</td>
+</tr>
+<tr>
+<td align="left">OPT_QSIMPL</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">(false) Standard program mode</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">(true)  Special program mode: Simplified Newton iteration is done, e.g.: The Jacobian computed at the starting point is fixed for all subsequent iteration steps, and no damping strategy and no monotonicity test is applied.</td>
+</tr>
+<tr>
+<td align="left">OPT_NOROWSCAL</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">(false) Automatic row scaling of the linear system is active:<br> Rows i=1,...,n will be divided by max j=1,...,n (abs(a[i,j]))</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">(true) No row scaling of the linear system. Recommended only for well scaled nonlinear systems.</td>
+</tr>
+<tr>
+<td align="left">OPT_BOUNDEDDAMP</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">The default bounded damping strategy switch takes place, dependent on the setting of OPT_NONLIN :<br>OPT_NONLIN = 0,1,2,3 -&gt; OPT_BOUNDEDDAMP = off,<br>OPT_NONLIN = 4 -&gt; OPT_BOUNDEDDAMP = on</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">means always OPT_BOUNDEDDAMP = on</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">means always OPT_BOUNDEDDAMP = off</td>
+</tr>
+<tr>
+<td align="left">OPT_IORMON</td>
+<td align="left">2</td>
+<td align="left">1</td>
+<td align="left">Convergence order is not checked, the iteration will be always proceeded until the solution has the required precision OPT_RTOL (or some error condition occured)</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2</td>
+<td align="left">Use additional 'weak stop' criterion: Convergence order is monitored and termination due to slowdown of the convergence may occur.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">3</td>
+<td align="left">Use additional 'hard stop' criterion: Convergence order is monitored and termination due to superlinear convergence slowdown may occur.</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">In case of termination due to convergence slowdown, the warning code retCode=4 will be set. In cases, where the Newton iteration converges but superlinear convergence order has never been detected, the warning code retCode=5 is returned.</td>
+</tr>
+<tr>
+<td align="left">OPT_NITMAX</td>
+<td align="left">50</td>
+<td align="left"></td>
+<td align="left">Maximum number of permitted iteration steps</td>
+</tr>
+<tr>
+<td align="left">OPT_FCBAND</td>
+<td align="left">10.0</td>
+<td align="left"></td>
+<td align="left">Bounded damping strategy restriction factor</td>
+</tr>
+<tr>
+<td align="left">OPT_SIGMA</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Broyden-approximation decision parameter. Required choice: OPT_SIGMA &gt;= 1. Increasing this parameter make it less probable that the algorithm performs rank-1 updates. Rank-1 updates are inhibited, if OPT_SIGMA &gt; 1/OPT_FCMIN is set. (see note 4)</td>
+</tr>
+<tr>
+<td align="left">OPT_SIGMA2</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Decision parameter about increasing damping factor to corrector if predictor is small. Required choice: OPT_SIGMA2 &gt; 1. Increasing this parameter make it less probable that the algorithm performs rank-1 updates.</td>
+</tr>
+<tr>
+<td align="left">OPT_AJDEL</td>
+<td align="left">sqrt(epMach*10)</td>
+<td align="left"></td>
+<td align="left">Jacobian approximation without feedback: Relative pertubation for components. epMach: relative machine precision)</td>
+</tr>
+<tr>
+<td align="left">OPT_AJMIN</td>
+<td align="left">0.0</td>
+<td align="left"></td>
+<td align="left">Jacobian approximation without feedback: Threshold value. The absolute pertubation for component k is computed by delx := OPT_AJDEL*max(abs(x[k]),OPT_AJMIN)</td>
+</tr>
+<tr>
+<td align="left">OPT_ETADIF</td>
+<td align="left">1e-6</td>
+<td align="left"></td>
+<td align="left">Jacobian approximation with feedback: Target value for relative pertubation eta of x</td>
+</tr>
+<tr>
+<td align="left">OPT_ETAINI</td>
+<td align="left">1e-6</td>
+<td align="left"></td>
+<td align="left">Jacobian approximation with feedback: Initial value for denominator differences</td>
+</tr>
+<tr>
+<td align="left">OPT_NBROY</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Maximum number of possible consecutive iterative Broyden steps. Default is n if OPT_MSTOR=0, and OPT_ML+OPT_MU+1 if OPT_MSTOR=1 (but minimum is always 10) provided that Broyden is allowed. If Broyden is inhibited, OPT_NBROY is always set to zero.</td>
+</tr>
+<tr>
+<td align="left">OPT_FCSTART</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Damping factor for first Newton iteration: overrides option OPT_NONLIN, if set (see note 4)</td>
+</tr>
+<tr>
+<td align="left">OPT_FCMIN</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">Minimal allowed damping factor (see note 4)</td>
+</tr>
+<tr>
+<td align="left">OPT_STORE</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">(false) Do not store data related to iteration steps</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">1</td>
+<td align="left">(true) Store data related to iteration steps. (Check statistics for more details)</td>
+</tr>
+</tbody>
+</table>
+<p><a id='Options-specific-to-NLEQ2-1'></a></p>
+<h1 id="options-specific-to-nleq2">Options specific to NLEQ2</h1>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">OPT_IRANK</td>
+<td align="left">Initially proposed (in) and final (out) rank of Jacobian</td>
+</tr>
+<tr>
+<td align="left">OPT_COND</td>
+<td align="left">Maximum permitted subcondition for rank-decision by linear solver.</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../stats/" class="btn btn-neutral float-right" title="Solver Statistics"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../functions/common/" class="btn btn-neutral" title="Common"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../functions/common/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../stats/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

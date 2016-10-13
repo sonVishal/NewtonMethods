@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Solver Return codes - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Solver Return codes";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/nleq1/">NELQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/nleq2/">NELQ2</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq1/">NLEQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq2/">NLEQ2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/common/">Common</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../options/">Solver Options</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../stats/">Solver Statistics</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Solver Return codes</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#return-codes">Return codes</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Solver Return codes</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='Return-codes-1'></a></p>
+<h1 id="return-codes">Return codes</h1>
+<table>
+<thead>
+<tr>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1</td>
+<td align="left">Termination, since jacobian matrix became singular</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">Termination after nItmax iterations (as indicated by the option OPT_NITMAX)</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">Termination, since damping factor became to small</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">Warning: Superlinear or quadratic convergence slowed down near the solution. Iteration has been stopped therefore with an approximation of the solution not such accurate as requested by OPT_RTOL because possibly the OPT_RTOL requirement may be too stringent (i.e. the nonlinear problem is ill-conditioned)</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">Warning: Iteration stopped with termination criterion (using OPT_RTOL as requested precision) satisfied but no superlinear or quadratic convergence has been indicated yet. Therefore, possibly the error estimate for the solution may not match good enough the really achieved accuracy.</td>
+</tr>
+<tr>
+<td align="left">21</td>
+<td align="left">Non-positive value for OPT_RTOL supplied</td>
+</tr>
+<tr>
+<td align="left">22</td>
+<td align="left">Negative scaling value via vector xScal supplied</td>
+</tr>
+<tr>
+<td align="left">30</td>
+<td align="left">One or more fields specified in the options are invalid</td>
+</tr>
+<tr>
+<td align="left">80</td>
+<td align="left">Error signalled by linear solver routine nFact. The reason for failure is given by the STATS_IFAIL entry in statistics. The meaning of the value is given in nFact.</td>
+</tr>
+<tr>
+<td align="left">81</td>
+<td align="left">Error signalled by linear solver routine nSolv. The reason for failure is given by the STATS_IFAIL entry in statistics. The meaning of the value is given in nSolv.</td>
+</tr>
+<tr>
+<td align="left">82</td>
+<td align="left">Error signalled by user function fcn</td>
+</tr>
+<tr>
+<td align="left">83</td>
+<td align="left">Error signalled by user function provided in OPT_JACFCN</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../notes/" class="btn btn-neutral float-right" title="Important notes"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../stats/" class="btn btn-neutral" title="Solver Statistics"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../stats/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../notes/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

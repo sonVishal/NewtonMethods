@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>NLEQ2 - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "NLEQ2";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/nleq1/">NELQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/nleq2/">NELQ2</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../nleq1/">NLEQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">NLEQ2</a>
+        
+            <ul>
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../common/">Common</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../options/">Solver Options</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../stats/">Solver Statistics</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../returnCodes/">Solver Return codes</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Functions &raquo;</li>
+        
+      
+    
+    <li>NLEQ2</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='NewtonMethods.deccon' href='#NewtonMethods.deccon'>#</a>
+<strong><code>NewtonMethods.deccon</code></strong> &mdash; <em>Function</em>.</p>
+<p>function deccon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64,     m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::T,     d::Vector{T}, pivot::Vector{Int64}, kRed::Int64, ah::Array{T,2})</p>
+<p>Constrained QR-decomposition of (m,n)-system  with computation of pseudoinverse in case of rank-defeciency. First mcon rows belong to equality constraints.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[nRow,nCol]*</td>
+<td align="left">Array holding the (m,n) matrix to be decomposed</td>
+</tr>
+<tr>
+<td align="left">nRow</td>
+<td align="left">Declared number of rows of array a</td>
+</tr>
+<tr>
+<td align="left">nCol</td>
+<td align="left">Declared number of columns of array a and rows and columns of ah</td>
+</tr>
+<tr>
+<td align="left">mCon</td>
+<td align="left">Number of equality constraints. mCon &lt;= n. Internally reduced if equality constraints are linearly dependent</td>
+</tr>
+<tr>
+<td align="left">m</td>
+<td align="left">Current number of rows of array a</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Current number of columns of array a</td>
+</tr>
+<tr>
+<td align="left">iRankC*</td>
+<td align="left">Prescribed maximum pseudo-rank of constrained part of a. iRankC &lt;= mCon</td>
+</tr>
+<tr>
+<td align="left">iRank*</td>
+<td align="left">Prescribed maximum pseudo-rank of matrix a. iRank &lt;= n</td>
+</tr>
+<tr>
+<td align="left">cond*</td>
+<td align="left">Permitted upper bound for the subcondition of least squares part of a</td>
+</tr>
+<tr>
+<td align="left">kRed &gt;= 0</td>
+<td align="left">Householder triangularization. Build up pseudo-inverse if iRank &lt; n</td>
+</tr>
+<tr>
+<td align="left">kRed &lt; 0</td>
+<td align="left">Reduction of pseudo-rank of matrix a, skipping Householder triangularization, build-up new pseudo-inverse</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[nRow,nCol]*</td>
+<td align="left">Upper triangular part consisting of transformed matrix and lower triangular part consisting of Householder transformations</td>
+</tr>
+<tr>
+<td align="left">iRankC*</td>
+<td align="left">New pseudo-rank of constrained part of a such that abs(d[1]/d[iRankC]) &lt; 1/epMach</td>
+</tr>
+<tr>
+<td align="left">iRank*</td>
+<td align="left">New pseudo-rank of matrix a such that abs(d[iRankC+1]/d[iRank]) &lt; cond</td>
+</tr>
+<tr>
+<td align="left">cond*</td>
+<td align="left">The subcondition number belonging to the least squares part of A. In case of rank reduction: subcondition number which led to rank reduction</td>
+</tr>
+<tr>
+<td align="left">d</td>
+<td align="left">Diagonal elements of the upper triangular matrix</td>
+</tr>
+<tr>
+<td align="left">pivot</td>
+<td align="left">Index vector storing permutation of columns due to pivoting</td>
+</tr>
+<tr>
+<td align="left">ah[nCol,nCol]</td>
+<td align="left">In case of rank-defect used to compute the psuedo-inverse</td>
+</tr>
+<tr>
+<td align="left">iFail = 0</td>
+<td align="left">deccon computation was successful</td>
+</tr>
+<tr>
+<td align="left">iFail = -2</td>
+<td align="left">Numerically negative diagonal element encountered during computation of pseudo-inverse due to extremely bad conditioned matrix a. deccon is unable to continue rank-reduction</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L254-L295' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.solcon' href='#NewtonMethods.solcon'>#</a>
+<strong><code>NewtonMethods.solcon</code></strong> &mdash; <em>Function</em>.</p>
+<p>function solcon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,     n::Int64, x::Vector{T}, b::Vector{T}, iRankC::Int64, iRank::Int64,     d::Vector{T}, pivot::Vector{Int64}, kRed::Int64, ah::Array{T,2})</p>
+<p>Best constrained linear least squares solution of (m,n)-system. First mcon rows comprise mcon equality constraints. To be used in connection with subroutine deccon.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[m,n], nRow, nCol, m, n, mCon, iRankC, iRank, d[n], pivot[n], ah[n,n], kRed</td>
+<td align="left">Refer to input and output parameters of deccon</td>
+</tr>
+<tr>
+<td align="left">b[m]*</td>
+<td align="left">Right hand side of the linear system if kRed &gt;= 0. Right hand side of the upper linear system if kRed &lt; 0</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">x[n]</td>
+<td align="left">Best LSQ-solution of linear system</td>
+</tr>
+<tr>
+<td align="left">b[m]*</td>
+<td align="left">Right-hand side of upper triangular system (transformed right-hand side of linear system)</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L516-L541' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.n2prjn' href='#NewtonMethods.n2prjn'>#</a>
+<strong><code>NewtonMethods.n2prjn</code></strong> &mdash; <em>Function</em>.</p>
+<p>function n2prjn{T}(n::Int64, iRank::Int64, u::Vector{T}, d::Vector{T},     qe::Array{T,2}, p::Vector{Int64}, v::Vector{T})</p>
+<p>Provides the projection to the appropriate subspace in case     of rank - reduction. To be used in connection with DECCON/SOLCON.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of parameters to be estimated</td>
+</tr>
+<tr>
+<td align="left">iRank</td>
+<td align="left">Pseudo rank of decomposed Jacobian matrix</td>
+</tr>
+<tr>
+<td align="left">u[n]</td>
+<td align="left">Scaled Newton correction</td>
+</tr>
+<tr>
+<td align="left">d[n]</td>
+<td align="left">Diagonal elements of upper triangular matrix</td>
+</tr>
+<tr>
+<td align="left">qe[n]</td>
+<td align="left">Part of pseudoinverse Jacobian matrix</td>
+</tr>
+<tr>
+<td align="left">p[n]</td>
+<td align="left">Pivot vector resulting from matrix decomposition</td>
+</tr>
+<tr>
+<td align="left">v[n]</td>
+<td align="left">Temporary work array</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">del</td>
+<td align="left">Defect</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L212-L238' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nleq2' href='#NewtonMethods.nleq2'>#</a>
+<strong><code>NewtonMethods.nleq2</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nleq2{T}(fcn, x::Vector{T}, xScal::Vector{T}, opt::OptionsNLEQ)</p>
+<p>Damped Newton-algorithm with rank strategy for systems of highly nonlinear equations - damping strategy due to Ref.(1).</p>
+<p>(The iteration is done by function N2INT currently. NLEQ2 itself does some house keeping and builds up workspace.)</p>
+<p>Jacobian approximation by numerical differences, user supplied function JAC or forward mode automatic differentation.</p>
+<p>The numerical solution of the arising linear equations is done by means of the subroutines DECCON and SOLCON (QR de- composition with subcondition estimation, rank decision and computation of the rank-deficient pseudoinverse) . For special purposes these routines may be substituted.</p>
+<p>This is a driver routine for the core solver N2INT.</p>
+<p>Does not support Band mode for Jacobian storage.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x).</td>
+</tr>
+<tr>
+<td align="left">x[1:n]</td>
+<td align="left">Initial estimate of the solution.</td>
+</tr>
+<tr>
+<td align="left">xScal[1:n]</td>
+<td align="left">User scaling (lower threshold) of the iteration vector x</td>
+</tr>
+<tr>
+<td align="left">opt</td>
+<td align="left">Options for solving the nonlinear system. Valid options are listed below.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">x0[1:n]</td>
+<td align="left">Solution values (or final values if exit before solution is reached).</td>
+</tr>
+<tr>
+<td align="left">stats</td>
+<td align="left">A dictionary variable of additional output values. The fields are discussed below.</td>
+</tr>
+<tr>
+<td align="left">retCode</td>
+<td align="left">An integer value signifying the exit code. The meaning of the exit codes are discussed below.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/NLEQ2.jl#L1-L39' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.n2int' href='#NewtonMethods.n2int'>#</a>
+<strong><code>NewtonMethods.n2int</code></strong> &mdash; <em>Function</em>.</p>
+<p>function n2int{T}(n::Int64, fcn, x::Vector{T}, xScal::Vector{T},     rTol::T, nItmax::Int64, nonLin::Int64, iRank::Int64, cond::T,     opt::OptionsNLEQ, m1::Int64, m2::Int64, nBroy::Int64,     fc::T, fcMin::T, sigma::T, sigma2::T, mPrWarn::Int64,     mPrMon::Int64, mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)</p>
+<p>Core routine for NLEQ2.</p>
+<p>Damped Newton-algorithm with rank-strategy for systems of highly nonlinear equations especially designed for numerically sensitive problems.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of vector components</td>
+</tr>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x).</td>
+</tr>
+<tr>
+<td align="left">x[1:n]*</td>
+<td align="left">Initial estimate of the solution.</td>
+</tr>
+<tr>
+<td align="left">xScal[1:n]</td>
+<td align="left">User scaling (lower threshold) of the iteration vector x</td>
+</tr>
+<tr>
+<td align="left">rTol</td>
+<td align="left">Required relative precision of solution components</td>
+</tr>
+<tr>
+<td align="left">nItmax</td>
+<td align="left">Maximum number of allowed iterations</td>
+</tr>
+<tr>
+<td align="left">nonLin</td>
+<td align="left">Problem type specification. See OPT_NONLIN field in solver options</td>
+</tr>
+<tr>
+<td align="left">iRank</td>
+<td align="left">Initially proposed (in) and final (out) rank of Jacobian</td>
+</tr>
+<tr>
+<td align="left">cond</td>
+<td align="left">Maximum permitted subcondition for rank-decision by linear solver.</td>
+</tr>
+<tr>
+<td align="left">opt</td>
+<td align="left">Options for solving the nonlinear system. Valid options are listed below.</td>
+</tr>
+<tr>
+<td align="left">m1</td>
+<td align="left">Leading dimension of Jacobian array a</td>
+</tr>
+<tr>
+<td align="left">m2 = n</td>
+<td align="left">For full mode</td>
+</tr>
+<tr>
+<td align="left">= ml+mu+1</td>
+<td align="left">For band mode</td>
+</tr>
+<tr>
+<td align="left">nBroy</td>
+<td align="left">Maximum possible consecutive iterative Broyden steps.</td>
+</tr>
+<tr>
+<td align="left">fc</td>
+<td align="left">Current Newton iteration damping factor.</td>
+</tr>
+<tr>
+<td align="left">fcMin</td>
+<td align="left">Minimum permitted damping factor. fc &lt; fcMin results in either of the following</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">a. Recomputation of the Jacobian using difference approximation</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">b. Fail exit</td>
+</tr>
+<tr>
+<td align="left">sigma</td>
+<td align="left">Decision parameter for rank1-updates</td>
+</tr>
+<tr>
+<td align="left">sigma2</td>
+<td align="left">Decision parameter for damping factor increasing to corrector</td>
+</tr>
+<tr>
+<td align="left">mStor</td>
+<td align="left">Decision parameter for matrix storage. See option OPT_MSTOR in solver options.</td>
+</tr>
+<tr>
+<td align="left">mPrWarn</td>
+<td align="left">Decision parameter for printing warning messages</td>
+</tr>
+<tr>
+<td align="left">mPrMon</td>
+<td align="left">Decision parameter for printing iteration monitor</td>
+</tr>
+<tr>
+<td align="left">mPrSol</td>
+<td align="left">Decision parameter for printing solution</td>
+</tr>
+<tr>
+<td align="left">printIOwarn</td>
+<td align="left">IO handle for printing warning</td>
+</tr>
+<tr>
+<td align="left">printIOmon</td>
+<td align="left">IO handle for printing iteration monitor</td>
+</tr>
+<tr>
+<td align="left">printIOsol</td>
+<td align="left">IO handle for printing solution</td>
+</tr>
+<tr>
+<td align="left">qBDamp</td>
+<td align="left">Decision parameter for matrix storage. See option OPT_MSTOR in solver options.</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">x[1:n]*</td>
+<td align="left">Solution values (or final values if exit before solution is reached).</td>
+</tr>
+<tr>
+<td align="left">retCode</td>
+<td align="left">An integer value signifying the exit code. The meaning of the exit codes are discussed below.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/NLEQ2.jl#L116-L170' class='documenter-source'>source</a><br></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../common/" class="btn btn-neutral float-right" title="Common"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../nleq1/" class="btn btn-neutral" title="NLEQ1"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../nleq1/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../common/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Common - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Common";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/nleq1/">NELQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/nleq2/">NELQ2</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../nleq1/">NLEQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../nleq2/">NLEQ2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Common</a>
+        
+            <ul>
+            
+            </ul>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../options/">Solver Options</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../stats/">Solver Statistics</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../returnCodes/">Solver Return codes</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Functions &raquo;</li>
+        
+      
+    
+    <li>Common</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='NewtonMethods.checkOptions' href='#NewtonMethods.checkOptions'>#</a>
+<strong><code>NewtonMethods.checkOptions</code></strong> &mdash; <em>Function</em>.</p>
+<p>function checkOptions{T}(n::Int64, x::Vector{T}, xScal::Vector{T},     opt::OptionsNLEQ)</p>
+<p>Checking of common input parameters and options.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Size of the problem</td>
+</tr>
+<tr>
+<td align="left">x</td>
+<td align="left">Initial guess</td>
+</tr>
+<tr>
+<td align="left">xScal*</td>
+<td align="left">Initial scaling vector</td>
+</tr>
+<tr>
+<td align="left">opt*</td>
+<td align="left">Options set by the user</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">retCode</td>
+<td align="left">Exit code in case of errors</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L1-L25' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.initializeOptions' href='#NewtonMethods.initializeOptions'>#</a>
+<strong><code>NewtonMethods.initializeOptions</code></strong> &mdash; <em>Function</em>.</p>
+<p>function initializeOptions·(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,     m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64, T::DataType)</p>
+<p>Initialization of options based on the solver input argument.</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">opt*</td>
+<td align="left">Options set by the user</td>
+</tr>
+<tr>
+<td align="left">wk*</td>
+<td align="left">Internal workspace specific to the solver</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Size of the problem</td>
+</tr>
+<tr>
+<td align="left">m1</td>
+<td align="left">In full mode = n and in band mode = 2*ml+mu+1</td>
+</tr>
+<tr>
+<td align="left">nBroy</td>
+<td align="left">Maximum number of possible consecutive iterative Broyden steps</td>
+</tr>
+<tr>
+<td align="left">qRank1</td>
+<td align="left">Decision parameter for Rank-1 updates</td>
+</tr>
+<tr>
+<td align="left">solver = 1</td>
+<td align="left">Specifies that the solver is NLEQ1</td>
+</tr>
+<tr>
+<td align="left">= 2</td>
+<td align="left">Specifies that the solver is NLEQ2</td>
+</tr>
+<tr>
+<td align="left">T</td>
+<td align="left">Data type of the input. Acceptable values Float64 or BigFloat</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L153-L173' class='documenter-source'>source</a><br></p>
+<p>function initializeOptions(opt::OptionsNLEQ, solver::Int64, T::DataType)</p>
+<p>Initialization of options based on the solver input argument.</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">opt*</td>
+<td align="left">Options set by the user</td>
+</tr>
+<tr>
+<td align="left">solver = 1</td>
+<td align="left">Specifies that the solver is NLEQ1</td>
+</tr>
+<tr>
+<td align="left">= 2</td>
+<td align="left">Specifies that the solver is NLEQ2</td>
+</tr>
+<tr>
+<td align="left">T</td>
+<td align="left">Data type of the input. Acceptable values Float64 or BigFloat</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L246-L261' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.printInitialization' href='#NewtonMethods.printInitialization'>#</a>
+<strong><code>NewtonMethods.printInitialization</code></strong> &mdash; <em>Function</em>.</p>
+<p>function printInitialization{T}(n::Int64, printIOmon, rTol::T, jacGen::Int64,     mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Int64, qRank1::Bool, nonLin::Int64,     qBDamp::Bool, fcBand::T, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)</p>
+<p>Print a summary of the initialization.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Size of the problem</td>
+</tr>
+<tr>
+<td align="left">printIOmon</td>
+<td align="left">IO handle for printing</td>
+</tr>
+<tr>
+<td align="left">rTol</td>
+<td align="left">Relative tolerance</td>
+</tr>
+<tr>
+<td align="left">jacGen</td>
+<td align="left">Method of Jacobian generation</td>
+</tr>
+<tr>
+<td align="left">mStor</td>
+<td align="left">Dense or band mode storage of Jacobian</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Lower bandwidth in case of band storage</td>
+</tr>
+<tr>
+<td align="left">mu</td>
+<td align="left">Upper bandwidth in case of band storage</td>
+</tr>
+<tr>
+<td align="left">qNoRowScal</td>
+<td align="left">Decision parameter for automatic row scaling</td>
+</tr>
+<tr>
+<td align="left">qRank1</td>
+<td align="left">Decision parameter for Rank-1 updates</td>
+</tr>
+<tr>
+<td align="left">nonLin</td>
+<td align="left">Problem type specification</td>
+</tr>
+<tr>
+<td align="left">qBDamp</td>
+<td align="left">Decision parameter for bounded damping strategy</td>
+</tr>
+<tr>
+<td align="left">fcBand</td>
+<td align="left">Bounded damping strategy restriction factor</td>
+</tr>
+<tr>
+<td align="left">qOrdi</td>
+<td align="left">Decision parameter for ordinary Newton iteration</td>
+</tr>
+<tr>
+<td align="left">qSimpl</td>
+<td align="left">Decision parameter for simplified Newton iteration</td>
+</tr>
+<tr>
+<td align="left">nItmax</td>
+<td align="left">Maximum permitted Newton iterations</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L445-L473' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.printStats' href='#NewtonMethods.printStats'>#</a>
+<strong><code>NewtonMethods.printStats</code></strong> &mdash; <em>Function</em>.</p>
+<p>function printStats(stats::Dict{AbstractString,Any}, printIOmon)</p>
+<p>Print a summary of the statistics.</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">stats</td>
+<td align="left">Dictionary variable containing solver statistics</td>
+</tr>
+<tr>
+<td align="left">printIOmon</td>
+<td align="left">IO handle for printing</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L543-L554' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nScal' href='#NewtonMethods.nScal'>#</a>
+<strong><code>NewtonMethods.nScal</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nScal{T}(n::Int64, x::Vector{T}, xa::Vector{T}, xScal::Vector{T},     iScal::Int64, mPr::Int64, printIO, xw::Vector{T})</p>
+<p>To be used in connection with NLEQ1 and NLEQ2. Computation of the internal scaling vector XW used for the Jacobian matrix, the iterate vector and it's related vectors - especially for the solution of the linear system and the computations of norms to avoid numerical overflow.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Size of the problem</td>
+</tr>
+<tr>
+<td align="left">x</td>
+<td align="left">Current iterate</td>
+</tr>
+<tr>
+<td align="left">xa</td>
+<td align="left">Previous iterate</td>
+</tr>
+<tr>
+<td align="left">xScal</td>
+<td align="left">Scaling vector</td>
+</tr>
+<tr>
+<td align="left">iScal</td>
+<td align="left">Decision parameter for scaling</td>
+</tr>
+<tr>
+<td align="left">mPr</td>
+<td align="left">Decision parameter for printing</td>
+</tr>
+<tr>
+<td align="left">printIO</td>
+<td align="left">IO handle for printing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">xw</td>
+<td align="left">Scaling vector computed by this routine<br>All components must be positive.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L567-L597' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nScrf' href='#NewtonMethods.nScrf'>#</a>
+<strong><code>NewtonMethods.nScrf</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nScrf{T}(m::Int64, n::Int64, a::Array{T,2}, fw::Vector{T})</p>
+<p>Row scaling of a (m,n)-matrix in full storage mode</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">m</td>
+<td align="left">Number of rows of the matrix</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Numer of columns of the matrix</td>
+</tr>
+<tr>
+<td align="left">a[m,n]*</td>
+<td align="left">Matrix to be scaled</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fw</td>
+<td align="left">Row scaling factors.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L622-L644' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nScrb' href='#NewtonMethods.nScrb'>#</a>
+<strong><code>NewtonMethods.nScrb</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nScrb{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},     fw::Vector{T})</p>
+<p>Row scaling of a (n,n)-matrix in band storage mode</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of rows and columns of the matrix</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the matrix array</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Lower bandwidth of the matrix</td>
+</tr>
+<tr>
+<td align="left">mu</td>
+<td align="left">Upper bandwidth of the matrix</td>
+</tr>
+<tr>
+<td align="left">a[lda,n]*</td>
+<td align="left">Matrix to be scaled</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fw</td>
+<td align="left">Row scaling factors.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L684-L709' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nLvls' href='#NewtonMethods.nLvls'>#</a>
+<strong><code>NewtonMethods.nLvls</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nLvls{T}(n::Int64, dxq::Vector{T}, dx1::Vector{T},     xw::Vector{T}, f::Vector{T}, qdscal::Bool)</p>
+<p>Provides descaled solution, error norm and level functions To be used in connection with NLEQ1 and NLEQ2.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of parameters to be estimated</td>
+</tr>
+<tr>
+<td align="left">dx1</td>
+<td align="left">Scaled Newton correction</td>
+</tr>
+<tr>
+<td align="left">xw</td>
+<td align="left">Vector of scaling values</td>
+</tr>
+<tr>
+<td align="left">f</td>
+<td align="left">Residual vector</td>
+</tr>
+<tr>
+<td align="left">qdscal</td>
+<td align="left">true of descaling of dx1 required, else false</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">dxq</td>
+<td align="left">Leading dimension of the matrix array</td>
+</tr>
+<tr>
+<td align="left">conv</td>
+<td align="left">Scaled maximum norm of Newton correction</td>
+</tr>
+<tr>
+<td align="left">sumX</td>
+<td align="left">Scaled natural level function value</td>
+</tr>
+<tr>
+<td align="left">dLevF</td>
+<td align="left">Standard level function value</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L736-L764' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nPrv1' href='#NewtonMethods.nPrv1'>#</a>
+<strong><code>NewtonMethods.nPrv1</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,     newt::Int64, mPr::Int64, printIO, qMixIO::Bool)</p>
+<p>Printing of intermediate values (Type 1 routine)</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Parameters</strong></p>
+<hr />
+<p>For all the parameters check n1int</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L786-L797' class='documenter-source'>source</a><br></p>
+<p>function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64, newt::Int64,     iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::T)</p>
+<p>Printing of intermediate values (Type 1 routine)</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Parameters</strong></p>
+<p>For all the parameters check n2int</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L825-L836' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nPrv2' href='#NewtonMethods.nPrv2'>#</a>
+<strong><code>NewtonMethods.nPrv2</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nPrv2{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,     printIO, qMixIO::Bool, cmark::AbstractString)</p>
+<p>Printing of intermediate values (Type 2 routine)</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">dlevf</td>
+<td align="left">Standard level function value</td>
+</tr>
+<tr>
+<td align="left">dlevx</td>
+<td align="left">Standard level value</td>
+</tr>
+<tr>
+<td align="left">fc</td>
+<td align="left">Current damping factor</td>
+</tr>
+<tr>
+<td align="left">niter</td>
+<td align="left">Current number of Newton iterations</td>
+</tr>
+<tr>
+<td align="left">qMixIO</td>
+<td align="left">Decision parameter for printing</td>
+</tr>
+<tr>
+<td align="left">cmark</td>
+<td align="left">Marker character to be printed before dlevx</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L866-L884' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nSout' href='#NewtonMethods.nSout'>#</a>
+<strong><code>NewtonMethods.nSout</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nSout{T}(n::Int64, x::Vector{T}, mode::Int64, mPr::Int64, printIO,     nIter::Int64, dLevF::T, sumX::T)</p>
+<p>Printing of iterate (user customizable routine)</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Size of the problem</td>
+</tr>
+<tr>
+<td align="left">x</td>
+<td align="left">Iterate vector</td>
+</tr>
+<tr>
+<td align="left">mode = 1</td>
+<td align="left">This routine is called before the first Newton iteration step</td>
+</tr>
+<tr>
+<td align="left">= 2</td>
+<td align="left">This routine is called with an intermediate iterate x</td>
+</tr>
+<tr>
+<td align="left">= 3</td>
+<td align="left">This is the last call with the solution vector x</td>
+</tr>
+<tr>
+<td align="left">= 4</td>
+<td align="left">This is the last call with the final, but not solution vector x</td>
+</tr>
+<tr>
+<td align="left">mPr</td>
+<td align="left">Decision parameter for printing</td>
+</tr>
+<tr>
+<td align="left">printIO</td>
+<td align="left">IO handle for printing</td>
+</tr>
+<tr>
+<td align="left">nIter</td>
+<td align="left">Current number of Newton iterations</td>
+</tr>
+<tr>
+<td align="left">dLevF</td>
+<td align="left">Standard level function value</td>
+</tr>
+<tr>
+<td align="left">sumX</td>
+<td align="left">Scaled natural level function value</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L901-L924' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.wnorm' href='#NewtonMethods.wnorm'>#</a>
+<strong><code>NewtonMethods.wnorm</code></strong> &mdash; <em>Function</em>.</p>
+<p>function wnorm{T}(n::Int64, z::Vector{T}, xw::Vector{T})</p>
+<p>Return the norm to be used in exit (termination) criteria</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variables</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Size of the problem</td>
+</tr>
+<tr>
+<td align="left">z</td>
+<td align="left">The vector of which norm is to be computed</td>
+</tr>
+<tr>
+<td align="left">xw</td>
+<td align="left">Scaling value of z</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output</strong></p>
+<hr />
+<p>The mean square root norm of z subject to the scaling values in xw.</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Common.jl#L958-L976' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nJacFD' href='#NewtonMethods.nJacFD'>#</a>
+<strong><code>NewtonMethods.nJacFD</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nJacFD{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},     yscal::Vector{T}, ajdel::T, ajmin::T, nFcn::Int64,     a::Array{T,2})</p>
+<p>Evaluation of a dense Jacobian matrix using finite difference approximation adapted for use in nonlinear systems solver.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function of the form fcn(f, x) to provide right-hand side</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of rows and columns of the Jacobian</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the array "a"</td>
+</tr>
+<tr>
+<td align="left">x[n]</td>
+<td align="left">Current scaled vector</td>
+</tr>
+<tr>
+<td align="left">fx[n]</td>
+<td align="left">Vector containing fcn(x)</td>
+</tr>
+<tr>
+<td align="left">yscal[n]</td>
+<td align="left">Vector containing scaling factors</td>
+</tr>
+<tr>
+<td align="left">ajdel</td>
+<td align="left">Perturbation of component k: abs(y(k))*ajdel</td>
+</tr>
+<tr>
+<td align="left">ajmin</td>
+<td align="left">Minimum perturbation is ajmin*ajdel</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[lda,n]</td>
+<td align="left">Array containing the approximated Jacobian</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count adjusted</td>
+</tr>
+<tr>
+<td align="left">iFail</td>
+<td align="left">Return code non-zero if Jacobian could not be computed</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Jacobian.jl#L1-L34' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nJacFDb' href='#NewtonMethods.nJacFDb'>#</a>
+<strong><code>NewtonMethods.nJacFDb</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nJacFDb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},     fx::Vector{T}, yscal::Vector{T}, ajdel::T, ajmin::T,     nFcn::Int64, a::Array{T,2})</p>
+<p>Evaluation of a banded Jacobian matrix using finite difference approximation adapted for use in nonlinear systems solver</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function of the form fcn(f, x) to provide right-hand side</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of rows and columns of the Jacobian</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the array "a"</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Lower bandwidth of the Jacobian matrix</td>
+</tr>
+<tr>
+<td align="left">x[n]</td>
+<td align="left">Current scaled vector</td>
+</tr>
+<tr>
+<td align="left">fx[n]</td>
+<td align="left">Vector containing fcn(x)</td>
+</tr>
+<tr>
+<td align="left">yscal[n]</td>
+<td align="left">Vector containing scaling factors</td>
+</tr>
+<tr>
+<td align="left">ajdel</td>
+<td align="left">Perturbation of component k: abs(y(k))*ajdel</td>
+</tr>
+<tr>
+<td align="left">ajmin</td>
+<td align="left">Minimum perturbation is ajmin*ajdel</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[lda,n]</td>
+<td align="left">Array containing the approximated Jacobian</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count adjusted</td>
+</tr>
+<tr>
+<td align="left">iFail</td>
+<td align="left">Return code non-zero if Jacobian could not be computed</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Jacobian.jl#L66-L100' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nJcf' href='#NewtonMethods.nJcf'>#</a>
+<strong><code>NewtonMethods.nJcf</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nJcf{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},     yscal::Vector{T}, eta::Vector{T}, etamin::T, etamax::T,     etadif::T, conv::T, nFcn::Int64, a::Array{T,2})</p>
+<p>Approximation of dense Jacobian matrix for nonlinear systems solver with feed-back control of discretization and rounding errors</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function of the form fcn(f, x) to provide right-hand side</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of rows and columns of the Jacobian</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the array "a"</td>
+</tr>
+<tr>
+<td align="left">x[n]</td>
+<td align="left">Current scaled vector</td>
+</tr>
+<tr>
+<td align="left">fx[n]</td>
+<td align="left">Vector containing fcn(x)</td>
+</tr>
+<tr>
+<td align="left">yscal[n]</td>
+<td align="left">Vector containing scaling factors</td>
+</tr>
+<tr>
+<td align="left">eta[n]*</td>
+<td align="left">Vector of scaled denominator differences</td>
+</tr>
+<tr>
+<td align="left">etamin</td>
+<td align="left">Minimum allowed scaled denominator</td>
+</tr>
+<tr>
+<td align="left">etamax</td>
+<td align="left">Maximum allowed scaled denominator</td>
+</tr>
+<tr>
+<td align="left">etadif</td>
+<td align="left">= sqrt(1.1*epMach)</td>
+</tr>
+<tr>
+<td align="left">conv</td>
+<td align="left">Maximum norm of last (unrelaxed) Newton correction</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[lda,n]</td>
+<td align="left">Array containing the approximated Jacobian</td>
+</tr>
+<tr>
+<td align="left">eta[n]*</td>
+<td align="left">Vector of scaled denominator differences adjusted</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count adjusted</td>
+</tr>
+<tr>
+<td align="left">iFail</td>
+<td align="left">Return code non-zero if Jacobian could not be computed</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Jacobian.jl#L143-L180' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nJcfb' href='#NewtonMethods.nJcfb'>#</a>
+<strong><code>NewtonMethods.nJcfb</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nJcfb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},     fx::Vector{T}, yscal::Vector{T}, eta::Vector{T},     etamin::T, etamax::T, etadif::T, conv::T,     nFcn::Int64, a::Array{T,2})</p>
+<p>Approximation of banded Jacobian matrix for nonlinear systems solver with feed-back control of discretization and rounding errors</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function of the form fcn(f, x) to provide right-hand side</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of rows and columns of the Jacobian</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the array "a"</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Lower bandwidth of the Jacobian matrix</td>
+</tr>
+<tr>
+<td align="left">x[n]</td>
+<td align="left">Current scaled vector</td>
+</tr>
+<tr>
+<td align="left">fx[n]</td>
+<td align="left">Vector containing fcn(x)</td>
+</tr>
+<tr>
+<td align="left">yscal[n]</td>
+<td align="left">Vector containing scaling factors</td>
+</tr>
+<tr>
+<td align="left">eta[n]*</td>
+<td align="left">Vector of scaled denominator differences</td>
+</tr>
+<tr>
+<td align="left">etamin</td>
+<td align="left">Minimum allowed scaled denominator</td>
+</tr>
+<tr>
+<td align="left">etamax</td>
+<td align="left">Maximum allowed scaled denominator</td>
+</tr>
+<tr>
+<td align="left">etadif</td>
+<td align="left">= sqrt(1.1*epMach)</td>
+</tr>
+<tr>
+<td align="left">conv</td>
+<td align="left">Maximum norm of last (unrelaxed) Newton correction</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">a[lda,n]</td>
+<td align="left">Array containing the approximated Jacobian</td>
+</tr>
+<tr>
+<td align="left">eta[n]*</td>
+<td align="left">Vector of scaled denominator differences adjusted</td>
+</tr>
+<tr>
+<td align="left">nFcn*</td>
+<td align="left">fcn evaluation count adjusted</td>
+</tr>
+<tr>
+<td align="left">iFail</td>
+<td align="left">Return code non-zero if Jacobian could not be computed</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Jacobian.jl#L238-L277' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nFact' href='#NewtonMethods.nFact'>#</a>
+<strong><code>NewtonMethods.nFact</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nFact{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},     mStor::Int64, l::Array{T,2}, u::Array{T,2}, p::Vector{Int64})</p>
+<p>Call linear algebra subprogram for factorization of a (n,n)-matrix.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Order of the linear system</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the matrix a</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Lower bandwidth of the matrix (only for banded systems)</td>
+</tr>
+<tr>
+<td align="left">mu</td>
+<td align="left">Upper bandwidth of the matrix (only for banded systems)</td>
+</tr>
+<tr>
+<td align="left">a[lda,n]</td>
+<td align="left">Matrix to be factorized</td>
+</tr>
+<tr>
+<td align="left">mStor = 0</td>
+<td align="left">Full storage mode for matrix</td>
+</tr>
+<tr>
+<td align="left">mStor = 1</td>
+<td align="left">Band storage mode for matrix</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">iFail</td>
+<td align="left">Exit code in case of errors</td>
+</tr>
+<tr>
+<td align="left">= 0</td>
+<td align="left">Matrix decomposition successful</td>
+</tr>
+<tr>
+<td align="left">= 1</td>
+<td align="left">Decomposition failed - matrix numerically singular</td>
+</tr>
+<tr>
+<td align="left">l[lda,n]</td>
+<td align="left">Lower triangular part of decomposed matrix in case of full mode. The complete LU-decomposition in band mode</td>
+</tr>
+<tr>
+<td align="left">u[lda,n]</td>
+<td align="left">Upper triangular part of decomposed matrix in case of full mode. Unused in case of band mode.</td>
+</tr>
+<tr>
+<td align="left">p</td>
+<td align="left">Vector of pivot indices</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L614-L644' class='documenter-source'>source</a><br></p>
+<p>function nFact{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,     a::Array{T,2}, aInv::Array{T,2}, cond::T, iRank::Int64,     opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{T}, iRepeat::Int64, iRankC::Int64)</p>
+<p>Call linear algebra subprogram for factorization of a (n,n)-matrix with rank decision and casual computation of the rank deficient pseudo-inverse matrix.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Order of the linear system</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the matrix a</td>
+</tr>
+<tr>
+<td align="left">ldaInv</td>
+<td align="left">Leading dimension of the matrix aInv</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Lower bandwidth of the matrix (only for banded systems)</td>
+</tr>
+<tr>
+<td align="left">mu</td>
+<td align="left">Upper bandwidth of the matrix (only for banded systems)</td>
+</tr>
+<tr>
+<td align="left">a[lda,n]</td>
+<td align="left">Matrix to be factorized</td>
+</tr>
+<tr>
+<td align="left">cond*</td>
+<td align="left">Maximum permitted subcondition for the prescribed rank</td>
+</tr>
+<tr>
+<td align="left">opt</td>
+<td align="left">User prescribed options</td>
+</tr>
+<tr>
+<td align="left">iRankC, iRank, cond</td>
+<td align="left">Refer to input and output parameters of deccon</td>
+</tr>
+<tr>
+<td align="left">iRank*</td>
+<td align="left">Prescribed maximum pseudo-rank of matrix a</td>
+</tr>
+<tr>
+<td align="left">cond*</td>
+<td align="left">Permitted upper bound for the subcondition of leastsquares part of a</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">aInv[ldaInv,n]</td>
+<td align="left">If matrix a is rank deficient this array holds the pseudo-inverse of a</td>
+</tr>
+<tr>
+<td align="left">iFail = 0</td>
+<td align="left">Matrix decomposition successful</td>
+</tr>
+<tr>
+<td align="left">p</td>
+<td align="left">Vector of pivot indices</td>
+</tr>
+<tr>
+<td align="left">d</td>
+<td align="left">Refer to deccon</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L668-L703' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nSolv' href='#NewtonMethods.nSolv'>#</a>
+<strong><code>NewtonMethods.nSolv</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nSolv{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{T,2},     u::Array{T,2}, p::Vector{Int64}, b::Vector{T}, mStor::Int64)</p>
+<p>Call linear algebra subprogram for solution of the linear system a*z = b</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n, lda, ml, mu, l, u, p, b, mStor, iFail</td>
+<td align="left">Refer nFact</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L731-L744' class='documenter-source'>source</a><br></p>
+<p>function nSolv{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,     a::Array{T,2}, aInv::Array{T,2}, b::Vector{T},     z::Vector{T}, iRank::Int64, iRepeat::Int64, d::Vector{T},     pivot::Vector{Int64}, iRankC::Int64)</p>
+<p>Call linear algebra subprogram for solution of the linear system a*z = b. To be used with the factorization routine of a (n,n)-matrix with rank decision and casual computation of the rank deficient pseudo-inverse matrix.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">b[n]*</td>
+<td align="left">Right hand side of the linear system</td>
+</tr>
+<tr>
+<td align="left">n, lda, ldaInv, ml, mu, a, aInv, iRank, iRepeat, d, pivot, iRankC</td>
+<td align="left">Refer nFact</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">b[n]*</td>
+<td align="left">RHS transformed to the upper triangular part of the linear system</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L759-L786' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.AbstractOptionsNLEQ' href='#NewtonMethods.AbstractOptionsNLEQ'>#</a>
+<strong><code>NewtonMethods.AbstractOptionsNLEQ</code></strong> &mdash; <em>Type</em>.</p>
+<p>super-type for all types storing options for NLEQ solvers.</p>
+<p>NLEQ solvers often have serveral parameters for fine-tuning them. In this NLEQInterface this parameters are called 'options' and they are stored in key/value paris. For the key a <code>AbstractString</code> is used. The value can be <code>Any</code>-thing. The key is often called the option-name.</p>
+<p>All types for this purpose have this abstract type as super-type.</p>
+<p>Required fields are: <code>name</code>, <code>lastchanged</code>, <code>options</code></p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L5-L17' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.OptionsNLEQ' href='#NewtonMethods.OptionsNLEQ'>#</a>
+<strong><code>NewtonMethods.OptionsNLEQ</code></strong> &mdash; <em>Type</em>.</p>
+<p>Stores options for NLEQ Solver(s) together with a name. Additionally the time of the last change is saved.</p>
+<p>Options can be set at construction time, e.g.</p>
+<p>opt=OptionsNLEQ("test", "loglevel" =&gt; NLEQ.LOG_ALL, "logio"    =&gt; STDERR)</p>
+<p>or later. For changing single options</p>
+<p>oldValue = setOption!(opt,"myopt","new value") oldValue = setOption!(opt,"myopt" =&gt; "new value")</p>
+<p>and for changing many options at once:</p>
+<p>oldValues = setOption!(opt, "myopt" =&gt; "new value",     "oldopt" =&gt; 56)</p>
+<p>see also: <code>setOption!</code>, <code>setOptions!</code></p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L20-L41' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.getOption' href='#NewtonMethods.getOption'>#</a>
+<strong><code>NewtonMethods.getOption</code></strong> &mdash; <em>Function</em>.</p>
+<p>function getOption(opt::AbstractOptionsNLEQ, name::AbstractString,     default::Any=nothing)</p>
+<p>get saved value of option with given <code>name</code> or set option to <code>default</code> if option is unknown.</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L89-L95' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.getOption!' href='#NewtonMethods.getOption!'>#</a>
+<strong><code>NewtonMethods.getOption!</code></strong> &mdash; <em>Function</em>.</p>
+<p>function getOption!(opt::AbstractOptionsNLEQ, name::AbstractString,     default::Any=nothing)</p>
+<p>function to get value and set default value in case no value was present This avoids the recursive calls to setOption and getOption</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L101-L107' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.setOption!' href='#NewtonMethods.setOption!'>#</a>
+<strong><code>NewtonMethods.setOption!</code></strong> &mdash; <em>Function</em>.</p>
+<p>function setOption!(opt::AbstractOptionsNLEQ, name::AbstractString, value::Any)</p>
+<p>set NLEQ-Option with given <code>name</code> and return old value (or <code>nothing</code> if there was no old value).</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L118-L123' class='documenter-source'>source</a><br></p>
+<p>function setOption!(opt::AbstractOptionsNLEQ, pair::Pair)</p>
+<p>set NLEQ-Option with given (<code>name</code>,<code>value</code>) pair and return old value (or <code>nothing</code> if there was no old value).</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L131-L136' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.setOptions!' href='#NewtonMethods.setOptions!'>#</a>
+<strong><code>NewtonMethods.setOptions!</code></strong> &mdash; <em>Function</em>.</p>
+<p>function setOptions!(opt::AbstractOptionsNLEQ, pairs::Pair...)</p>
+<p>set many NLEQ-Options and return an array with the old option values.</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L141-L145' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.initOption!' href='#NewtonMethods.initOption!'>#</a>
+<strong><code>NewtonMethods.initOption!</code></strong> &mdash; <em>Function</em>.</p>
+<p>function initOption!(opt::AbstractOptionsNLEQ, name::AbstractString, value::Any)</p>
+<p>initialize NLEQ-Option with given <code>name</code> only if it does not exist already and return the old value if changed (or <code>nothing</code> if there was an old value).</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L154-L159' class='documenter-source'>source</a><br></p>
+<p>function initOption!(opt::AbstractOptionsNLEQ, pair::Pair)</p>
+<p>initialize NLEQ-Option with given (<code>name</code>,<code>value</code>) pair only if it does not exist already and return the old value if changed (or <code>nothing</code> if there was an old value).</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L164-L169' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.initOptions!' href='#NewtonMethods.initOptions!'>#</a>
+<strong><code>NewtonMethods.initOptions!</code></strong> &mdash; <em>Function</em>.</p>
+<p>function initOptions!(opt::AbstractOptionsNLEQ, pairs::Pair...)</p>
+<p>initialize many NLEQ-Options and return an array with the old option values if the options did not exist before</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L174-L178' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.copyOptions!' href='#NewtonMethods.copyOptions!'>#</a>
+<strong><code>NewtonMethods.copyOptions!</code></strong> &mdash; <em>Function</em>.</p>
+<p>function copyOptions!(dest::AbstractOptionsNLEQ, source::AbstractOptionsNLEQ)</p>
+<p>copy all options from other NLEQ-Option object.</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Options.jl#L187-L191' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.getMachineConstants' href='#NewtonMethods.getMachineConstants'>#</a>
+<strong><code>NewtonMethods.getMachineConstants</code></strong> &mdash; <em>Function</em>.</p>
+<p>function getMachineConstants(T::DataType)</p>
+<p>Get the machine constants depending on the DataType T.</p>
+<p>Supported DataTypes are Float64 and BigFloat.</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/Constants.jl#L92-L98' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.clearWorkspace' href='#NewtonMethods.clearWorkspace'>#</a>
+<strong><code>NewtonMethods.clearWorkspace</code></strong> &mdash; <em>Function</em>.</p>
+<p>function clearWorkspace(name::AbstractString)</p>
+<p>Function used to clear a workspace.</p>
+<p><strong>Input parameter</strong></p>
+<p><code>name</code> is the string which signifies which workspace is to be cleared.</p>
+<p>For clearing the workspace related to NLEQ1 the following three strings are valid: <code>NLEQ1</code>, <code>nleq1</code>, and <code>Nleq1</code>.</p>
+<p>For clearing the workspace related to NLEQ2 the following three strings are valid: <code>NLEQ2</code>, <code>nleq2</code>, and <code>Nleq2</code></p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/NewtonMethods.jl#L51-L64' class='documenter-source'>source</a><br></p>
+<p>function clearWorkspace()</p>
+<p>Function used to clear all workspaces.</p>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/NewtonMethods.jl#L77-L81' class='documenter-source'>source</a><br></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../options/" class="btn btn-neutral float-right" title="Solver Options"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../nleq2/" class="btn btn-neutral" title="NLEQ2"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../nleq2/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../../options/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

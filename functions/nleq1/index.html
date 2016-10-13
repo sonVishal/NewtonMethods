@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>NLEQ1 - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "NLEQ1";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+  <script src="../../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/nleq1/">NELQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../tutorial/nleq2/">NELQ2</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">NLEQ1</a>
+        
+            <ul>
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../nleq2/">NLEQ2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../common/">Common</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../options/">Solver Options</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../stats/">Solver Statistics</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../returnCodes/">Solver Return codes</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Functions &raquo;</li>
+        
+      
+    
+    <li>NLEQ1</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='NewtonMethods.dgbfa' href='#NewtonMethods.dgbfa'>#</a>
+<strong><code>NewtonMethods.dgbfa</code></strong> &mdash; <em>Function</em>.</p>
+<p><strong>Summary:</strong></p>
+<p>function dgbfa{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)</p>
+<p>This function is similar to the function gbtrf! provided in Base.LinAlg.LAPACK. Julia documentation mentions the following:</p>
+<p><em>Note that the LAPACK API provided by Julia can and will change in the future.</em> <em>Since this API is not user-facing, there is no commitment to support/deprecate</em> <em>this specific set of functions in future releases.</em></p>
+<p>Due to this reason dgbfa function has been written as per the one provided in the original version of these solvers at: <a href="http://elib.zib.de/pub/elib/codelib/NewtonLib/index.html">NewtonLib</a> based on LINPACK written for Matlab by Cleve Moler, University of New Mexico, Argonne National Lab.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">abd[lda,n]*</td>
+<td align="left">Contains the matrix in band storage. See the comments below.</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the matrix. lda &gt;= 2*ml + mu + 1</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Order of the original matrix</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Number of diagonals below the main diagonal. 0 &lt;= ml &lt; n</td>
+</tr>
+<tr>
+<td align="left">mu</td>
+<td align="left">Number of diagonals above the main diagonal. 0 &lt;= mu &lt; n</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">abd[lda,n]*</td>
+<td align="left">An upper triangular matrix in band storage and the multipliers which were used to obtain it. Factorization can be written as a = l*u where l is a product of permutation and unit lower triangular matrices and u is upper triangular.</td>
+</tr>
+<tr>
+<td align="left">ipvt</td>
+<td align="left">Vector containing the pivot indices</td>
+</tr>
+<tr>
+<td align="left">info = 0</td>
+<td align="left">Normal value</td>
+</tr>
+<tr>
+<td align="left">info = k</td>
+<td align="left">if u(k,k) = 0.0. This only indicates that dgbsl will divide by zero if called.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Band storage</strong></p>
+<p>If a is a band matrix, the following program segment will set up input matrix abd</p>
+<div class="codehilite"><pre>ml = (bandwidth below the diagonal)
+mu = (bandwidth above the diagonal)
+m = ml + mu + 1
+for j = 1:n
+    i1 = max(1,j-mu)
+    i2 = min(n,j+ml)
+    for i = i1:i2
+        k = i - j + m
+        abd[k,j] = a[i,j]
+    end
+end
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L1-L54' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.dgbsl' href='#NewtonMethods.dgbsl'>#</a>
+<strong><code>NewtonMethods.dgbsl</code></strong> &mdash; <em>Function</em>.</p>
+<p>function dgbsl{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,     ipvt::Vector{Int64}, b::Vector{T}, flag::Int64)</p>
+<p>Solves the double precision band system using the factors computed by dgbfa.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">abd[lda,n]</td>
+<td align="left">Matrix output from dgbfa</td>
+</tr>
+<tr>
+<td align="left">lda</td>
+<td align="left">Leading dimension of the matrix abd</td>
+</tr>
+<tr>
+<td align="left">n</td>
+<td align="left">Order of the original matrix</td>
+</tr>
+<tr>
+<td align="left">ml</td>
+<td align="left">Number of diagonals below the main diagonal</td>
+</tr>
+<tr>
+<td align="left">mu</td>
+<td align="left">Number of diagonals above the main diagonal</td>
+</tr>
+<tr>
+<td align="left">ipvt</td>
+<td align="left">Vector containing the pivot indices from dgbfa</td>
+</tr>
+<tr>
+<td align="left">b</td>
+<td align="left">Right hand side vector</td>
+</tr>
+<tr>
+<td align="left">info = 0</td>
+<td align="left">Solve a*x = b</td>
+</tr>
+<tr>
+<td align="left">info != 0</td>
+<td align="left">Solve trans(a)*x = b</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<hr />
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">x</td>
+<td align="left">Solution vector</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/SolverSpecific.jl#L125-L152' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.nleq1' href='#NewtonMethods.nleq1'>#</a>
+<strong><code>NewtonMethods.nleq1</code></strong> &mdash; <em>Function</em>.</p>
+<p>function nleq1{T}(fcn, x::Vector{T}, xScal::Vector{T}, opt::OptionsNLEQ)</p>
+<p>Damped Newton-algorithm for systems of highly nonlinear equations - damping strategy due to Ref. (1).</p>
+<p>(The iteration is done by function N1INT currently. NLEQ1 itself does some house keeping and builds up workspace.)</p>
+<p>Jacobian approximation by numerical differences, user supplied function JAC or forward mode automatic differentation.</p>
+<p>The numerical solution of the arising linear equations is done by means of Julia builtin lu-factorization routine in the dense or sparse matrix case; or by the functions DGBFA and DGBSL, which have been converted from the equal named Fortran LINPACK subroutines into Julia code, in the band matrix case. For special purposes these routines may be substituted.</p>
+<p>This is a driver routine for the core solver N1INT.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x).</td>
+</tr>
+<tr>
+<td align="left">x[1:n]</td>
+<td align="left">Initial estimate of the solution.</td>
+</tr>
+<tr>
+<td align="left">xScal[1:n]</td>
+<td align="left">User scaling (lower threshold) of the iteration vector x</td>
+</tr>
+<tr>
+<td align="left">opt</td>
+<td align="left">Options for solving the nonlinear system. Valid options are listed below.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">x0[1:n]</td>
+<td align="left">Solution values (or final values if exit before solution is reached).</td>
+</tr>
+<tr>
+<td align="left">stats</td>
+<td align="left">A dictionary variable of additional output values. The fields are discussed below.</td>
+</tr>
+<tr>
+<td align="left">retCode</td>
+<td align="left">An integer value signifying the exit code. The meaning of the exit codes are discussed below.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/NLEQ1.jl#L1-L38' class='documenter-source'>source</a><br></p>
+<p><a id='NewtonMethods.n1int' href='#NewtonMethods.n1int'>#</a>
+<strong><code>NewtonMethods.n1int</code></strong> &mdash; <em>Function</em>.</p>
+<p>function n1int{T}(n::Int64, fcn, x::Vector{T}, xScal::Vector{T},     rTol::T, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ,     m1::Int64, m2::Int64, nBroy::Int64, fc::T, fcMin::T,     sigma::T, sigma2::T, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,     mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)</p>
+<p>Core routine for NLEQ1.</p>
+<p>Damped Newton-algorithm for systems of highly nonlinear equations especially designed for numerically sensitive problems.</p>
+<p>T = Float64 or BigFloat</p>
+<p><strong>Input parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">n</td>
+<td align="left">Number of vector components</td>
+</tr>
+<tr>
+<td align="left">fcn</td>
+<td align="left">Function for which zero is to be found. Should be in the form of fcn(y,x) with y = f(x).</td>
+</tr>
+<tr>
+<td align="left">x[1:n]*</td>
+<td align="left">Initial estimate of the solution.</td>
+</tr>
+<tr>
+<td align="left">xScal[1:n]</td>
+<td align="left">User scaling (lower threshold) of the iteration vector x</td>
+</tr>
+<tr>
+<td align="left">rTol</td>
+<td align="left">Required relative precision of solution components</td>
+</tr>
+<tr>
+<td align="left">nItmax</td>
+<td align="left">Maximum number of allowed iterations</td>
+</tr>
+<tr>
+<td align="left">nonLin</td>
+<td align="left">Problem type specification. See OPT_NONLIN field in solver options</td>
+</tr>
+<tr>
+<td align="left">opt</td>
+<td align="left">Options for solving the nonlinear system. Valid options are listed below.</td>
+</tr>
+<tr>
+<td align="left">m1</td>
+<td align="left">Leading dimension of Jacobian array a</td>
+</tr>
+<tr>
+<td align="left">m2 = n</td>
+<td align="left">For full mode</td>
+</tr>
+<tr>
+<td align="left">= ml+mu+1</td>
+<td align="left">For band mode</td>
+</tr>
+<tr>
+<td align="left">nBroy</td>
+<td align="left">Maximum possible consecutive iterative Broyden steps.</td>
+</tr>
+<tr>
+<td align="left">fc</td>
+<td align="left">Current Newton iteration damping factor.</td>
+</tr>
+<tr>
+<td align="left">fcMin</td>
+<td align="left">Minimum permitted damping factor. fc &lt; fcMin results in either of the following</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">a. Recomputation of the Jacobian using difference approximation</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">b. Fail exit</td>
+</tr>
+<tr>
+<td align="left">sigma</td>
+<td align="left">Decision parameter for rank1-updates</td>
+</tr>
+<tr>
+<td align="left">sigma2</td>
+<td align="left">Decision parameter for damping factor increasing to corrector</td>
+</tr>
+<tr>
+<td align="left">mStor</td>
+<td align="left">Decision parameter for matrix storage. See option OPT_MSTOR in solver options.</td>
+</tr>
+<tr>
+<td align="left">mPrWarn</td>
+<td align="left">Decision parameter for printing warning messages</td>
+</tr>
+<tr>
+<td align="left">mPrMon</td>
+<td align="left">Decision parameter for printing iteration monitor</td>
+</tr>
+<tr>
+<td align="left">mPrSol</td>
+<td align="left">Decision parameter for printing solution</td>
+</tr>
+<tr>
+<td align="left">printIOwarn</td>
+<td align="left">IO handle for printing warning</td>
+</tr>
+<tr>
+<td align="left">printIOmon</td>
+<td align="left">IO handle for printing iteration monitor</td>
+</tr>
+<tr>
+<td align="left">printIOsol</td>
+<td align="left">IO handle for printing solution</td>
+</tr>
+<tr>
+<td align="left">qBDamp</td>
+<td align="left">Decision parameter for matrix storage. See option OPT_MSTOR in solver options.</td>
+</tr>
+</tbody>
+</table>
+<p>(* marks inout parameters)</p>
+<p><strong>Output parameters</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">x[1:n]*</td>
+<td align="left">Solution values (or final values if exit before solution is reached).</td>
+</tr>
+<tr>
+<td align="left">retCode</td>
+<td align="left">An integer value signifying the exit code. The meaning of the exit codes are discussed below.</td>
+</tr>
+</tbody>
+</table>
+<p><a target='_blank' href='https://github.com/sonVishal/NewtonMethods.jl/tree/8d23d20a576d9cbcfe26b35e8903511314a9cf49/src/NLEQ1.jl#L116-L168' class='documenter-source'>source</a><br></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../nleq2/" class="btn btn-neutral float-right" title="NLEQ2"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../tutorial/nleq2/" class="btn btn-neutral" title="NELQ2"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../../tutorial/nleq2/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../nleq2/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

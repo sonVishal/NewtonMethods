@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Solver Statistics - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Solver Statistics";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Tutorial</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/nleq1/">NELQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../tutorial/nleq2/">NELQ2</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq1/">NLEQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq2/">NLEQ2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/common/">Common</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../options/">Solver Options</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Solver Statistics</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#statistics">Statistics</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#statistics-stored-only-if-opt_store-1">Statistics stored only if OPT_STORE = 1</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../returnCodes/">Solver Return codes</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Solver Statistics</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='Statistics-1'></a></p>
+<h1 id="statistics">Statistics</h1>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">STATS_XSCAL</td>
+<td align="left">After return with retCode &gt;= 0, it contains the latest internal scaling vector used. After return with retCode == -1 in onestep mode it contains a possibly adapted (as described below) user scaling vector:</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">If (xScal[i] &lt;  small) xScal[i] = small <br>If (xScal[i] &gt;  great) xScal[i] = great</td>
+</tr>
+<tr>
+<td align="left">STATS_RTOL</td>
+<td align="left">Finally achieved (relative) accuracy. The estimated absolute error of component i of x_out is approximately given by abs_err[i] = rTol * xScal_out[i], where (approximately) xScal_out[i] = max(abs(x_out[i]),xScal_in[i]).</td>
+</tr>
+<tr>
+<td align="left">STATS_CONV</td>
+<td align="left">The achieved relative accuracy after the latest step</td>
+</tr>
+<tr>
+<td align="left">STATS_SUMX</td>
+<td align="left">Natural level (not Normx of printouts) of the latest iterate, i.e. sum(dx.^2), where dx = scaled Newton correction.</td>
+</tr>
+<tr>
+<td align="left">STATS_DLEVF</td>
+<td align="left">Standard level (not Normf of printouts) of the latest iterate, i.e. norm(f(x),2), where f =  nonlinear problem function.</td>
+</tr>
+<tr>
+<td align="left">STATS_SUBCOND</td>
+<td align="left">Subcondition of the linear system as estimated by the linear solver (only in case of nleq2)</td>
+</tr>
+<tr>
+<td align="left">STATS_SENS</td>
+<td align="left">Sensitivity of the linear system as estimated by the linear solver (only in case of nleq2)</td>
+</tr>
+<tr>
+<td align="left">STATS_NITER</td>
+<td align="left">Number of Newton-iterations</td>
+</tr>
+<tr>
+<td align="left">STATS_NCORR</td>
+<td align="left">Number of corrector steps</td>
+</tr>
+<tr>
+<td align="left">STATS_NFCN</td>
+<td align="left">Number of fcn-evaluations</td>
+</tr>
+<tr>
+<td align="left">STATS_NFCNJ</td>
+<td align="left">Number of fcn-evaluations for Jacobian approximation</td>
+</tr>
+<tr>
+<td align="left">STATS_NJAC</td>
+<td align="left">Number of Jacobian generations or jac-calls</td>
+</tr>
+<tr>
+<td align="left">STATS_NREJR1</td>
+<td align="left">Number of rejected Newton iteration steps done with a rank-1 approximated Jacobian</td>
+</tr>
+<tr>
+<td align="left">STATS_NEW</td>
+<td align="left">Count of consecutive rank-1 updates</td>
+</tr>
+<tr>
+<td align="left">STATS_ICONV</td>
+<td align="left">Current status of of the convergence monitor (only if convergence order monitor is on see OPT_IORMON)<br>=0: No convergence indicated yet<br>=1: Damping factor is 1.0<br>=2: Superlinear convergence in progress<br>=3: Quadratic convergence in progress</td>
+</tr>
+<tr>
+<td align="left">STATS_IFAIL</td>
+<td align="left">Failure code to be checked in case the return code is 80/81.</td>
+</tr>
+<tr>
+<td align="left">STATS_PRECISION</td>
+<td align="left">The sequence of acheived precisions over the iteration steps.</td>
+</tr>
+</tbody>
+</table>
+<p><a id='Statistics-stored-only-if-OPT_STORE-1-1'></a></p>
+<h1 id="statistics-stored-only-if-opt_store-1">Statistics stored only if OPT_STORE = 1</h1>
+<table>
+<thead>
+<tr>
+<th align="left">Name</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">STATS_XITER</td>
+<td align="left">An array holding all iterates of the Newton iteration run</td>
+</tr>
+<tr>
+<td align="left">STATS_NATLEVEL</td>
+<td align="left">The sequence of natural levels of the Newton corrections over the iteration steps</td>
+</tr>
+<tr>
+<td align="left">STATS_SIMLEVEL</td>
+<td align="left">The sequence of natural levels of the simplified Newton corrections over the iteration steps</td>
+</tr>
+<tr>
+<td align="left">STATS_STDLEVEL</td>
+<td align="left">The sequence of standard levels over the iteration steps</td>
+</tr>
+<tr>
+<td align="left">STATS_DAMPINGFC</td>
+<td align="left">The sequence of accepted damping factors over the iteration steps.</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../returnCodes/" class="btn btn-neutral float-right" title="Solver Return codes"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../options/" class="btn btn-neutral" title="Solver Options"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../options/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../returnCodes/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

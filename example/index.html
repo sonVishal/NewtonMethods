@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Example - NewtonMethods.jl</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../assets/Documenter.css" rel="stylesheet">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Example";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  <script src="../assets/mathjaxhelper.js"></script>
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> NewtonMethods.jl</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Example</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#example-for-nleq1-solver">Example for NLEQ1 solver</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Functions</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq1/">NLEQ1</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/nleq2/">NLEQ2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../functions/common/">Common</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../options/">Solver Options</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../stats/">Solver Statistics</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../returnCodes/">Solver Return codes</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../notes/">Important notes</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">NewtonMethods.jl</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Example</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        
+          <a href="https://github.com/sonVishal/NewtonMethods.jl" class="icon icon-github"> Edit on GitHub</a>
+        
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p><a id='Example-for-NLEQ1-solver-1'></a></p>
+<h1 id="example-for-nleq1-solver">Example for NLEQ1 solver</h1>
+<p>Please check the example folder for the *.jl file.</p>
+<div class="codehilite"><pre><span class="c"># Import the NewtonMethods package</span>
+<span class="k">using</span> <span class="n">NewtonMethods</span>
+
+<span class="c"># Include the Chebyshev polynomial function and Jacobian generating functions</span>
+<span class="n">include</span><span class="p">(</span><span class="s">&quot;ChebyPoly.jl&quot;</span><span class="p">)</span>
+
+<span class="c"># Open files for writing</span>
+<span class="n">fSol</span>  <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">&quot;nleq1.dat&quot;</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
+<span class="n">fRest</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">&quot;nleq1.out&quot;</span><span class="p">,</span><span class="s">&quot;w&quot;</span><span class="p">)</span>
+
+<span class="c"># We will solve Chebyshev polynomials of dimension 2 to 9</span>
+<span class="n">dimMax</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="k">for</span> <span class="n">dim</span> <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="n">dimMax</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="c"># Initialize the options</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">OptionsNLEQ</span><span class="p">(</span><span class="n">OPT_MODE</span>              <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="c"># Use stepwise mode</span>
+                      <span class="n">OPT_JACGEN</span>            <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="c"># Use Jacobian function provided</span>
+                      <span class="n">OPT_JACFCN</span>            <span class="o">=&gt;</span> <span class="n">chebyQuadJac</span><span class="p">,</span> <span class="c"># User defined Jacobian function</span>
+                      <span class="n">OPT_MSTOR</span>             <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="c"># Full storage mode</span>
+                      <span class="n">OPT_NOROWSCAL</span>         <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="c"># Inhibit automatic row scaling</span>
+                      <span class="n">OPT_PRINTWARNING</span>      <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="c"># Print all warnings</span>
+                      <span class="n">OPT_PRINTITERATION</span>    <span class="o">=&gt;</span> <span class="mi">3</span><span class="p">,</span> <span class="c"># Print intermediate iterations</span>
+                      <span class="n">OPT_PRINTSOLUTION</span>     <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="c"># Print solution</span>
+                      <span class="n">OPT_PRINTIOWARN</span>       <span class="o">=&gt;</span> <span class="n">fRest</span><span class="p">,</span> <span class="c"># Where to print warnings?</span>
+                      <span class="n">OPT_PRINTIOMON</span>        <span class="o">=&gt;</span> <span class="n">fRest</span><span class="p">,</span> <span class="c"># Where to print iterations?</span>
+                      <span class="n">OPT_PRINTIOSOL</span>        <span class="o">=&gt;</span> <span class="n">fSol</span><span class="p">,</span>  <span class="c"># Where to print solution?</span>
+                      <span class="n">OPT_NITMAX</span>            <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span> <span class="c"># Maximum number of iterations</span>
+                      <span class="n">OPT_RTOL</span>              <span class="o">=&gt;</span> <span class="mf">1e-5</span><span class="p">)</span> <span class="c"># Required tolerance</span>
+
+    <span class="n">x0</span>    <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">dim</span><span class="p">)</span><span class="o">./</span><span class="n">n1</span> <span class="c"># Initial guess</span>
+    <span class="n">xScal</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span> <span class="c"># Initial scaling vector</span>
+
+    <span class="n">retCode</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c"># Initialize return code to -1.</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="c"># Counter for iterations (optional)</span>
+
+    <span class="n">println</span><span class="p">(</span><span class="s">&quot;Calling the while loop for solving the Cheby Quad equation of dimension </span><span class="si">$</span><span class="s">dim&quot;</span><span class="p">)</span>
+    <span class="c"># If return code is again -1 then repeat.</span>
+    <span class="k">while</span> <span class="n">retCode</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c"># Perform one Newton iteration</span>
+        <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">retCode</span><span class="p">)</span> <span class="o">=</span> <span class="n">nleq1</span><span class="p">(</span><span class="n">chebyQuad</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">xScal</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span>
+        <span class="n">write</span><span class="p">(</span><span class="n">fRest</span><span class="p">,</span> <span class="p">@</span><span class="n">sprintf</span><span class="p">(</span><span class="s">&quot;Returned from call %4i of NLEQ1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">flush</span><span class="p">(</span><span class="n">fSol</span><span class="p">)</span>
+        <span class="n">flush</span><span class="p">(</span><span class="n">fRest</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">end</span>
+    <span class="c"># Print solution or final iterate</span>
+    <span class="n">println</span><span class="p">(</span><span class="s">&quot;Solution = </span><span class="si">$</span><span class="s">x0&quot;</span><span class="p">)</span>
+
+    <span class="n">println</span><span class="p">(</span><span class="s">&quot;DONE&quot;</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c"># Close the files that were opened for writing</span>
+<span class="n">close</span><span class="p">(</span><span class="n">fSol</span><span class="p">)</span>
+<span class="n">close</span><span class="p">(</span><span class="n">fRest</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Example for NLEQ2 is also included in the <code>examples</code> folder.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../functions/nleq1/" class="btn btn-neutral float-right" title="NLEQ1"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../functions/nleq1/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>

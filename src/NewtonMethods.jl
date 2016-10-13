@@ -39,10 +39,10 @@ export STATS_NITER, STATS_NCORR, STATS_NFCN, STATS_NFCNJ, STATS_NJAC, STATS_NREJ
     STATS_STDLEVEL, STATS_PRECISION, STATS_DAMPINGFC, STATS_NEW, STATS_ICONV,
     STATS_CONV, STATS_SUMX, STATS_DLEVF, STATS_SUBCOND, STATS_SENS, STATS_IFAIL
 # Include common files
-include("Common.jl")
-include("Constants.jl")
-include("Jacobian.jl")
 include("Options.jl")
+include("Constants.jl")
+include("Common.jl")
+include("Jacobian.jl")
 include("SolverSpecific.jl")
 
 global wkNLEQ1 = OptionsNLEQ()

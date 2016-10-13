@@ -109,3 +109,7 @@ NewtonMethods.copyOptions!
 ```@docs
 NewtonMethods.getMachineConstants
 ```
+
+```@docs
+NewtonMethods.clearWorkspace
+```

@@ -48,6 +48,20 @@ include("SolverSpecific.jl")
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()
 
+"""
+function clearWorkspace(name::AbstractString)
+
+Function used to clear a workspace.
+
+## Input parameter
+`name` is the string which signifies which workspace is to be cleared.
+
+For clearing the workspace related to NLEQ1 the following three strings are valid:
+`NLEQ1`, `nleq1`, and `Nleq1`.
+
+For clearing the workspace related to NLEQ2 the following three strings are valid:
+`NLEQ2`, `nleq2`, and `Nleq2`
+"""
 function clearWorkspace(name::AbstractString)
     if name == "NLEQ1" || name == "nleq1" || name == "Nleq1"
         empty!(wkNLEQ1.options)
@@ -60,7 +74,12 @@ function clearWorkspace(name::AbstractString)
     end
 end
 
-function clearAllWorkspaces()
+"""
+function clearWorkspace()
+
+Function used to clear all workspaces.
+"""
+function clearWorkspace()
     empty!(wkNLEQ1.options)
     empty!(wkNLEQ2.options)
 end

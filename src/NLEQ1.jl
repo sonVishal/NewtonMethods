@@ -34,7 +34,7 @@ This is a driver routine for the core solver N1INT.
 | stats    | A dictionary variable of additional output values. The fields are discussed below.            |
 | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 """
-function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ)
+function nleq1{T}(fcn, x::Vector{T}, xScal::Vector{T}, opt::OptionsNLEQ)
     # Begin
     # Check input parameters and options
     n = length(x)
@@ -60,7 +60,7 @@ function nleq1(fcn, x::Vector{Float64}, xScal::Vector{Float64}, opt::OptionsNLEQ
     printSol    = getOption!(opt,OPT_PRINTSOLUTION,0)
 #-------------------------------------------------------------------------------
 
-    (m1, m2, nBroy, qBDamp) = initializeOptions(n, opt, 1)
+    (m1, m2, nBroy, qBDamp) = initializeOptions(n, opt, 1, T)
 
     if nBroy == 0
         nBroy = 1
@@ -162,12 +162,13 @@ problems.
 | x[1:n]*  | Solution values (or final values if exit before solution is reached).                         |
 | retCode  | An integer value signifying the exit code. The meaning of the exit codes are discussed below. |
 """
-function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
-    rTol::Float64, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ,
-    m1::Int64, m2::Int64, nBroy::Int64, fc::Float64, fcMin::Float64,
-    sigma::Float64, sigma2::Float64, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,
+function n1int{T}(n::Int64, fcn, x::Vector{T}, xScal::Vector{T},
+    rTol::T, nItmax::Int64, nonLin::Int64, opt::OptionsNLEQ,
+    m1::Int64, m2::Int64, nBroy::Int64, fc::T, fcMin::T,
+    sigma::T, sigma2::T, mStor::Int64, mPrWarn::Int64, mPrMon::Int64,
     mPrSol::Int64, printIOwarn, printIOmon, printIOsol, qBDamp::Bool)
-
+    # Begin
+    (epMach, small, _) = getMachineConstants(T)
     # --------------------------------------------------------------------------
     # Since wkNLEQ1 is module global
     # Create the local variables here rather than taking them as arguments
@@ -214,19 +215,19 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     # 0.1 Variables that need to be defined before since they appear in different
     # scopes. The declaration and usage are in different scopes.
     retCode = -1
-    dLevFn  = 0.0
-    sumXa   = 0.0
-    conva   = 0.0
+    dLevFn  = zero(T)
+    sumXa   = zero(T)
+    conva   = zero(T)
     # --------------------------------------------------------------------------
     # 0.2 Persistent variables
-    cLin0   = getOption!(wkNLEQ1,"P_CLIN0",0.0)
-    cLin1   = getOption!(wkNLEQ1,"P_CLIN1",0.0)
-    cAlpha  = getOption!(wkNLEQ1,"P_CALPHA",0.0)
-    alphaE  = getOption!(wkNLEQ1,"P_ALPHAE",0.0)
-    alphaK  = getOption!(wkNLEQ1,"P_ALPHAK",0.0)
-    alphaA  = getOption!(wkNLEQ1,"P_ALPHAA",0.0)
+    cLin0   = getOption!(wkNLEQ1,"P_CLIN0",zero(T))
+    cLin1   = getOption!(wkNLEQ1,"P_CLIN1",zero(T))
+    cAlpha  = getOption!(wkNLEQ1,"P_CALPHA",zero(T))
+    alphaE  = getOption!(wkNLEQ1,"P_ALPHAE",zero(T))
+    alphaK  = getOption!(wkNLEQ1,"P_ALPHAK",zero(T))
+    alphaA  = getOption!(wkNLEQ1,"P_ALPHAA",zero(T))
     qMStop  = getOption!(wkNLEQ1,"P_QMSTOP",false)
-    sumxa2  = getOption!(wkNLEQ1,"P_SUMXA2",0.0)
+    sumxa2  = getOption!(wkNLEQ1,"P_SUMXA2",zero(T))
     l       = getOption!(wkNLEQ1,"P_L",zero(a))
     u       = getOption!(wkNLEQ1,"P_U",zero(a))
     p       = getOption!(wkNLEQ1,"P_P",zeros(Int64,n))
@@ -270,33 +271,33 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         fc = fcMin
     end
     if fc > 1.0
-        fc = 1.0
+        fc = one(T)
     end
     # --------------------------------------------------------------------------
     # 1.5 Initial preparations
     qJcRfr              = false
     qIter               = true
     iFail               = 0
-    fcBand              = 0.0
+    fcBand              = zero(T)
     if qBDamp
         fcBand = opt.options[OPT_FCBAND]
     end
     # --------------------------------------------------------------------------
     # 1.5.1 Numerical differentiation related initializations
     if jacGen == 2
-        aJdel = getOption!(opt, OPT_AJDEL, 0.0)
+        aJdel = getOption!(opt, OPT_AJDEL, zero(T))
         if aJdel <= small
             aJdel = sqrt(epMach*10.0)
         end
-        aJmin = getOption!(opt, OPT_AJMIN, 0.0)
+        aJmin = getOption!(opt, OPT_AJMIN, zero(T))
     elseif jacGen == 3
-        etaDif = getOption!(opt, OPT_ETADIF, 0.0)
+        etaDif = getOption!(opt, OPT_ETADIF, zero(T))
         if etaDif <= small
-            etaDif = 1.0e-6
+            etaDif = T(1.0e-6)
         end
-        etaIni = getOption!(opt, OPT_ETAINI, 0.0)
+        etaIni = getOption!(opt, OPT_ETAINI, zero(T))
         if etaIni <= small
-            etaIni = 1.0e-6
+            etaIni = T(1.0e-6)
         end
         epDiff = sqrt(epMach*10.0)
         etaMax = sqrt(epDiff)
@@ -317,14 +318,14 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
         nFcnJ  = 0
         nJac   = 0
         iConv  = 0
-        conv   = 0.0
+        conv   = zero(T)
 
         fcKeep  = fc
         fcA     = fc
         fcPri   = fc
         fcMon   = fc
-        sumxa0  = 0.0
-        sumxa1  = 0.0
+        sumxa0  = zero(T)
+        sumxa1  = zero(T)
 
         qGenJ   = true
         fcK2    = fc
@@ -352,13 +353,11 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             fcn(f,x)
         catch
             iFail = -1
-            retCode = 82
-            qIter   = false
         end
         nFcn += 1
-        if length(f) != n
-            retCode = 22
-            qIter   = false
+        if length(f) != n || iFail != 0
+            retCode = 82
+            qIter = false
         end
     end
     # --------------------------------------------------------------------------
@@ -553,7 +552,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     nScrb(n,m1,ml,mu,a,fw)
                 end
             else
-                fw[:] = 1.0
+                fw[:] = one(T)
             end
         end
         # ----------------------------------------------------------------------
@@ -634,8 +633,8 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     fcPri = min(0.5*dMyPri,1.0)
                 end
             else
-                fcPri = 1.0
-                dMyPri = -1.0
+                fcPri = one(T)
+                dMyPri = -one(T)
             end
 
             if mPrMon >= 5
@@ -685,7 +684,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             fcMon = min(fc,fcMon)
             if fcMon < 1.0
                 iConv  = 0
-                alphaE = 0.0
+                alphaE = zero(T)
             end
             if fcMon == 1.0 && iConv == 0
                 iConv = 1
@@ -696,7 +695,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
             end
             if iConv >= 1 && nIter >= 2
                 alphaK = alphaE
-                alphaE = 0.0
+                alphaE = zero(T)
                 if cLin1 <= 0.95
                     alphaE = log(cLin0)/log(cLin1)
                 end
@@ -705,7 +704,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                 end
                 alphaA = min(alphaK,alphaE)
                 cAlphaK = cAlpha
-                cAlpha = 0.0
+                cAlpha = zero(T)
                 if alphaE != 0.0
                     cAlpha = sumxa1/sumxa2^alphaE
                 end
@@ -786,7 +785,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     break
                 end
                 if iFail == 1
-                    fcRedu = 0.5
+                    fcRedu = 0.5*one(T)
                 else
                     fcRedu = f[1]
 
@@ -880,7 +879,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
                     if fcDnm != 0.0
                         dMyCor = fcA*fcA*0.5*sqrt(fcNumK/fcDnm)
                     else
-                        dMyCor = 1.0e+35
+                        dMyCor = T(1.0e+35)
                     end
                     if nonLin <= 3
                         fcCor = min(1.0,dMyCor)
@@ -1072,7 +1071,7 @@ function n1int(n::Int64, fcn, x::Vector{Float64}, xScal::Vector{Float64},
     # 9 Exits
     # --------------------------------------------------------------------------
     # 9.1 Solution exit
-    aprec = -1.0
+    aprec = -one(T)
 
     if retCode == 0 || retCode == 4
         if nonLin != 1

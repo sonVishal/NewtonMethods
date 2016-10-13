@@ -21,9 +21,10 @@ Checking of common input parameters and options.
 |----------|-----------------------------|
 | retCode  | Exit code in case of errors |
 """
-function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
+function checkOptions{T}(n::Int64, x::Vector{T}, xScal::Vector{T},
     opt::OptionsNLEQ)
     # Begin
+    (epMach, small, great) = getMachineConstants(T)
     # Check the IO
     pIOwarn = getOption!(opt, OPT_PRINTIOWARN, STDOUT)
     if typeof(pIOwarn) != IOStream && pIOwarn != STDOUT
@@ -67,7 +68,11 @@ function checkOptions(n::Int64, x::Vector{Float64}, xScal::Vector{Float64},
 
     # Checking and conditional adaptation of user given RTOL
     # if RTOL is not set, set it to 1e-6
-    rTol = getOption!(opt,OPT_RTOL,1e-6)
+    if T == Float64
+        rTol = getOption!(opt,OPT_RTOL,1e-6)
+    elseif T == BigFloat
+        rTol = getOption!(opt,OPT_RTOL,BigFloat(1e-6))
+    end
     if rTol <= 0.0
         retCode = 21
         write(pIOwarn,"ERROR: Nonpositive $OPT_RTOL supplied\n")
@@ -165,49 +170,49 @@ Initialization of options based on the solver input argument.
 (* marks inout parameters)
 """
 function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
-    m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64)
+    m1::Int64, nBroy::Int64, qRank1::Bool, solver::Int64, T::DataType)
     # Begin
     # Initialize options: OPT
-    initOption!(opt, OPT_FCMIN,     0.0)
-    initOption!(opt, OPT_SIGMA,     0.0)
-    initOption!(opt, OPT_SIGMA2,    0.0)
+    initOption!(opt, OPT_FCMIN,     zero(T))
+    initOption!(opt, OPT_SIGMA,     zero(T))
+    initOption!(opt, OPT_SIGMA2,    zero(T))
     initOption!(opt, OPT_NOROWSCAL, 0)
 
     # Initialize workspace: WK
     if solver == 1
-        initOption!(wk, WK_A, zeros(m1,n))
+        initOption!(wk, WK_A, zeros(T,m1,n))
         if qRank1
-            initOption!(wk, WK_DXSAVE, zeros(n,nBroy))
+            initOption!(wk, WK_DXSAVE, zeros(T,n,nBroy))
         else
-            initOption!(wk, WK_DXSAVE, 0.0)
+            initOption!(wk, WK_DXSAVE, zero(T))
         end
     elseif solver == 2
-        initOption!(wk, WK_QU, zeros(n))
-        initOption!(wk, WK_A, zeros(n,n))
+        initOption!(wk, WK_QU, zeros(T,n))
+        initOption!(wk, WK_A, zeros(T,n,n))
         if nBroy != 0
-            initOption!(wk, WK_QA_DXSAVE, zeros(n,n))
+            initOption!(wk, WK_QA_DXSAVE, zeros(T,n,n))
         end
     end
 
-    initOption!(wk, WK_DX  , zeros(n))
-    initOption!(wk, WK_DXQ , zeros(n))
-    initOption!(wk, WK_XA  , zeros(n))
-    initOption!(wk, WK_XWA , zeros(n))
-    initOption!(wk, WK_F   , zeros(n))
-    initOption!(wk, WK_FA  , zeros(n))
-    initOption!(wk, WK_ETA , zeros(n))
-    initOption!(wk, WK_XW  , zeros(n))
-    initOption!(wk, WK_FW  , zeros(n))
-    initOption!(wk, WK_DXQA, zeros(n))
+    initOption!(wk, WK_DX  , zeros(T,n))
+    initOption!(wk, WK_DXQ , zeros(T,n))
+    initOption!(wk, WK_XA  , zeros(T,n))
+    initOption!(wk, WK_XWA , zeros(T,n))
+    initOption!(wk, WK_F   , zeros(T,n))
+    initOption!(wk, WK_FA  , zeros(T,n))
+    initOption!(wk, WK_ETA , zeros(T,n))
+    initOption!(wk, WK_XW  , zeros(T,n))
+    initOption!(wk, WK_FW  , zeros(T,n))
+    initOption!(wk, WK_DXQA, zeros(T,n))
 
-    initOption!(wk, WK_SUMXA0, 0.0)
-    initOption!(wk, WK_SUMXA1, 0.0)
-    initOption!(wk, WK_FCMON,  0.0)
-    initOption!(wk, WK_FCA,    0.0)
-    initOption!(wk, WK_FCKEEP, 0.0)
-    initOption!(wk, WK_FCPRI,  0.0)
-    initOption!(wk, WK_DMYCOR, 0.0)
-    initOption!(wk, WK_SUMXS,  0.0)
+    initOption!(wk, WK_SUMXA0, zero(T))
+    initOption!(wk, WK_SUMXA1, zero(T))
+    initOption!(wk, WK_FCMON,  zero(T))
+    initOption!(wk, WK_FCA,    zero(T))
+    initOption!(wk, WK_FCKEEP, zero(T))
+    initOption!(wk, WK_FCPRI,  zero(T))
+    initOption!(wk, WK_DMYCOR, zero(T))
+    initOption!(wk, WK_SUMXS,  zero(T))
 
     initOption!(wk, STATS_NITER,  0)
     initOption!(wk, STATS_NCORR,  0)
@@ -217,20 +222,20 @@ function initializeOptions(opt::OptionsNLEQ, wk::OptionsNLEQ, n::Int64,
     initOption!(wk, STATS_NREJR1, 0)
     initOption!(wk, STATS_NEW,    0)
     initOption!(wk, STATS_ICONV,  0)
-    initOption!(wk, STATS_CONV,   0.0)
-    initOption!(wk, STATS_SUMX,   0.0)
-    initOption!(wk, STATS_DLEVF,  0.0)
-    initOption!(wk, STATS_RTOL,   0.0)
-    initOption!(wk, "P_TOLALL", Vector{Float64}())
+    initOption!(wk, STATS_CONV,   zero(T))
+    initOption!(wk, STATS_SUMX,   zero(T))
+    initOption!(wk, STATS_DLEVF,  zero(T))
+    initOption!(wk, STATS_RTOL,   zero(T))
+    initOption!(wk, "P_TOLALL", Vector{T}())
 
     # Check whether these iteration variables should be stored or not
     initOption!(opt, OPT_STORE, 0)
     if opt.options[OPT_STORE] == 1
-        initOption!(wk, "P_XITER", Vector{Vector{Float64}}())
-        initOption!(wk, "P_SUMXALL", Vector{Float64}())
-        initOption!(wk, "P_DLEVFALL", Vector{Float64}())
-        initOption!(wk, "P_SUMXQALL", Vector{Float64}())
-        initOption!(wk, "P_FCALL", Vector{Float64}())
+        initOption!(wk, "P_XITER", Vector{Vector{T}}())
+        initOption!(wk, "P_SUMXALL", Vector{T}())
+        initOption!(wk, "P_DLEVFALL", Vector{T}())
+        initOption!(wk, "P_SUMXQALL", Vector{T}())
+        initOption!(wk, "P_FCALL", Vector{T}())
     end
 
     return nothing
@@ -251,7 +256,9 @@ Initialization of options based on the solver input argument.
 
 (* marks inout parameters)
 """
-function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
+function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64, T::DataType)
+    # Begin
+    (epMach, _, _) = getMachineConstants(T)
     # First call or successive call
     qSucc   = Bool(getOption!(opt,OPT_QSUCC,0))
     qIniMon = (opt.options[OPT_PRINTITERATION] >= 1 && !qSucc)
@@ -298,10 +305,10 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
     if !qSucc
         if solver == 1
             empty!(wkNLEQ1.options)
-            initializeOptions(opt, wkNLEQ1, n, m1, nBroy, qRank1, 1)
+            initializeOptions(opt, wkNLEQ1, n, m1, nBroy, qRank1, 1, T)
         elseif solver == 2
             empty!(wkNLEQ2.options)
-            initializeOptions(opt, wkNLEQ2, n, m1, nBroy, qRank1, 2)
+            initializeOptions(opt, wkNLEQ2, n, m1, nBroy, qRank1, 2, T)
         end
     end
 
@@ -318,10 +325,10 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
     end
 
     # Initialize bounded damping strategy restriction factor
-    initOption!(opt, OPT_FCBAND, 0.0)
+    initOption!(opt, OPT_FCBAND, zero(T))
     if qBDamp
         if opt.options[OPT_FCBAND] < 1.0
-            setOption!(opt, OPT_FCBAND, 10.0)
+            setOption!(opt, OPT_FCBAND, 10.0*one(T))
         end
     end
 
@@ -345,29 +352,29 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
     end
 
     # Initial damping factor for highly nonlinear problems
-    initOption!(opt, OPT_FCSTART, 0.0)
+    initOption!(opt, OPT_FCSTART, zero(T))
     qFcStart = opt.options[OPT_FCSTART] > 0.0
     if !qFcStart
-        setOption!(opt, OPT_FCSTART, 1.0e-2)
+        setOption!(opt, OPT_FCSTART, T(1.0e-2))
         if nonLin == 4
-            setOption!(opt, OPT_FCSTART, 1.0e-4)
+            setOption!(opt, OPT_FCSTART, T(1.0e-4))
         end
     end
 
     # Minimal permitted damping factor
-    initOption!(opt,OPT_FCMIN,0.0)
+    initOption!(opt,OPT_FCMIN,zero(T))
     if opt.options[OPT_FCMIN] <= 0.0
-        setOption!(opt, OPT_FCMIN, 1.0e-4)
+        setOption!(opt, OPT_FCMIN, T(1.0e-4))
         if nonLin == 4
-            setOption!(opt, OPT_FCMIN, 1.0e-8)
+            setOption!(opt, OPT_FCMIN, T(1.0e-8))
         end
     end
-    fcMin = getOption(opt,OPT_FCMIN,0.0)
+    fcMin = opt.options[OPT_FCMIN]
 
     # Rank1 decision parameter SIGMA
-    initOption!(opt,OPT_SIGMA,0.0)
+    initOption!(opt,OPT_SIGMA,zero(T))
     if opt.options[OPT_SIGMA] < 1.0
-        setOption!(opt, OPT_SIGMA, 3.0)
+        setOption!(opt, OPT_SIGMA, 3.0*one(T))
     end
     if !qRank1
         setOption!(opt, OPT_SIGMA, 10.0/fcMin)
@@ -375,7 +382,7 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
 
     # Decision parameter about increasing too small predictor
     # to greater corrector value
-    initOption!(opt,OPT_SIGMA2,0.0)
+    initOption!(opt,OPT_SIGMA2,zero(T))
     if opt.options[OPT_SIGMA2] < 1.0
         setOption!(opt, OPT_SIGMA2, 10.0/fcMin)
     end
@@ -383,10 +390,10 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
     # Starting value of damping factor (fcMin <= fc <= 1.0)
     if nonLin <= 2 && !qFcStart
         # for linear or mildly nonlinear problems
-        fc = 1.0
+        fc = one(T)
     else
         # for highly or extremely nonlinear problems
-        fc = getOption(opt, OPT_FCSTART, 0.0)
+        fc = getOption(opt, OPT_FCSTART, zero(T))
     end
 
     # Simplified Newton iteration implies ordinary Newton iteration mode
@@ -396,7 +403,7 @@ function initializeOptions(n::Int64, opt::OptionsNLEQ, solver::Int64)
 
     # If ordinary Newton iteration, damping factor is always 1
     if opt.options[OPT_QORDI] == 1
-        fc = 1.0
+        fc = one(T)
     end
 
     # Set starting damping factor
@@ -459,9 +466,9 @@ Print a summary of the initialization.
 | qSimpl     | Decision parameter for simplified Newton iteration |
 | nItmax     | Maximum permitted Newton iterations                |
 """
-function printInitialization(n::Int64, printIOmon, rTol::Float64, jacGen::Int64,
+function printInitialization{T}(n::Int64, printIOmon, rTol::T, jacGen::Int64,
     mStor::Int64, ml::Int64, mu::Int64, qNoRowScal::Int64, qRank1::Bool, nonLin::Int64,
-    qBDamp::Bool, fcBand::Float64, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
+    qBDamp::Bool, fcBand::T, qOrdi::Bool, qSimpl::Bool, nItmax::Int64)
     # Begin
     message = ""
     write(printIOmon,"\nINFO: ","N = $n\n")
@@ -581,9 +588,10 @@ and the computations of norms to avoid numerical overflow.
 | xw        | Scaling vector computed by this routine<br>All components must be positive.|
 
 """
-function nScal(n::Int64, x::Vector{Float64}, xa::Vector{Float64}, xScal::Vector{Float64},
-    iScal::Int64, mPr::Int64, printIO, xw::Vector{Float64})
+function nScal{T}(n::Int64, x::Vector{T}, xa::Vector{T}, xScal::Vector{T},
+    iScal::Int64, mPr::Int64, printIO, xw::Vector{T})
     # Begin
+    (_, small, _) = getMachineConstants(T)
     if iScal == 1
         xw[:] = xScal
     else
@@ -625,7 +633,7 @@ Row scaling of a (m,n)-matrix in full storage mode
 |-----------|--------------------------------|
 | fw        | Row scaling factors.           |
 """
-function nScrf(m::Int64, n::Int64, a::Array{Float64,2}, fw::Vector{Float64})
+function nScrf{T}(m::Int64, n::Int64, a::Array{T,2}, fw::Vector{T})
     # Begin
     if issparse(a)
         nza = nnz(a)
@@ -688,13 +696,13 @@ Row scaling of a (n,n)-matrix in band storage mode
 |-----------|------------------------------------------|
 | fw        | Row scaling factors.                     |
 """
-function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
-    fw::Vector{Float64})
+function nScrb{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
+    fw::Vector{T})
     # Begin
     aout = zeros(a)
     m2 = ml + mu + 1
     for k = 1:n
-        s1 = 0.0
+        s1 = zero(T)
         l2 = max(1,k-ml)
         l3 = min(n,k+mu)
         k1 = m2 + k
@@ -708,7 +716,7 @@ function nScrb(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
                 aout[k1-l1,l1] = a[k1-l1,l1]*s1
             end
         else
-            fw[k] = 1.0
+            fw[k] = one(T)
         end
     end
     a[:,:] = aout
@@ -741,8 +749,8 @@ To be used in connection with NLEQ1 and NLEQ2.
 | dLevF     | Standard level function value            |
 
 """
-function nLvls(n::Int64, dxq::Vector{Float64}, dx1::Vector{Float64},
-    xw::Vector{Float64}, f::Vector{Float64}, qdscal::Bool)
+function nLvls{T}(n::Int64, dxq::Vector{T}, dx1::Vector{T},
+    xw::Vector{T}, f::Vector{T}, qdscal::Bool)
     # Begin
     if qdscal
         # ----------------------------------------------------------------------
@@ -772,7 +780,7 @@ Printing of intermediate values (Type 1 routine)
 -------------
 For all the parameters check n1int
 """
-function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,
     newt::Int64, mPr::Int64, printIO, qMixIO::Bool)
     # Begin
     if qMixIO
@@ -809,8 +817,8 @@ Parameters
 -------------
 For all the parameters check n2int
 """
-function nPrv1(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64, newt::Int64,
-    iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::Float64)
+function nPrv1{T}(dlevf::T, dlevx::T, fc::T, niter::Int64, newt::Int64,
+    iRank::Int64, mPr::Int64, printIO, qMixIO::Bool, cond1::T)
     # Begin
     if qMixIO
         write(printIO,"  ******************************************************************",
@@ -855,7 +863,7 @@ Printing of intermediate values (Type 2 routine)
 | qMixIO    | Decision parameter for printing             |
 | cmark     | Marker character to be printed before dlevx |
 """
-function nPrv2(dlevf::Float64, dlevx::Float64, fc::Float64, niter::Int64,
+function nPrv2{T}(dlevf::T, dlevx::T, fc::T, niter::Int64,
     printIO, qMixIO::Bool, cmark::AbstractString)
     if qMixIO
         write(printIO,"  ******************************************************************",
@@ -893,8 +901,8 @@ Printing of iterate (user customizable routine)
 | dLevF     | Standard level function value                                   |
 | sumX      | Scaled natural level function value                             |
 """
-function nSout(n::Int64, x::Vector{Float64}, mode::Int64, mPr::Int64, printIO,
-    nIter::Int64, dLevF::Float64, sumX::Float64)
+function nSout{T}(n::Int64, x::Vector{T}, mode::Int64, mPr::Int64, printIO,
+    nIter::Int64, dLevF::T, sumX::T)
     # Begin
     if mode == 1
         write(printIO,@sprintf("\n%s\n%s%5i\n\n%s\n","  Start data:","  N =",n,
@@ -943,7 +951,7 @@ Return the norm to be used in exit (termination) criteria
 ---------
 The mean square root norm of z subject to the scaling values in xw.
 """
-function wnorm(n::Int64, z::Vector{Float64}, xw::Vector{Float64})
+function wnorm{T}(n::Int64, z::Vector{T}, xw::Vector{T})
     # Begin
     return sqrt(sum((z./xw).^2)/n)
 end

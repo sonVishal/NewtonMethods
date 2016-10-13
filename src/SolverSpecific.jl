@@ -50,7 +50,7 @@ for j = 1:n
 end
 ```
 """
-function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
+function dgbfa{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64)
     # Begin
     # Copy the matrix so that it remains unchanged at exit
     ipvt = zeros(Int64,n)
@@ -63,7 +63,7 @@ function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
     if j1 >= j0
         for jz = j0:j1
             i0 = m + 1 - jz
-            a[i0:ml,jz] = zeros(ml-i0+1,1)
+            a[i0:ml,jz:jz] = zeros(T,ml-i0+1,1)
         end
     end
     jz = j1
@@ -76,11 +76,11 @@ function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
             # zero next fill-in column
             jz += 1
             if jz <= n && ml >= 1
-                a[1:ml,jz] = zeros(ml)
+                a[1:ml,jz:jz] = zeros(T,ml)
             end
             # find l = pivot index
             lm = min(ml,n-k)
-            l = maxabs(a[m:m+lm,k]) + m - 1
+            l = maxabs(a[m:m+lm,k:k]) + m - 1
             ipvt[k] = l + k - m
             # zero pivot implies this column already triangularized
             if a[l,k] != 0.0
@@ -92,7 +92,7 @@ function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
                 end
                 # compute multipliers
                 t = -1.0/a[m,k]
-                a[m+1:m+lm,k] *= t
+                a[m+1:m+lm,k:k] *= t
                 # row elimintaion with column indexing
                 ju = min(max(ju,mu+ipvt[k]),n)
                 mm = m
@@ -105,7 +105,7 @@ function dgbfa(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
                             a[l,j] = a[mm,j]
                             a[mm,j] = t
                         end
-                        a[mm+1:mm+lm,j] += t*a[m+1:m+lm,k]
+                        a[mm+1:mm+lm,j:j] += t*a[m+1:m+lm,k:k]
                     end
                 end
             else
@@ -146,8 +146,8 @@ Solves the double precision band system using the factors computed by dgbfa.
 |-------------|--------------------------------------------------------------|
 | x           | Solution vector                                              |
 """
-function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
-    ipvt::Vector{Int64}, b::Vector{Float64}, flag::Int64)
+function dgbsl{T}(abd::Array{T,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64,
+    ipvt::Vector{Int64}, b::Vector{T}, flag::Int64)
     # Begin
     x = b[:]
     m = mu + ml + 1
@@ -230,14 +230,14 @@ Provides the projection to the appropriate subspace in case
 |----------|-----------------------------|
 | del      | Defect                      |
 """
-function n2prjn(n::Int64, iRank::Int64, u::Vector{Float64}, d::Vector{Float64},
-    qe::Array{Float64,2}, p::Vector{Int64}, v::Vector{Float64})
+function n2prjn{T}(n::Int64, iRank::Int64, u::Vector{T}, d::Vector{T},
+    qe::Array{T,2}, p::Vector{Int64}, v::Vector{T})
     # Begin
     v[:] = u[p]
     iRk1 = iRank + 1
     del = 0.0
     for i = iRk1:n
-        sh = sum(qe[1:i-1,i].*v[1:i-1])
+        sh = sum(qe[1:i-1,i:i].*v[1:i-1])
         s = (v[i] - sh)/d[i]
         del += s*s
         v[i] = s
@@ -285,9 +285,9 @@ in case of rank-defeciency. First mcon rows belong to equality constraints.
 | iFail = 0     | deccon computation was successful                             |
 | iFail = -2    | Numerically negative diagonal element encountered during computation of pseudo-inverse due to extremely bad conditioned matrix a. deccon is unable to continue rank-reduction |
 """
-function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
-    m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::Float64,
-    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
+function deccon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64,
+    m::Int64, n::Int64, iRankC::Int64, iRank::Int64, cond::T,
+    d::Vector{T}, pivot::Vector{Int64}, kRed::Int64, ah::Array{T,2})
     # Begin
     # --------------------------------------------------------------------------
     # 1 Initialization
@@ -296,10 +296,10 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
     dd    = 1
     jj    = 1
     i1    = 1
-    hMax  = 0.0
+    hMax  = zero(T)
     iFail = 0
-    v     = zeros(n)
-    t     = 0.0
+    v     = zeros(T,n)
+    t     = zero(T)
 
     if iRank > n
         iRank = n
@@ -312,7 +312,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
     if m == 1 && n == 1
         pivot[1] = 1
         d[1] = a[1,1]
-        cond = 1.0
+        cond = one(T)
         return (iRankC, iRank, cond, cond, iFail)
     end
     if kRed >= 0
@@ -489,7 +489,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
             sh = abs(d[1]/sh)
         end
     else
-        sh = 0.0
+        sh = zero(T)
     end
     v[1] = sh
     if k == iRank
@@ -498,7 +498,7 @@ function deccon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64,
     if iRankC+1 <= iRank && t != 0.0
         s = abs(d[iRankC+1]/t)
     else
-        s = 0.0
+        s = zero(T)
     end
     cond = s
     iFail = 0
@@ -529,12 +529,12 @@ comprise mcon equality constraints. To be used in connection with subroutine dec
 | x[n]     | Best LSQ-solution of linear system |
 | b[m]*    | Right-hand side of upper triangular system (transformed right-hand side of linear system) |
 """
-function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
-    n::Int64, x::Vector{Float64}, b::Vector{Float64}, iRankC::Int64, iRank::Int64,
-    d::Vector{Float64}, pivot::Vector{Int64}, kRed::Int64, ah::Array{Float64,2})
+function solcon{T}(a::Array{T,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::Int64,
+    n::Int64, x::Vector{T}, b::Vector{T}, iRankC::Int64, iRank::Int64,
+    d::Vector{T}, pivot::Vector{Int64}, kRed::Int64, ah::Array{T,2})
     # Begin
-    v = zeros(n)
-    s = 0.0
+    v = zeros(T,n)
+    s = zero(T)
     # --------------------------------------------------------------------------
     # 1 Solution for pseudo-rank zero
     if iRank == 0
@@ -583,7 +583,7 @@ function solcon(a::Array{Float64,2}, nRow::Int64, nCol::Int64, mCon::Int64, m::I
         j1 = 1
         for jj = 1:n
             j = n-jj+1
-            s = 0.0
+            s = zero(T)
             if jj != 1
                 s = sum(ah[j:j,j1:n]'.*v[j1:n])
             end
@@ -630,8 +630,8 @@ Call linear algebra subprogram for factorization of a (n,n)-matrix.
 | u[lda,n] | Upper triangular part of decomposed matrix in case of full mode. Unused in case of band mode. |
 | p        | Vector of pivot indices                            |
 """
-function nFact(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{Float64,2},
-    mStor::Int64, l::Array{Float64,2}, u::Array{Float64,2}, p::Vector{Int64})
+function nFact{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, a::Array{T,2},
+    mStor::Int64, l::Array{T,2}, u::Array{T,2}, p::Vector{Int64})
     # Begin
     iFail = 0
     if mStor == 0
@@ -687,9 +687,9 @@ pseudo-inverse matrix.
 | p              | Vector of pivot indices                            |
 | d              | Refer to deccon                                    |
 """
-function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
-    a::Array{Float64,2}, aInv::Array{Float64,2}, cond::Float64, iRank::Int64,
-    opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{Float64}, iRepeat::Int64, iRankC::Int64)
+function nFact{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{T,2}, aInv::Array{T,2}, cond::T, iRank::Int64,
+    opt::OptionsNLEQ, p::Vector{Int64}, d::Vector{T}, iRepeat::Int64, iRankC::Int64)
     # Begin
     mPrWarn = opt.options[OPT_PRINTWARNING]
     printIO = opt.options[OPT_PRINTIOWARN]
@@ -708,8 +708,8 @@ function nFact(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
         cond = abs(d[1]/d[iRank])
         setOption!(wkNLEQ2, WK_SENS1, abs(d[1]))
     else
-        cond = 1.0
-        setOption!(wkNLEQ2, WK_SENS1, 0.0)
+        cond = one(T)
+        setOption!(wkNLEQ2, WK_SENS1, zero(T))
     end
     return (cond, iRankC, iFail)
 end
@@ -726,8 +726,8 @@ Call linear algebra subprogram for solution of the linear system a*z = b
 |----------|-------------------------|
 | n, lda, ml, mu, l, u, p, b, mStor, iFail | Refer nFact |
 """
-function nSolv(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{Float64,2},
-    u::Array{Float64,2}, p::Vector{Int64}, b::Vector{Float64}, mStor::Int64)
+function nSolv{T}(n::Int64, lda::Int64, ml::Int64, mu::Int64, l::Array{T,2},
+    u::Array{T,2}, p::Vector{Int64}, b::Vector{T}, mStor::Int64)
     # Begin
     if mStor == 0
         b[:] = b[p]
@@ -763,9 +763,9 @@ Checking of common input parameters and options.
 |----------|-------------------------------------------------------------------|
 | b[n]*    | RHS transformed to the upper triangular part of the linear system |
 """
-function nSolv(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
-    a::Array{Float64,2}, aInv::Array{Float64,2}, b::Vector{Float64},
-    z::Vector{Float64}, iRank::Int64, iRepeat::Int64, d::Vector{Float64},
+function nSolv{T}(n::Int64, lda::Int64, ldaInv::Int64, ml::Int64, mu::Int64,
+    a::Array{T,2}, aInv::Array{T,2}, b::Vector{T},
+    z::Vector{T}, iRank::Int64, iRepeat::Int64, d::Vector{T},
     pivot::Vector{Int64}, iRankC::Int64)
     # Begin
     mCon = 0

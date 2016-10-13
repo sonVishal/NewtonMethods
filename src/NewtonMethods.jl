@@ -45,11 +45,6 @@ include("Constants.jl")
 include("SolverSpecific.jl")
 include("Common.jl")
 
-# Machine Constants
-global epMach = 1e-17
-global small  = 1e-150
-global great  = 1.0/small
-
 global wkNLEQ1 = OptionsNLEQ()
 global wkNLEQ2 = OptionsNLEQ()
 

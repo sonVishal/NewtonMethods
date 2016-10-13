@@ -30,9 +30,9 @@ adapted for use in nonlinear systems solver.
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJacFD(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
-    yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64, nFcn::Int64,
-    a::Array{Float64,2})
+function nJacFD{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},
+    yscal::Vector{T}, ajdel::T, ajmin::T, nFcn::Int64,
+    a::Array{T,2})
     # Begin
     # Copy for internal purposes
     xa = x[:]
@@ -94,9 +94,9 @@ adapted for use in nonlinear systems solver
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJacFDb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
-    fx::Vector{Float64}, yscal::Vector{Float64}, ajdel::Float64, ajmin::Float64,
-    nFcn::Int64, a::Array{Float64,2})
+function nJacFDb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},
+    fx::Vector{T}, yscal::Vector{T}, ajdel::T, ajmin::T,
+    nFcn::Int64, a::Array{T,2})
     # Begin
     # Copy for internal purposes
     xa = x[:]
@@ -172,9 +172,9 @@ feed-back control of discretization and rounding errors
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJcf(fcn, n::Int64, lda::Int64, x::Vector{Float64}, fx::Vector{Float64},
-    yscal::Vector{Float64}, eta::Vector{Float64}, etamin::Float64, etamax::Float64,
-    etadif::Float64, conv::Float64, nFcn::Int64, a::Array{Float64,2})
+function nJcf{T}(fcn, n::Int64, lda::Int64, x::Vector{T}, fx::Vector{T},
+    yscal::Vector{T}, eta::Vector{T}, etamin::T, etamax::T,
+    etadif::T, conv::T, nFcn::Int64, a::Array{T,2})
     # Constant
     small2 = 0.1
     # Copy for internal purposes
@@ -267,10 +267,10 @@ feed-back control of discretization and rounding errors
 | nFcn*    | fcn evaluation count adjusted                                   |
 | iFail    | Return code non-zero if Jacobian could not be computed          |
 """
-function nJcfb(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{Float64},
-    fx::Vector{Float64}, yscal::Vector{Float64}, eta::Vector{Float64},
-    etamin::Float64, etamax::Float64, etadif::Float64, conv::Float64,
-    nFcn::Int64, a::Array{Float64,2})
+function nJcfb{T}(fcn, n::Int64, lda::Int64, ml::Int64, x::Vector{T},
+    fx::Vector{T}, yscal::Vector{T}, eta::Vector{T},
+    etamin::T, etamax::T, etadif::T, conv::T,
+    nFcn::Int64, a::Array{T,2})
     # Constants
     small2 = 0.1
     # Copy for internal purposes

@@ -89,28 +89,15 @@ const WK_DMYCOR                 = "dmycor"
 const WK_SUMXS                  = "sumxs"
 const WK_SENS1                  = "sens1"
 
-function getMachineConstants(i)
-# 1 = realmin
-# 2 = realmax
-# 3 = eps
-# 4 = 2.0*eps
-# 5 = log10(2.0)
-# 6 = sqrt(realmin/eps)
-    if i < 1 || i > 6
-        error("getMachineConstants - i out of bounds");
+function getMachineConstants(T::DataType)
+    if T != Float64 && T != DataType
+        println("ERROR: Wrong DataType provided. You provided $T, expected Float64 or BigFloat.")
+        error("getMachineConstants - wrong DataType provided");
     end
 
-    if i == 1
-        return realmin(Float64);
-    elseif i == 2
-        return realmax(Float64);
-    elseif i == 3
-        return eps(Float64);
-    elseif i == 4
-        return 2.0*eps(Float64);
-    elseif i == 5
-        return log10(2.0);
-    elseif i == 6
-        return sqrt(realmin(Float64)/eps(Float64));
-    end
+    epMach = eps(T)
+    small  = sqrt(realmin(T)/eps(T))
+    great  = sqrt(realmax(T)/10.0)
+
+    return (epMach, small, great)
 end

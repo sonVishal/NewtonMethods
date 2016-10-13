@@ -164,7 +164,7 @@ function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
                     x[l] = x[k]
                     x[k] = t
                 end
-                x[k+1:k+lm] += t*abd[m+1:m+lm,k]
+                x[k+1:k+lm] += t*abd[m+1:m+lm,k:k]
             end
         end
         # now solve u*x = y
@@ -175,7 +175,7 @@ function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
             la = m - lm
             lb = k - lm
             t = -x[k]
-            x[lb:lb+lm-1] += t*abd[la:la+lm-1,k]
+            x[lb:lb+lm-1] += t*abd[la:la+lm-1,k:k]
         end
     else
         # flag = nonzero => solve transpose(a)*x = b
@@ -184,7 +184,7 @@ function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
             lm = min(k,m) - 1
             la = m - lm
             lb = k - lm
-            t = Base.LinAlg.BLAS.dot(lm,abd[la:la+lm-1,k],1,b[lb:lb+lm-1],1)
+            t = abd[la:la+lm-1,k:k].*b[lb:lb+lm-1]
             x[k] = (x[k]-t)/abd[m,k]
         end
         # now solve transpose(l)*x = y
@@ -192,7 +192,7 @@ function dgbsl(abd::Array{Float64,2}, lda::Int64, n::Int64, ml::Int64, mu::Int64
             for kb = 1:n
                 k = n - kb
                 lm = min(ml,n-k)
-                x[k] += Base.LinAlg.BLAS.dot(lm,abd[m+1:m+lm,k],1,b[k+1:k+lm],1)
+                x[k] += lm,abd[m+1:m+lm,k:k].*b[k+1:k+lm]
                 l = ipvt[k]
                 if l != k
                     t = x[l]

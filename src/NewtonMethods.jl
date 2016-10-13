@@ -44,7 +44,7 @@ SOFTWARE.
 ## Warranty
 This code has been tested up to a certain level. Defects and
 weaknesses, which may be included in the code, do not establish
-any warranties by ZIB. ZIB does not take over any liabilities
+any warranties by the author. The author does not take over any liabilities
 which may follow from acquisition or application of this code.
 """
 module NewtonMethods

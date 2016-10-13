@@ -13,7 +13,7 @@ include("ChebyPoly.jl")
 fSol  = open("nleq1.dat","w")
 fRest = open("nleq1.out","w")
 
-# We will solve Chebyshev polynomials of dimension 2 to 9
+# We will solve Chebyshev polynomials of dimensions 2 to 9
 dimMax = 9
 for dim = 2:dimMax
     n1 = dim + 1
